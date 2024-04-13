@@ -1,86 +1,40 @@
-<!doctype html>
-<html lang="en">
-
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <style>
-        .hero-section {
-            background-image: url('your-image-url.jpg');
-            background-color: #f9f9f9;
-            background-size: cover;
-            background-position: center;
-            color: #000000;
-            text-align: center;
-            padding: 250px 0px;
+        .main {
+            position: relative;
+            overflow: hidden;
+            /* Ensures that the blur effect does not overflow */
         }
 
-        .container2 {
-            background-color: #E0E0E0;
-            padding: 20px;
+        .bg-blur {
+            position: absolute;
+            height: 60rem;
+            width: 100%;
+            background: url('./img/bg-home.jpg') no-repeat;
+            background-size: cover;
+            background-position: 0% 100%;
+            filter: blur(0.5vh);
+            /* Adjust the blur amount as needed */
+            z-index: -1;
+            /* Move the blurred background behind other content */
         }
     </style>
-</head>
 
-<body>
-    <main>
-
-        <section class="hero-section">
-            <div class="container">
-                <h1 class="hero-title"><img src="img/logo.png" height="100" width="auto" class="img-fluid"></h1>
-                <p class="lead">For Scholars, by Scholars</p>
-                <form class="d-flex ms-auto">
-                    <input class="form-control me-2 rounded-pill search-bar" type="search" placeholder="Finding a comfortable accommodation?" aria-label="Search">
-                    <button class="btn btn-outline-primary rounded-pill search-btn" type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </form>
-            </div>
-        </section>
-        <section class="container2 text-center">
-            <h2>Featured Dormitories</h2><br>
-            <div class="container">
-                <div class="container text-center">
-                    <div class="row d-flex justify-content-center">
-                        <div class="col mx-auto">
-                            <div class="card">
-                                <img src="..." class="card-img-top" alt="...">
-                                <div class="card-body">
-                                    <h5 class="card-title">Dorm 1</h5>
-                                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                    <a href="#" class="btn btn-primary">Go somewhere</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col mx-auto">
-                            <div class="card">
-                                <img src="..." class="card-img-top" alt="...">
-                                <div class="card-body">
-                                    <h5 class="card-title">Dorm 2</h5>
-                                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                    <a href="#" class="btn btn-primary">Go somewhere</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="card">
-                                <img src="..." class="card-img-top" alt="...">
-                                <div class="card-body">
-                                    <h5 class="card-title">Dorm 3</h5>
-                                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                    <a href="#" class="btn btn-primary">Go somewhere</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <section class="main py-5">
+        <div class="bg-blur"></div>
+        <div class="container py-5">
+            <div class="row py-5">
+                <div class="col-lg-7 pt-5 text-left">
+                    <h1 class="text-light mb-4 fw-bold pt-5" style="font-size:3.5rem;">Student Living<br>Made Simple</h1>
+                    <p class="text-light mb-4 lead">Simplifying Student Living.</p>
+                    <a class="btn btn-success" href="index.php?page=signup">Sign Up</a>
+                    <a class="btn btn-danger" href="index.php?page=login">Login</a>
                 </div>
             </div>
-        </section>
-    </main>
-    <footer>
-        <!-- place footer here -->
-    </footer>
-</body>
+        </div>
+    </section>
 
-</html>
+    <section class="featured">
+        <div class="container py-5">
+
+        </div>
+    </section>

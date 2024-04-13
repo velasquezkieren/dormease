@@ -1,24 +1,21 @@
 <?php
-// Define a mapping of page titles
-$pageTitles = array(
-    'homepage' => 'DormEase',
-    'login' => 'Login | DormEase',
-    'about' => 'About Us | DormEase',
-    'help' => 'Help | DormEase',
-    'list' => 'List | DormEase',
-    'team' => 'Team | DormEase'
-);
-
-// Set default title
-$title = "DormEase";
-
-// Get the requested page name
-$page = isset($_GET['page']) ? ($_GET['page'] == 'index' ? 'homepage' : $_GET['page']) : 'homepage';
-
-// Check if the requested page exists in the mapping
-if (array_key_exists($page, $pageTitles)) {
-    // If the page exists, set its title
-    $title = $pageTitles[$page];
+if (isset($_GET['page'])) {
+    $page = $_GET['page'];
+    if ($page === 'login') {
+        $title = 'Login | DormEase';
+    } elseif ($page === 'feed') {
+        $title = 'Feed | DormEase';
+    } elseif ($page == 'about') {
+        $title = 'About | DormEase';
+    } elseif ($page == 'help') {
+        $title = 'Help | DormEase';
+    } elseif ($page == 'signup') {
+        $title = 'Sign Up | DormEase';
+    } else {
+        $title = 'DormEase';
+    }
+} else {
+    $title = 'DormEase';
 }
 ?>
 
@@ -26,28 +23,43 @@ if (array_key_exists($page, $pageTitles)) {
 <html lang="en">
 
 <head>
-    <link rel="icon" type="image/x-icon" href="img/favicon.png">
     <title><?php echo $title; ?></title>
-
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+    <link rel="icon" type="image/x-icon" href="./img/favicon.png">
 </head>
 
 <body>
     <header>
-        <?php include('navbar.php'); ?>
+        <?php
+        include('navbar.php');
+        ?>
     </header>
-    <main>
-        <div class="container-fluid">
-            <?php
-            $folder = isset($_GET['folder']) ? $_GET['folder'] : 'pages/';
-            $page = isset($_GET['page']) ? ($_GET['page'] == 'index' ? 'homepage' : $_GET['page']) : 'homepage';
-            require_once($folder . $page . '.php');
-            ?>
-        </div>
-
-    </main>
+    <?php
+    if (isset($_GET['page'])) {
+        $page = $_GET['page'];
+        if ($page === 'login') {
+            include('./pages/login.php');
+        } elseif ($page === 'feed') {
+            include('./pages/feed.php');
+        } elseif ($page == 'about') {
+            include('./pages/about.php');
+        } elseif ($page == 'help') {
+            include('./pages/help.php');
+        } elseif ($page == 'signup') {
+            include('./pages/signup.php');
+        } else {
+            include('./pages/homepage.php');
+        }
+    } else {
+        include('./pages/homepage.php');
+    }
+    ?>
     <footer>
-        <!-- place footer here -->
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
 </body>
 
 </html>
