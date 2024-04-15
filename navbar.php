@@ -96,15 +96,16 @@ if (isset($_GET['page'])) {
                             echo '<li class="nav-item">
                                     <a class="nav-link mx-lg-2" href="index.php?page=profile">' . $firstname . '</a>
                                   </li>';
-                            echo '<li class="nav-item">
-                                    <a class="nav-link mx-lg-2" class="login-button" href="index.php?page=logout">Logout</a>
-                                  </li>';
                         }
                         ?>
                     </ul>
                 </div>
             </div>
+
             <?php
+            if (isset($_SESSION['email'])) {
+                echo '<a class="login-button" href="index.php?page=logout">Logout</a>';
+            }
             if (!isset($_SESSION['email'])) {
                 echo '<a href="index.php?page=login" class="login-button">Login</a>';
             }
