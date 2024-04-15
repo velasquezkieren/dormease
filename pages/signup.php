@@ -2,6 +2,12 @@
 include('./config.php');
 session_start();
 
+if (isset($_SESSION['email']) && isset($_SESSION['password'])) {
+    // Redirect to the feed page or any other appropriate page
+    header("Location: index.php?page=feed");
+    exit(); // Stop further execution
+}
+
 if (isset($_POST['submit'])) {
     $firstname = $_POST['firstname'];
     $lastname = $_POST['lastname'];
