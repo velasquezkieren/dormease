@@ -1,6 +1,11 @@
 <?php
 include('./config.php');
-session_start();
+
+if (!isset($_SESSION['email']) && (!isset($_SESSION['password']))) {
+    header("location:?page=index");
+    die();
+}
+
 $email = $_SESSION['email'];
 $password = $_SESSION['password'];
 $sql = "SELECT * from users WHERE email = '$email' and password='$password'";

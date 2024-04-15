@@ -1,6 +1,12 @@
 <?php
-session_start();
 include('./config.php');
+session_start();
+
+if (isset($_SESSION['email']) && isset($_SESSION['password'])) {
+    // Redirect to the feed page or any other appropriate page
+    header("Location: index.php?page=feed");
+    exit(); // Stop further execution
+}
 
 if (isset($_POST['submit'])) {
     $email = $_POST['email'];
@@ -8,12 +14,16 @@ if (isset($_POST['submit'])) {
     $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
     $query = mysqli_query($con, $sql);
     $row = mysqli_num_rows($query);
+    $data = mysqli_fetch_assoc($query);
     if ($row < 1) {
         header("location:?page=login");
         die();
+        exit();
     } else {
         $_SESSION['email'] = $email;
         $_SESSION['password'] = $password;
+        $_SESSION['firstname'] = $data['firstname'];
+        $_SESSION['lastname'] = $data['lastname'];
         header("Location:?page=feed");
         die();
     }

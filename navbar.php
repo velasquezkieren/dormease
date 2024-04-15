@@ -1,3 +1,22 @@
+<?php
+include('config.php');
+session_start();
+
+if (isset($_SESSION['email'])) {
+    $firstname = $_SESSION['firstname']; // Get the user's first name from session
+}
+
+if (isset($_GET['page'])) {
+    $page = $_GET['page'];
+    if ($page == 'logout') {
+        session_unset();
+        session_destroy();
+        header("location:index.php");
+    }
+}
+
+?>
+
 <head>
     <style>
         .navbar {
@@ -55,7 +74,13 @@
                 <div class="offcanvas-body">
                     <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                         <li class="nav-item">
-                            <a class="nav-link mx-lg-2" aria-current="page" href="index.php?page=index">Home</a>
+                            <?php
+                            if (isset($_SESSION['email'])) {
+                                echo '<a class="nav-link mx-lg-2" aria-current="page" href="index.php?page=feed">Home</a>';
+                            } else {
+                                echo '<a class="nav-link mx-lg-2" aria-current="page" href="index.php?page=index">Home</a>';
+                            }
+                            ?>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link mx-lg-2" href="index.php?page=about">About Us</a>
@@ -66,10 +91,24 @@
                         <li class="nav-item">
                             <a class="nav-link mx-lg-2" href="index.php?page=list">List Your Property!</a>
                         </li>
+                        <?php
+                        if (isset($_SESSION['email'])) {
+                            echo '<li class="nav-item">
+                                    <a class="nav-link mx-lg-2" href="index.php?page=profile">' . $firstname . '</a>
+                                  </li>';
+                            echo '<li class="nav-item">
+                                    <a class="nav-link mx-lg-2" class="login-button" href="index.php?page=logout">Logout</a>
+                                  </li>';
+                        }
+                        ?>
                     </ul>
                 </div>
             </div>
-            <a href="index.php?page=login" class="login-button">Login</a>
+            <?php
+            if (!isset($_SESSION['email'])) {
+                echo '<a href="index.php?page=login" class="login-button">Login</a>';
+            }
+            ?>
             <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>

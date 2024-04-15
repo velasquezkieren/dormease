@@ -1,4 +1,5 @@
 <?php
+
 if (isset($_GET['page'])) {
     $page = $_GET['page'];
     if ($page === 'login') {
@@ -49,6 +50,8 @@ if (isset($_GET['page'])) {
             include('./pages/help.php');
         } elseif ($page == 'signup') {
             include('./pages/signup.php');
+        } elseif ($page == 'profile') {
+            include('./pages/profile.php');
         } else {
             include('./pages/homepage.php');
         }
