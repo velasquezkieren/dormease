@@ -86,7 +86,7 @@ if (isset($_GET['page'])) {
                             <a class="nav-link mx-lg-2" href="index.php?page=about">About Us</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link mx-lg-2" href="index.php?page=help">Help</a>
+                            <a class="nav-link mx-lg-2" href="index.php?page=find">Find a home</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link mx-lg-2" href="index.php?page=list">List Your Property!</a>
@@ -104,7 +104,7 @@ if (isset($_GET['page'])) {
 
             <?php
             if (isset($_SESSION['email'])) {
-                echo '<a class="login-button" href="index.php?page=logout">Logout</a>';
+                echo '<a class="login-button" href="index.php?page=logout">Log out</a>';
             }
             if (!isset($_SESSION['email'])) {
                 echo '<a href="index.php?page=login" class="login-button">Login</a>';
