@@ -3,7 +3,7 @@ include('./config.php');
 
 if (isset($_SESSION['email']) && isset($_SESSION['password'])) {
     // Redirect to the feed page or any other appropriate page
-    header("Location: index.php?page=feed");
+    header("Location: index.php?page=index");
     exit(); // Stop further execution
 }
 

@@ -23,7 +23,7 @@ if (isset($_POST['submit'])) {
         $_SESSION['password'] = $password;
         $_SESSION['firstname'] = $data['firstname'];
         $_SESSION['lastname'] = $data['lastname'];
-        header("Location:?page=feed");
+        header("Location:?page=index");
         die();
     }
 }

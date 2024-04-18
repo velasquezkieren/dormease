@@ -13,8 +13,7 @@
         <div class="col">
             <div class="input-group mt-5 pt-5">
                 <select class="form-select" aria-label="Default select example">
-                    <option value="Sort By" selected>Sort By</option>
-                    <option>Price - Low to High</option>
+                    <option value="Sort By" selected disabled>Sort By</option>
                     <option value="1">Price - Low to High</option>
                     <option value="2">Price - High to Low</option>
                     <option value="3">Rating - Low to High</option>

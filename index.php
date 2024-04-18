@@ -15,6 +15,8 @@ if (isset($_GET['page'])) {
         $title = 'Sign Up | DormEase';
     } elseif ($page == 'profile') {
         $title = 'Profile | DormEase';
+    } elseif ($page == 'list') {
+        $title = 'List Property | DormEase';
     } else {
         $title = 'DormEase';
     }
@@ -57,6 +59,8 @@ if (isset($_GET['page'])) {
             include('./pages/signup.php');
         } elseif ($page == 'profile') {
             include('./pages/profile.php');
+        } elseif ($page == 'list') {
+            include('./pages/list.php');
         } else {
             include('./pages/homepage.php');
         }
@@ -65,7 +69,8 @@ if (isset($_GET['page'])) {
     }
     ?>
     <footer>
-        <?php include('footer.php'); ?>
+        <?php include('footer.php'); //footer 
+        ?>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>

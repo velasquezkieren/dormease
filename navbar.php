@@ -11,7 +11,7 @@ if (isset($_GET['page'])) {
     if ($page == 'logout') {
         session_unset();
         session_destroy();
-        header("location:index.php");
+        header("location:?page=index");
     }
 }
 
@@ -74,28 +74,22 @@ if (isset($_GET['page'])) {
                 <div class="offcanvas-body">
                     <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                         <li class="nav-item">
-                            <?php
-                            if (isset($_SESSION['email'])) {
-                                echo '<a class="nav-link mx-lg-2" aria-current="page" href="index.php?page=feed">Home</a>';
-                            } else {
-                                echo '<a class="nav-link mx-lg-2" aria-current="page" href="index.php?page=index">Home</a>';
-                            }
-                            ?>
+                            <a class="nav-link mx-lg-2 <?php echo ($title == 'DormEase') ? 'active' : ''; ?>" href="index.php?page=index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link mx-lg-2" href="index.php?page=about">About Us</a>
+                            <a class="nav-link mx-lg-2 <?php echo ($title == 'About | DormEase') ? 'active' : ''; ?>" href="index.php?page=about">About Us</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link mx-lg-2" href="index.php?page=find">Find a home</a>
+                            <a class="nav-link mx-lg-2 <?php echo ($title == 'Find a Home | DormEase') ? 'active' : ''; ?>" href="index.php?page=find">Find a Home</a> <!-- should be dynamic, display this if account type is 1 -->
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link mx-lg-2" href="index.php?page=list">List Your Property!</a>
+                            <a class="nav-link mx-lg-2 <?php echo ($title == 'List Property | DormEase') ? 'active' : ''; ?>" href="index.php?page=list">List Your Property!</a> <!-- display if account type is 0 -->
                         </li>
                         <?php
                         if (isset($_SESSION['email'])) {
                             echo '<li class="nav-item">
-                                    <a class="nav-link mx-lg-2" href="index.php?page=profile">' . $firstname . '</a>
-                                  </li>';
+                                    <a class="nav-link mx-lg-2 ' . (($title == "Profile | DormEase") ? "active" : "") . '" href="index.php?page=profile">' . $firstname . '</a>
+                                  </li>'; //link to profile if signed in
                         }
                         ?>
                     </ul>
@@ -104,10 +98,10 @@ if (isset($_GET['page'])) {
 
             <?php
             if (isset($_SESSION['email'])) {
-                echo '<a class="login-button" href="index.php?page=logout">Log out</a>';
+                echo '<a class="login-button" href="index.php?page=logout">Log out</a>'; //logout button if signed in
             }
             if (!isset($_SESSION['email'])) {
-                echo '<a href="index.php?page=login" class="login-button">Login</a>';
+                echo '<a href="index.php?page=login" class="login-button">Login</a>'; //login button to sign in
             }
             ?>
             <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
