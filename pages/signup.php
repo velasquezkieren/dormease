@@ -12,6 +12,8 @@ if (isset($_POST['submit'])) {
     $lastname = $_POST['lastname'];
     $email = $_POST['email'];
     $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
+    $contact_num = $_POST['contact_num'];
     $account_type = $_POST['account_type'];
     $gender = $_POST['gender'];
 
@@ -23,7 +25,7 @@ if (isset($_POST['submit'])) {
         echo "Email already exists.";
     } else {
         // Insert user data into database
-        $insert_query = "INSERT INTO users (firstname, lastname, email, password, account_type, gender) VALUES ('$firstname', '$lastname', '$email', '$password', '$account_type', '$gender')";
+        $insert_query = "INSERT INTO users (firstname, lastname, email, password, contact_num, account_type, gender) VALUES ('$firstname', '$lastname', '$email', '$password', '$contact_num', '$account_type', '$gender')";
 
         if (mysqli_query($con, $insert_query)) {
             header("location:?page=login");
@@ -83,6 +85,24 @@ if (isset($_POST['submit'])) {
                                                 <div class="form-floating mb-3">
                                                     <input type="password" class="form-control" name="password" placeholder="Password" required>
                                                     <label for="password" class="form-label">Password</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="form-floating mb-3">
+                                                    <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
+                                                    <label for="password" class="form-label">Password</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="form-floating mb-3">
+                                                    <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
+                                                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="form-floating mb-3">
+                                                    <input type="tel" class="form-control" name="contact_num" placeholder="Contact Number" required>
+                                                    <label for="contact_num" class="form-label">Contact Number</label>
                                                 </div>
                                             </div>
                                             <div class="col-12">
