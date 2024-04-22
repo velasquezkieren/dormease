@@ -26,7 +26,7 @@ if (isset($_POST['submit'])) {
         $insert_query = "INSERT INTO users (firstname, lastname, email, password, account_type, gender) VALUES ('$firstname', '$lastname', '$email', '$password', '$account_type', '$gender')";
 
         if (mysqli_query($con, $insert_query)) {
-            echo "Registration successful!";
+            header("location:?page=login");
             // You can redirect the user to a login page or any other page after successful registration
         } else {
             echo "Error: " . $insert_query . "<br>" . mysqli_error($con);

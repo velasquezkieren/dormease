@@ -23,6 +23,7 @@ if (isset($_POST['submit'])) {
         $_SESSION['password'] = $password;
         $_SESSION['firstname'] = $data['firstname'];
         $_SESSION['lastname'] = $data['lastname'];
+        $_SESSION['account_type'] = $data['account_type'];
         header("Location:?page=index");
         die();
     }
