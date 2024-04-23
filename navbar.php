@@ -7,6 +7,7 @@ if (isset($_SESSION['email'])) {
     $account_type = $_SESSION['account_type'];
 }
 
+// logout = destroy session
 if (isset($_GET['page'])) {
     $page = $_GET['page'];
     if ($page == 'logout') {

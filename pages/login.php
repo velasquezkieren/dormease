@@ -7,25 +7,38 @@ if (isset($_SESSION['email']) && isset($_SESSION['password'])) {
     exit(); // Stop further execution
 }
 
+// condition for logging in
 if (isset($_POST['submit'])) {
+    // email validation
     $email = $_POST['email'];
+    $validate_email = filter_var($email, FILTER_VALIDATE_EMAIL);
+
+    // password sanitation
+    $pattern_pass = '/.{8,20}/';
     $password = $_POST['password'];
-    $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
-    $query = mysqli_query($con, $sql);
-    $row = mysqli_num_rows($query);
-    $data = mysqli_fetch_assoc($query);
-    if ($row < 1) {
-        header("location:?page=login");
-        die();
-        exit();
-    } else {
-        $_SESSION['email'] = $email;
-        $_SESSION['password'] = $password;
-        $_SESSION['firstname'] = $data['firstname'];
-        $_SESSION['lastname'] = $data['lastname'];
-        $_SESSION['account_type'] = $data['account_type'];
-        header("Location:?page=index");
-        die();
+    $result_password = preg_match($pattern_pass, $password);
+
+    // sanitation and validation condition
+    if ($validate_email && $result_password == 1) {
+        $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
+        $query = mysqli_query($con, $sql);
+        $row = mysqli_num_rows($query);
+        $data = mysqli_fetch_assoc($query);
+        if ($row < 1) {
+            // wrong credentials redirect back to login page
+            header("location:?page=login");
+            die();
+            exit();
+        } else {
+            // correct credentials
+            $_SESSION['email'] = $email;
+            $_SESSION['password'] = $password;
+            $_SESSION['firstname'] = $data['firstname'];
+            $_SESSION['lastname'] = $data['lastname'];
+            $_SESSION['account_type'] = $data['account_type'];
+            header("Location:?page=index");
+            die();
+        }
     }
 }
 ?>
@@ -63,7 +76,7 @@ if (isset($_POST['submit'])) {
                                             </div>
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">
-                                                    <input type="password" class="form-control" name="password" id="password" value="" placeholder="Password" required>
+                                                    <input type="password" class="form-control" name="password" id="password" value="" placeholder="Password" minlength="8" maxlength="20" required pattern=".{8,20}">
                                                     <label for="password" class="form-label">Password</label>
                                                 </div>
                                             </div>

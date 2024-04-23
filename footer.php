@@ -48,7 +48,7 @@
                     <p>
                         <!-- Here you can use rows and columns to organize your footer content. Lorem ipsum
                         dolor sit amet, consectetur adipisicing elit. -->
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem, perferendis. Non, dolores repudiandae facilis nam odit distinctio hic eius a dolor inventore excepturi quisquam necessitatibus aspernatur iste voluptatem natus neque.
+                        DormEase is a capstone project developed by Mark Oniel M. Binuya and Kieren V. Velasquez. DormEase aims to simplify the dorm hunting process of the students of Nueva Ecija University of Science and Technology.
                     </p>
                 </div>
                 <!-- Grid column -->
