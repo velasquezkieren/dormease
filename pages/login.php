@@ -9,6 +9,30 @@ if (isset($_SESSION['email']) && isset($_SESSION['password'])) {
 
 // condition for logging in
 if (isset($_POST['submit'])) {
+    // Verify CAPTCHA response
+    $captcha_response = $_POST['g-recaptcha-response'];
+    $captcha_url = 'https://www.google.com/recaptcha/api/siteverify';
+    $captcha_secret = '6LfDVMUpAAAAALRaMy-M7sEY0mPZGbj1fStxGhyl'; // Replace with your reCAPTCHA secret key
+    $data = array(
+        'secret' => $captcha_secret,
+        'response' => $captcha_response
+    );
+    $options = array(
+        'http' => array(
+            'header' => "Content-Type: application/x-www-form-urlencoded\r\n",
+            'method' => 'POST',
+            'content' => http_build_query($data)
+        )
+    );
+    $context = stream_context_create($options);
+    $verify = file_get_contents($captcha_url, false, $context);
+    $captcha_success = json_decode($verify);
+
+    if (!$captcha_success->success) {
+        // CAPTCHA verification failed, handle accordingly
+        header("Location:?page=login&captcha-failed");
+        exit(); // Stop further execution
+    }
     // email validation
     $email = $_POST['email'];
     $validate_email = filter_var($email, FILTER_VALIDATE_EMAIL);
@@ -117,6 +141,13 @@ if (isset($_POST['submit'])) {
                                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                             </div>';
                                         }
+                                        if (isset($_GET['captcha-failed'])) {
+                                            echo '
+                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                <strong>Recaptcha is required!</strong>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                            </div>';
+                                        }
                                         ?>
                                         <div class="row gy-3 overflow-hidden">
                                             <div class="col-12">
@@ -139,6 +170,7 @@ if (isset($_POST['submit'])) {
                                                     </label>
                                                 </div>
                                             </div>
+                                            <div class="col-12 g-recaptcha d-grid" data-sitekey="6LfDVMUpAAAAAEkZN-4ynoTkLnFYkCRRdZuj3iSI" required></div>
                                             <div class="col-12">
                                                 <div class="d-grid">
                                                     <button class="btn btn-dark btn-lg" name="submit" type="submit">Log in now</button>
