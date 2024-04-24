@@ -55,3 +55,50 @@ if (isset($_POST['submit'])) {
 }
 
 ?>
+
+
+<?php
+// login backup 4/24/2024
+include('./config.php');
+
+if (isset($_SESSION['email']) && isset($_SESSION['password'])) {
+    // Redirect to the feed page or any other appropriate page
+    header("Location: index.php?page=feed");
+    exit(); // Stop further execution
+}
+
+// condition for logging in
+if (isset($_POST['submit'])) {
+    // email validation
+    $email = $_POST['email'];
+    $validate_email = filter_var($email, FILTER_VALIDATE_EMAIL);
+
+    // password sanitation
+    $pattern_pass = '/.{8,20}/';
+    $password = $_POST['password'];
+    $result_password = preg_match($pattern_pass, $password);
+
+    // sanitation and validation condition
+    if ($validate_email && $result_password == 1) {
+        $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
+        $query = mysqli_query($con, $sql);
+        $row = mysqli_num_rows($query);
+        $data = mysqli_fetch_assoc($query);
+        if ($row < 1) {
+            // wrong credentials redirect back to login page
+            header("location:?page=login&not-match");
+            die();
+            exit();
+        } else {
+            // correct credentials
+            $_SESSION['email'] = $email;
+            $_SESSION['password'] = $password;
+            $_SESSION['firstname'] = $data['firstname'];
+            $_SESSION['lastname'] = $data['lastname'];
+            $_SESSION['account_type'] = $data['account_type'];
+            header("Location:?page=index");
+            die();
+        }
+    }
+}
+?>

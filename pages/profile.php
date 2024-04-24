@@ -1,7 +1,7 @@
 <?php
 include('./config.php');
 if (!isset($_SESSION['email']) && (!isset($_SESSION['password']))) {
-    header("location:?page=index");
+    header("location:?page=login&auth-required");
     die();
 }
 $email = $_SESSION['email'];

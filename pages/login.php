@@ -20,23 +20,37 @@ if (isset($_POST['submit'])) {
 
     // sanitation and validation condition
     if ($validate_email && $result_password == 1) {
-        $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
-        $query = mysqli_query($con, $sql);
-        $row = mysqli_num_rows($query);
-        $data = mysqli_fetch_assoc($query);
-        if ($row < 1) {
-            // wrong credentials redirect back to login page
-            header("location:?page=login");
-            die();
-            exit();
+        // check email if it exists
+        $checkEmail = mysqli_query($con, "SELECT * FROM users WHERE email = '$email' LIMIT 1");
+        $countEmail = mysqli_num_rows($checkEmail);
+        if ($countEmail == 1) {
+            // get password and other data
+            while ($row = mysqli_fetch_assoc($checkEmail)) {
+                $dbPassword = $row['password'];
+                $dbFirstname = $row['firstname'];
+                $dbLastname = $row['lastname'];
+                $dbAccounttype = $row['account_type'];
+            }
+
+            $verifyPassword = password_verify($password, $dbPassword);
+            if ($verifyPassword == 1) {
+                // correct password/credentials
+                $_SESSION['email'] = $email;
+                $_SESSION['firstname'] = $dbFirstname;
+                $_SESSION['lastname'] = $dbLastname;
+                $_SESSION['account_type'] = $dbAccounttype;
+
+                // redirect
+                header("Location:?page=index");
+                die();
+            } else {
+                // wrong password back to login page
+                header("location:?page=login&not-match");
+                die();
+            }
         } else {
-            // correct credentials
-            $_SESSION['email'] = $email;
-            $_SESSION['password'] = $password;
-            $_SESSION['firstname'] = $data['firstname'];
-            $_SESSION['lastname'] = $data['lastname'];
-            $_SESSION['account_type'] = $data['account_type'];
-            header("Location:?page=index");
+            // wrong email redirect back to login page
+            header("location:?page=login&not-match-email");
             die();
         }
     }
@@ -67,6 +81,46 @@ if (isset($_POST['submit'])) {
                                         </div>
                                     </div>
                                     <form action="" method="post">
+                                        <?php
+                                        // message boxes
+                                        if (isset($_GET['logout-success'])) {
+                                            echo '
+                                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                <strong>Logout Success</strong>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                            </div>
+                                            ';
+                                        }
+                                        if (isset($_GET['register-success'])) {
+                                            echo '
+                                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                <strong>Registration Success</strong>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                            </div>
+                                            ';
+                                        }
+                                        if (isset($_GET['auth-required'])) {
+                                            echo '
+                                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                                <strong>Authorization is required!</strong>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                            </div>';
+                                        }
+                                        if (isset($_GET['not-match-password'])) {
+                                            echo '
+                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                <strong>Wrong Password!</strong>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                            </div>';
+                                        }
+                                        if (isset($_GET['not-match-email'])) {
+                                            echo '
+                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                <strong>Wrong Email!</strong>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                            </div>';
+                                        }
+                                        ?>
                                         <div class="row gy-3 overflow-hidden">
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">

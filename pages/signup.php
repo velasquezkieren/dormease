@@ -37,6 +37,8 @@ if (isset($_POST['submit'])) {
     if ($password == $confirm_password) {
         $result_password = preg_match($pattern_pass, $password);
         $result_confirm_password = preg_match($pattern_pass, $confirm_password);
+        // hash password
+        $password = password_hash($password, PASSWORD_DEFAULT);
     } else {
         echo "Password doesn't match";
         die();
@@ -61,11 +63,13 @@ if (isset($_POST['submit'])) {
         if (mysqli_num_rows($check_result) > 0) {
             echo "Email already exists.";
         } else {
+
+
             // Insert user data into database
             $insert_query = "INSERT INTO users (firstname, lastname, email, password, contact_num, account_type, gender) VALUES ('$firstname', '$lastname', '$email', '$password', '$contact_num', '$account_type', '$gender')";
 
             if (mysqli_query($con, $insert_query)) {
-                header("location:?page=login");
+                header("location:?page=login&register-success");
                 // You can redirect the user to a login page or any other page after successful registration
             } else {
                 echo "Error: " . $insert_query . "<br>" . mysqli_error($con);
@@ -140,7 +144,7 @@ if (isset($_POST['submit'])) {
                                             </div>
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">
-                                                    <input type="tel" class="form-control" name="contact_num" placeholder="Contact Number" required pattern="09\d{9}">
+                                                    <input type="text" class="form-control" name="contact_num" placeholder="Contact Number" required pattern="09\d{9}">
                                                     <label for="contact_num" class="form-label">Contact Number</label>
                                                 </div>
                                             </div>
