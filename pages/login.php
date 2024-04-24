@@ -12,44 +12,41 @@ if (isset($_POST['submit'])) {
     // email validation
     $email = $_POST['email'];
     $validate_email = filter_var($email, FILTER_VALIDATE_EMAIL);
-
     // password sanitation
     $pattern_pass = '/.{8,20}/';
     $password = $_POST['password'];
     $result_password = preg_match($pattern_pass, $password);
-
     // sanitation and validation condition
     if ($validate_email && $result_password == 1) {
         // check email if it exists
         $checkEmail = mysqli_query($con, "SELECT * FROM users WHERE email = '$email' LIMIT 1");
         $countEmail = mysqli_num_rows($checkEmail);
         if ($countEmail == 1) {
-            // get password and other data
             while ($row = mysqli_fetch_assoc($checkEmail)) {
+                // fetch password and other data
                 $dbPassword = $row['password'];
                 $dbFirstname = $row['firstname'];
                 $dbLastname = $row['lastname'];
                 $dbAccounttype = $row['account_type'];
             }
-
+            // de-hash hashed password
             $verifyPassword = password_verify($password, $dbPassword);
             if ($verifyPassword == 1) {
-                // correct password/credentials
+                // store data into session if credentials are correct
                 $_SESSION['email'] = $email;
                 $_SESSION['firstname'] = $dbFirstname;
                 $_SESSION['lastname'] = $dbLastname;
                 $_SESSION['account_type'] = $dbAccounttype;
-
                 // redirect
                 header("Location:?page=index");
                 die();
             } else {
-                // wrong password back to login page
-                header("location:?page=login&not-match");
+                // wrong password, back to login page
+                header("location:?page=login&not-match-password");
                 die();
             }
         } else {
-            // wrong email redirect back to login page
+            // wrong email redirect, back to login page
             header("location:?page=login&not-match-email");
             die();
         }
@@ -82,7 +79,7 @@ if (isset($_POST['submit'])) {
                                     </div>
                                     <form action="" method="post">
                                         <?php
-                                        // message boxes
+                                        // alert box, Oniel if kaya mo mag-JQuery, para maganda user exp hehe pa-replace neto -Kieren
                                         if (isset($_GET['logout-success'])) {
                                             echo '
                                             <div class="alert alert-success alert-dismissible fade show" role="alert">
