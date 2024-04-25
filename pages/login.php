@@ -1,13 +1,13 @@
 <?php
 include('./config.php');
 
-if (isset($_SESSION['email']) && isset($_SESSION['password'])) {
+if (isset($_SESSION['u_Email'])) {
     // Redirect to the feed page or any other appropriate page
     header("Location: index.php?page=feed");
     exit(); // Stop further execution
 }
 
-// condition for logging in
+// Condition for logging in
 if (isset($_POST['submit'])) {
     // Verify CAPTCHA response
     $captcha_response = $_POST['g-recaptcha-response'];
@@ -33,46 +33,45 @@ if (isset($_POST['submit'])) {
         header("Location:?page=login&captcha-failed");
         exit(); // Stop further execution
     }
-    // email validation
+    // Email validation
     $email = $_POST['email'];
     $validate_email = filter_var($email, FILTER_VALIDATE_EMAIL);
-    // password sanitation
+    // Password sanitation
     $pattern_pass = '/.{8,20}/';
     $password = $_POST['password'];
     $result_password = preg_match($pattern_pass, $password);
-    // sanitation and validation condition
+    // Sanitation and validation condition
     if ($validate_email && $result_password == 1) {
-        // check email if it exists
-        $checkEmail = mysqli_query($con, "SELECT * FROM users WHERE email = '$email' LIMIT 1");
+        // Check if email exists
+        $checkEmail = mysqli_query($con, "SELECT * FROM users WHERE u_Email = '$email' LIMIT 1");
         $countEmail = mysqli_num_rows($checkEmail);
         if ($countEmail == 1) {
             while ($row = mysqli_fetch_assoc($checkEmail)) {
-                // fetch password and other data
-                $dbPassword = $row['password'];
-                $dbFirstname = $row['firstname'];
-                $dbLastname = $row['lastname'];
-                $dbAccounttype = $row['account_type'];
+                // Fetch password and other data
+                $dbPassword = $row['u_Password'];
+                $dbFirstname = $row['u_FName'];
+                $dbLastname = $row['u_LName'];
+                $dbAccounttype = $row['u_Account_Type'];
             }
-            // de-hash hashed password
-            $verifyPassword = password_verify($password, $dbPassword);
-            if ($verifyPassword == 1) {
-                // store data into session if credentials are correct
-                $_SESSION['email'] = $email;
-                $_SESSION['firstname'] = $dbFirstname;
-                $_SESSION['lastname'] = $dbLastname;
-                $_SESSION['account_type'] = $dbAccounttype;
-                // redirect
+            // Verify hashed password
+            if (password_verify($password, $dbPassword)) {
+                // Store data into session if credentials are correct
+                $_SESSION['u_Email'] = $email;
+                $_SESSION['u_FName'] = $dbFirstname;
+                $_SESSION['u_LName'] = $dbLastname;
+                $_SESSION['u_Account_Type'] = $dbAccounttype;
+                // Redirect
                 header("Location:?page=index");
-                die();
+                exit(); // Stop further execution after redirect
             } else {
-                // wrong password, back to login page
-                header("location:?page=login&not-match-password");
-                die();
+                // Wrong password, redirect back to login page
+                header("Location:?page=login&not-match-password");
+                exit(); // Stop further execution after redirect
             }
         } else {
-            // wrong email redirect, back to login page
-            header("location:?page=login&not-match-email");
-            die();
+            // Wrong email, redirect back to login page
+            header("Location:?page=login&not-match-email");
+            exit(); // Stop further execution after redirect
         }
     }
 }
@@ -85,7 +84,7 @@ if (isset($_POST['submit'])) {
                 <div class="card border-light-subtle shadow-sm">
                     <div class="row g-0">
                         <div class="col-12 col-md-6">
-                            <img class="img-fluid rounded-start w-100 h-100 object-fit-cover d-none d-md-block" loading="lazy" src="./img/stock.jpg"">
+                            <img class="img-fluid rounded-start w-100 h-100 object-fit-cover d-none d-md-block" loading="lazy" src="./img/yellow.jpg"">
                         </div>
                         <div class=" col-12 col-md-6 d-flex align-items-center justify-content-center">
                             <div class="col-12 col-lg-11 col-xl-10">

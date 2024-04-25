@@ -27,7 +27,7 @@
                 <h1 class="text-light mb-4 fw-bold pt-5" style="font-size:3.5rem;">Student Living<br>Made Simple</h1>
                 <p class="text-light mb-4 lead">Simplifying Student Living.</p>
                 <?php
-                if (!isset($_SESSION['email']) && (!isset($_SESSION['password']))) {
+                if (!isset($_SESSION['u_Email'])) {
                     echo '<a class="btn btn-outline-light btn-md" href="index.php?page=signup">Sign Up</a>
                 <a class="btn btn-light btn-lmd" href="index.php?page=login">Login</a>';
                 }
@@ -47,15 +47,6 @@
             </div>
         </div>
         <div class="row">
-            <!-- <div class="col-lg-3 text-center">
-                <div class="card border-0 bg-light mb-2">
-                    <div class="card-body">
-                        <img src="img/sample.jpg" class="img-fluid">
-                    </div>
-                </div>
-                <h6>Sample</h6>
-                <p>$36.33</p>
-            </div> -->
             <div class="col-lg-3 border-0 card mb-2">
                 <img src="img/sample.jpg" class="card-img-top" alt="...">
                 <div class="card-body">

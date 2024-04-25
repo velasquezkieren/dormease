@@ -1,17 +1,16 @@
 <?php
 include('./config.php');
-if (!isset($_SESSION['email']) && (!isset($_SESSION['password']))) {
+if (!isset($_SESSION['u_Email'])) {
     header("location:?page=login&auth-required");
     die();
 }
-$email = $_SESSION['email'];
-$password = $_SESSION['password'];
-$sql = "SELECT * from users WHERE email = '$email' and password='$password'";
+$email = $_SESSION['u_Email'];
+$sql = "SELECT * from users WHERE u_Email = '$email'";
 $query = mysqli_query($con, $sql);
 $data = mysqli_fetch_assoc($query);
 
-$lastname = $data['lastname'];
-$firstname = $data['firstname'];
+$lastname = $data['u_LName'];
+$firstname = $data['u_FName'];
 $fullname =  ucwords($firstname) . " " . ucwords($lastname);
 ?>
 

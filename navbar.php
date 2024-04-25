@@ -2,9 +2,9 @@
 include('config.php');
 session_start();
 
-if (isset($_SESSION['email'])) {
-    $firstname = $_SESSION['firstname']; // Get the user's first name from session
-    $account_type = $_SESSION['account_type']; // Get the user's account type from session
+if (isset($_SESSION['u_Email'])) {
+    $firstname = $_SESSION['u_FName']; // Get the user's first name from session
+    $account_type = $_SESSION['u_Account_Type']; // Get the user's account type from session
 }
 
 // logout = destroy session
@@ -38,11 +38,11 @@ if (isset($_GET['page'])) {
                     </li>
                     <?php
                     // account
-                    if (isset($_SESSION['account_type']) && $_SESSION['account_type'] == 1) {
+                    if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) {
                         echo '<li class="nav-item">
                             <a class="nav-link mx-lg-2 ' . (($title == 'Find a Home | DormEase') ? 'active' : '') . '" href="index.php?page=find">Find a Home</a>
                             </li>';
-                    } elseif (isset($_SESSION['account_type']) && $_SESSION['account_type'] == 0) {
+                    } elseif (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
 
                         echo '<li class="nav-item">
                             <a class="nav-link mx-lg-2 ' . (($title == 'List Property | DormEase') ? 'active' : '') . '" href="index.php?page=list">List Your Property!</a>
@@ -57,7 +57,7 @@ if (isset($_GET['page'])) {
                     }
                     ?>
                     <?php
-                    if (isset($_SESSION['email'])) {
+                    if (isset($_SESSION['u_Email'])) {
                         echo '<li class="nav-item">
                                     <a class="nav-link mx-lg-2 ' . (($title == "Profile | DormEase") ? "active" : "") . '" href="index.php?page=profile">' . $firstname . '</a>
                                   </li>'; //link to profile if signed in
@@ -68,10 +68,10 @@ if (isset($_GET['page'])) {
         </div>
 
         <?php
-        if (isset($_SESSION['email'])) {
+        if (isset($_SESSION['u_Email'])) {
             echo '<a class="login-button" href="index.php?page=logout">Log out</a>'; //logout button if signed in
         }
-        if (!isset($_SESSION['email'])) {
+        if (!isset($_SESSION['u_Email'])) {
             echo '<a href="index.php?page=login" class="login-button">Login</a>'; //login button to sign in
         }
         ?>

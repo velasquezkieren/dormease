@@ -1,8 +1,8 @@
 <?php
 include('config.php');
 if (isset($_POST['submit'])) {
-    if (!isset($_SESSION['email']) && isset($_SESSION['password'])) {
-        header('location:?page=login');
+    if (!isset($_SESSION['u_Email'])) {
+        header('location:?page=login&auth-required');
         die();
     }
 }
@@ -15,7 +15,7 @@ if (isset($_POST['submit'])) {
                 <div class="card border-light-subtle shadow-sm">
                     <div class="row g-0">
                         <div class="col-12">
-                            <div class="card-body p-3 p-md-4 p-xl-5">
+                            <div class="card-body p-3 p-md-4 p-xl-5" id="firstFormSection">
                                 <div class="row">
                                     <div class="col-12">
                                         <div class="mb-5">
@@ -24,7 +24,7 @@ if (isset($_POST['submit'])) {
                                                     <img class="img-fluid rounded-start" src="./img/logo.png" width="30%" height="auto">
                                                 </a>
                                             </div>
-                                            <h2 class="h4 text-center">Property</h2>
+                                            <h2 class="h4 text-center">Tell us about your property!</h2>
                                         </div>
                                     </div>
                                 </div>
@@ -56,13 +56,40 @@ if (isset($_POST['submit'])) {
                                         <label for="inputZip" class="form-label">Zip</label>
                                         <input type="text" class="form-control" id="inputZip">
                                     </div>
+                                    <div class="col-12">
+                                        <button type="button" class="btn btn-primary" onclick="showNextForm()">Next</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="p-3 p-md-4 p-xl-5" style="display:none;" id="secondFormSection">
+    <div class="container" style="padding-top:80px;">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xxl-11">
+                <div class="card border-light-subtle shadow-sm">
+                    <div class="row g-0">
+                        <div class="col-12">
+                            <div class="card-body p-3 p-md-4 p-xl-5">
+                                <hr>
+                                <h2 class="h4 text-center">Describe your property</h2>
+                                <form class="row g-3" enctype="multipart/form-data">
+                                    <div class="col-12">
+                                        <label for="propertyDescription" class="form-label">Property Description</label>
+                                        <textarea class="form-control" id="propertyDescription" rows="5"></textarea>
+                                    </div>
                                     <div class="col-md-6">
                                         <div class="form-file">
-                                            <label class="form-label">Dorm Image</label>
-                                            <input type="file" class="form-control" name="profile_picture" accept="image/*">
+                                            <label class="form-label">Upload Images</label>
+                                            <input type="file" class="form-control" name="propertyImages[]" accept="image/*" multiple>
                                         </div>
                                     </div>
-
                                     <div class="col-12">
                                         <button type="submit" class="btn btn-primary">Submit</button>
                                     </div>
@@ -75,3 +102,10 @@ if (isset($_POST['submit'])) {
         </div>
     </div>
 </section>
+
+<script>
+    function showNextForm() {
+        document.getElementById('firstFormSection').style.display = 'none';
+        document.getElementById('secondFormSection').style.display = 'block';
+    }
+</script>

@@ -1,13 +1,14 @@
 <?php
 include('./config.php');
 
-// check session for email and pass
-if (isset($_SESSION['email']) && isset($_SESSION['password'])) {
+// Check session for email and password
+if (isset($_SESSION['u_Email']) && isset($_SESSION['u_Password'])) {
     // Redirect to the feed page or any other appropriate page
     header("Location: index.php?page=index");
     exit(); // Stop further execution
 }
-// condition sa signup  nahihilo na ko -kieren
+
+// Condition for signup
 if (isset($_POST['submit'])) {
     // Verify CAPTCHA response
     $captcha_response = $_POST['g-recaptcha-response'];
@@ -33,7 +34,8 @@ if (isset($_POST['submit'])) {
         header("Location: ?page=signup&captcha-failed");
         exit();
     }
-    // sanitize first and last name
+
+    // Sanitize first and last name
     $pattern_name = '/^[A-Za-z]+(?:-[A-Za-z]+)*$/';
     $firstname = $_POST['firstname'];
     $lastname = $_POST['lastname'];
@@ -41,64 +43,65 @@ if (isset($_POST['submit'])) {
     $result_firstname = preg_match($pattern_name, $firstname);
     $result_lastname = preg_match($pattern_name, $lastname);
 
-    // validate email and confirm email
+    // Validate email and confirm email
     $email = $_POST['email'];
     $confirm_email = $_POST['confirm_email'];
-    // check if match
+
+    // Check if emails match
     if ($email == $confirm_email) {
         $validate_email = filter_var($email, FILTER_VALIDATE_EMAIL);
         $validate_confirm_email = filter_var($confirm_email, FILTER_VALIDATE_EMAIL);
     } else {
-        echo "Email doesn't match";
+        echo "Emails don't match";
         die();
     }
 
-    // sanitize password
+    // Sanitize password
     $pattern_pass = '/.{8,20}/';
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
-    // check if match
+
+    // Check if passwords match
     if ($password == $confirm_password) {
         $result_password = preg_match($pattern_pass, $password);
         $result_confirm_password = preg_match($pattern_pass, $confirm_password);
-        // hash password
-        $password = password_hash($password, PASSWORD_DEFAULT);
+        // Hash password
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
     } else {
-        echo "Password doesn't match";
+        echo "Passwords don't match";
         die();
     }
 
-    // sanitize contact number
+    // Sanitize contact number
     $pattern_contact = '/09\d{9}/';
     $contact_num = $_POST['contact_num'];
     $result_contact = preg_match($pattern_contact, $contact_num);
 
-    // condition for sanitation and validation
+    // Condition for sanitation and validation
     if ($result_firstname == 1 && $result_lastname == 1 && $validate_email && $validate_confirm_email && $result_password == 1 && $result_confirm_password == 1 && $result_contact == 1) {
-        // pasok yung data from radio buttons
+        // Get account type and gender
         $account_type = $_POST['account_type'];
         $gender = $_POST['gender'];
 
-        // check if existing email na yung nireregister ni user
-        $check_query = "SELECT * FROM users WHERE email = '$email'";
+        // Check if email already exists
+        $check_query = "SELECT * FROM users WHERE u_Email = '$email'";
         $check_result = mysqli_query($con, $check_query);
 
-        // condition na para sa bwakananginang insert database
-        if (mysqli_num_rows($check_result) > 0) {
-            echo "Email already exists.";
-        } else {
-
-
-            // Insert user data into database
-            $insert_query = "INSERT INTO users (firstname, lastname, email, password, contact_num, account_type, gender) VALUES ('$firstname', '$lastname', '$email', '$password', '$contact_num', '$account_type', '$gender')";
+        // If email doesn't exist, insert user data into the database
+        if (mysqli_num_rows($check_result) == 0) {
+            $insert_query = "INSERT INTO users (u_FName, u_LName, u_Email, u_Password, u_Contact_Number, u_Account_Type, u_Gender) 
+                             VALUES ('$firstname', '$lastname', '$email', '$password_hash', '$contact_num', '$account_type', '$gender')";
 
             if (mysqli_query($con, $insert_query)) {
                 header("location:?page=login&register-success");
-                // You can redirect the user to a login page or any other page after successful registration
+                exit(); // Stop further execution after redirect
             } else {
                 echo "Error: " . $insert_query . "<br>" . mysqli_error($con);
                 die();
             }
+        } else {
+            echo "Email already exists.";
+            die();
         }
     }
 }
@@ -111,7 +114,7 @@ if (isset($_POST['submit'])) {
                 <div class="card border-light-subtle shadow-sm">
                     <div class="row g-0">
                         <div class="col-12 col-md-6">
-                            <img class="img-fluid rounded-start w-100 h-100 object-fit-cover d-none d-md-block" loading="lazy" src="./img/stock.jpg" alt="Welcome back you've been missed!">
+                            <img class="img-fluid rounded-start w-100 h-100 object-fit-cover d-none d-md-block" loading="lazy" src="./img/yellow.jpg">
                         </div>
                         <div class="col-12 col-md-6 d-flex align-items-center justify-content-center">
                             <div class="col-12 col-lg-11 col-xl-10">
