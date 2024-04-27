@@ -22,16 +22,15 @@
         </div>
 
         <div class="row" style="margin-top: 50px;">
-
             <div class="col-md-6 py-3 py-md-0">
-                <div class="card">
-                    <img src="./images/about-img.png" alt="">
+                <div class="card border-0">
+                    <img class="thumbnail" src="./img/logo-about.png" alt="">
                 </div>
             </div>
 
             <div class="col-md-6 py-3 py-md-0">
-                <h2>About Us</h2>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident perferendis dolorem, numquam earum at nam beatae voluptate natus consectetur facere, saepe cupiditate ut exercitationem deserunt, facilis quam perspiciatis autem iure illo harum minima. Quas, vitae aperiam laudantium alias asperiores nulla rerum, nihil eveniet perferendis sint illum accusamus officiis aliquam nam.</p>
+                <h2 class="mb-2">About Us</h2>
+                <p class="lead">DormEase, a brainchild of Mark Oniel M. Binuya and Kieren V. Velasquez, emerges as a beacon of convenience in the realm of student housing. Developed as a capstone project, it stands as a testament to innovation and foresight. With a focused mission to simplify the often arduous task of dorm hunting, DormEase caters specifically to the students of Nueva Ecija University of Science and Technology. Through intuitive design and user-friendly features, it aims to streamline the process, empowering students to find their ideal accommodations effortlessly. DormEase embodies the spirit of efficiency and student-centricity, ensuring a smoother transition into university life.</p>
             </div>
 
         </div>
