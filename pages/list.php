@@ -1,97 +1,124 @@
 <?php
-include('config.php');
-if (isset($_POST['submit'])) {
-    if (!isset($_SESSION['u_Email'])) {
-        header('location:?page=login&auth-required');
-        die();
-    }
+// inaccessible for students
+if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) {
+    header('Location: ?page=index');
+    die();
 }
+
+// submit
+if (isset($_POST['submit'])) {
+    // Sanitize input
+    $d_Name = mysqli_real_escape_string($conn, $_POST['d_Name']);
+    $d_Address = mysqli_real_escape_string($conn, $_POST['d_Address']);
+    $d_Type = mysqli_real_escape_string($conn, $_POST['d_Type']);
+    $d_Capacity = mysqli_real_escape_string($conn, $_POST['d_Capacity']);
+    $d_Price = mysqli_real_escape_string($conn, $_POST['d_Rent']);
+    $d_Desc = mysqli_real_escape_string($conn, $_POST['d_Desc']);
+
+    // File Upload
+    $uploadDir = 'uploads/'; // Directory where uploaded files will be saved
+    $uploadedFiles = array();
+    foreach ($_FILES['upload']['name'] as $key => $filename) {
+        $tmp_name = $_FILES['upload']['tmp_name'][$key];
+        $targetFile = $uploadDir . basename($filename);
+        if (move_uploaded_file($tmp_name, $targetFile)) {
+            $uploadedFiles[] = $targetFile;
+        } else {
+            echo "Error uploading file " . $filename . "<br>";
+        }
+    }
+
+    // Insert data into the database
+    $sql = "INSERT INTO your_table_name (d_Name, d_Address, d_Type, d_Capacity, d_Price, d_Desc, file_path) VALUES ('$d_Name', '$d_Address', '$d_Type', '$d_Capacity', '$d_Price', '$d_Desc', '" . implode(",", $uploadedFiles) . "')";
+
+    if (mysqli_query($conn, $sql)) {
+        echo "New record created successfully";
+    } else {
+        echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+    }
+
+    // Close connection
+    mysqli_close($conn);
+}
+
 ?>
 
+<style>
+    #dropArea {
+        border: 2px dashed #ccc;
+        padding: 20px;
+        text-align: center;
+    }
+
+    #dropArea.highlight {
+        border-color: #007bff;
+    }
+</style>
+<!-- top section -->
 <section class="p-3 p-md-4 p-xl-5">
-    <div class="container" style="padding-top:80px;">
-        <div class="row justify-content-center">
-            <div class="col-12 col-xxl-11">
-                <div class="card border-light-subtle shadow-sm">
-                    <div class="row g-0">
-                        <div class="col-12">
-                            <div class="card-body p-3 p-md-4 p-xl-5" id="firstFormSection">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="mb-5">
-                                            <div class="text-center mb-4">
-                                                <a href="">
-                                                    <img class="img-fluid rounded-start" src="./img/logo.png" width="30%" height="auto">
-                                                </a>
-                                            </div>
-                                            <h2 class="h4 text-center">Tell us about your property!</h2>
-                                        </div>
-                                    </div>
-                                </div>
-                                <form class="row g-3" enctype="multipart/form-data">
-                                    <div class="col-12">
-                                        <label for="inputEmail" class="form-label">Property Name</label>
-                                        <input type="email" class="form-control" id="inputEmail" placeholder="name@example.com">
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="inputAddress" class="form-label">Address</label>
-                                        <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="inputAddress2" class="form-label">Address 2</label>
-                                        <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor">
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="inputCity" class="form-label">City</label>
-                                        <input type="text" class="form-control" id="inputCity">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="inputState" class="form-label">State</label>
-                                        <select id="inputState" class="form-select">
-                                            <option selected>Choose...</option>
-                                            <option>...</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label for="inputZip" class="form-label">Zip</label>
-                                        <input type="text" class="form-control" id="inputZip">
-                                    </div>
-                                    <div class="col-12">
-                                        <button type="button" class="btn btn-primary" onclick="showNextForm()">Next</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="container p-xl-5" style="margin-top: 100px;">
+        <div class="row">
+            <div class="col-12 col-md-8 offset-md-2 col-xl-6 offset-xl-1">
+                <h1 class="fw-bold">List your property</h1>
+                <p class="text-left lead">Listing your dormitory space online for rent has never been simpler. If you're eager to find tenants for your dormitory, just share some details about your space and yourself, and we'll connect you with genuine renters offering the best rates in the market.</p>
+                <a href="#list-property" class="btn btn-dark btn-lg">Get Started</a>
             </div>
         </div>
     </div>
 </section>
 
-<section class="p-3 p-md-4 p-xl-5" style="display:none;" id="secondFormSection">
-    <div class="container" style="padding-top:80px;">
+<!-- form section -->
+<section class="p-3 p-md-4 p-xl-5 bg-light-subtle">
+    <div class="container">
         <div class="row justify-content-center">
-            <div class="col-12 col-xxl-11">
+            <div class="col-12 col-xxl-11" id="list-property">
+                <h2 class="h2 mb-4">Tell us about your property!</h2>
                 <div class="card border-light-subtle shadow-sm">
                     <div class="row g-0">
                         <div class="col-12">
                             <div class="card-body p-3 p-md-4 p-xl-5">
-                                <hr>
-                                <h2 class="h4 text-center">Describe your property</h2>
-                                <form class="row g-3" enctype="multipart/form-data">
+                                <form action="" class="row g-3" enctype="multipart/form-data" method="post">
                                     <div class="col-12">
-                                        <label for="propertyDescription" class="form-label">Property Description</label>
-                                        <textarea class="form-control" id="propertyDescription" rows="5"></textarea>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-file">
-                                            <label class="form-label">Upload Images</label>
-                                            <input type="file" class="form-control" name="propertyImages[]" accept="image/*" multiple>
+                                        <div class="form-floating mb-3">
+                                            <input type="d_Name" class="form-control" id="floatingInput" placeholder="Dorm Name" required>
+                                            <label for="floatingInput">Dorm Name</label>
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                        <div class="form-floating mb-3">
+                                            <input type="d_Address" class="form-control" id="d_Address" placeholder="Address" required>
+                                            <label for="d_Address">Address</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select id="d_Type" name="d_Type" class="form-select" required>
+                                            <option selected disabled>Dorm Type</option>
+                                            <option value="single">Single</option>
+                                            <option value="shared">Shared</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="number" name="d_Capacity" class="form-control" id="d_Capacity" placeholder="Capacity" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <span class="input-group-text">₱</span>
+                                            <input type="number" class="form-control" id="d_Rent" name="d_Rent" placeholder="Rent Price" min="500" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <label for="d_Desc" class="form-label">Property Description</label>
+                                        <textarea class="form-control" name="d_Desc" id="d_Desc" rows="5" required></textarea>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-file" id="dropArea">
+                                            <label class="form-label">Drag and drop images here or click to upload</label>
+                                            <input type="file" name="upload" class="form-control" name="propertyImages[]" accept=".png, .jpg, .gif" multiple required>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <input type="submit" value="Submit" name="submit" class="btn btn-dark">
                                     </div>
                                 </form>
                             </div>
@@ -102,10 +129,3 @@ if (isset($_POST['submit'])) {
         </div>
     </div>
 </section>
-
-<script>
-    function showNextForm() {
-        document.getElementById('firstFormSection').style.display = 'none';
-        document.getElementById('secondFormSection').style.display = 'block';
-    }
-</script>

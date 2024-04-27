@@ -1,6 +1,4 @@
 <?php
-include('./config.php');
-
 if (isset($_SESSION['u_Email'])) {
     // Redirect to the feed page or any other appropriate page
     header("Location: index.php?page=feed");
@@ -33,13 +31,16 @@ if (isset($_POST['submit'])) {
         header("Location:?page=login&captcha-failed");
         exit(); // Stop further execution
     }
+
     // Email validation
-    $email = $_POST['email'];
+    $email = mysqli_real_escape_string($con, $_POST['email']);
     $validate_email = filter_var($email, FILTER_VALIDATE_EMAIL);
+
     // Password sanitation
     $pattern_pass = '/.{8,20}/';
-    $password = $_POST['password'];
+    $password = mysqli_real_escape_string($con, $_POST['password']);
     $result_password = preg_match($pattern_pass, $password);
+
     // Sanitation and validation condition
     if ($validate_email && $result_password == 1) {
         // Check if email exists
@@ -76,6 +77,7 @@ if (isset($_POST['submit'])) {
     }
 }
 ?>
+
 
 <section class="p-3 p-md-4 p-xl-5">
     <div class="container" style="padding-top: 80px;">

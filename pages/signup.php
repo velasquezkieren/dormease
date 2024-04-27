@@ -1,8 +1,6 @@
 <?php
-include('./config.php');
-
 // Check session for email and password
-if (isset($_SESSION['u_Email']) && isset($_SESSION['u_Password'])) {
+if (isset($_SESSION['u_Email'])) {
     // Redirect to the feed page or any other appropriate page
     header("Location: index.php?page=index");
     exit(); // Stop further execution
@@ -37,15 +35,15 @@ if (isset($_POST['submit'])) {
 
     // Sanitize first and last name
     $pattern_name = '/^[A-Za-z]+(?:-[A-Za-z]+)*$/';
-    $firstname = $_POST['firstname'];
-    $lastname = $_POST['lastname'];
+    $firstname = mysqli_real_escape_string($con, $_POST['firstname']);
+    $lastname = mysqli_real_escape_string($con, $_POST['lastname']);
 
     $result_firstname = preg_match($pattern_name, $firstname);
     $result_lastname = preg_match($pattern_name, $lastname);
 
     // Validate email and confirm email
-    $email = $_POST['email'];
-    $confirm_email = $_POST['confirm_email'];
+    $email = mysqli_real_escape_string($con, $_POST['email']);
+    $confirm_email = mysqli_real_escape_string($con, $_POST['confirm_email']);
 
     // Check if emails match
     if ($email == $confirm_email) {
@@ -58,8 +56,8 @@ if (isset($_POST['submit'])) {
 
     // Sanitize password
     $pattern_pass = '/.{8,20}/';
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
+    $password = mysqli_real_escape_string($con, $_POST['password']);
+    $confirm_password = mysqli_real_escape_string($con, $_POST['confirm_password']);
 
     // Check if passwords match
     if ($password == $confirm_password) {
@@ -74,14 +72,14 @@ if (isset($_POST['submit'])) {
 
     // Sanitize contact number
     $pattern_contact = '/09\d{9}/';
-    $contact_num = $_POST['contact_num'];
+    $contact_num = mysqli_real_escape_string($con, $_POST['contact_num']);
     $result_contact = preg_match($pattern_contact, $contact_num);
 
     // Condition for sanitation and validation
     if ($result_firstname == 1 && $result_lastname == 1 && $validate_email && $validate_confirm_email && $result_password == 1 && $result_confirm_password == 1 && $result_contact == 1) {
         // Get account type and gender
-        $account_type = $_POST['account_type'];
-        $gender = $_POST['gender'];
+        $account_type = mysqli_real_escape_string($con, $_POST['account_type']);
+        $gender = mysqli_real_escape_string($con, $_POST['gender']);
 
         // Check if email already exists
         $check_query = "SELECT * FROM users WHERE u_Email = '$email'";
