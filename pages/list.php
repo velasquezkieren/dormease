@@ -18,7 +18,7 @@ if (isset($_POST['submit'])) {
     // File Upload
     $uploadDir = 'uploads/'; // Directory where uploaded files will be saved
     $uploadedFiles = array();
-    foreach ($_FILES['upload']['name'] as $key => $filename) {
+    foreach ($_FILES['upload']['name'] as $key => $filename) { // wala pa yung pag filter ng size, let's say, limit natin maximum eh 25 mb yung file size
         $tmp_name = $_FILES['upload']['tmp_name'][$key];
         $targetFile = $uploadDir . basename($filename);
         if (move_uploaded_file($tmp_name, $targetFile)) {
@@ -36,9 +36,6 @@ if (isset($_POST['submit'])) {
     } else {
         echo "Error: " . $sql . "<br>" . mysqli_error($conn);
     }
-
-    // Close connection
-    mysqli_close($conn);
 }
 
 ?>
