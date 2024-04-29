@@ -98,7 +98,7 @@ if (isset($_POST['submit'])) {
                 die();
             }
         } else {
-            echo "Email already exists.";
+            header("location:&email-exists");
             die();
         }
     }
@@ -125,7 +125,6 @@ if (isset($_POST['submit'])) {
                                                         <img class="img-fluid rounded-start" src="./img/logo.png" width="auto" height="70">
                                                     </a>
                                                 </div>
-                                                <h2 class="h4 text-center">Registration</h2>
                                             </div>
                                         </div>
                                     </div>
@@ -149,6 +148,13 @@ if (isset($_POST['submit'])) {
                                             echo '
                                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                                 <strong>Password does not match!</strong>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                            </div>';
+                                        }
+                                        if (isset($_GET['email-exists'])) {
+                                            echo '
+                                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                                <strong>Email already exists!</strong>
                                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                             </div>';
                                         }
