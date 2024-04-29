@@ -240,7 +240,7 @@ if (isset($_POST['submit'])) {
                                     </form>
                                     <div class="row">
                                         <div class="col-12">
-                                            <p class="mb-0 mt-5 text-secondary text-center">Already have an account? <a href=".?page=login" class="link-primary text-decoration-none">Sign in</a></p>
+                                            <p class="mb-0 mt-5 text-secondary text-center">Already have an account? <a href="login" class="link-primary text-decoration-none">Sign in</a></p>
                                         </div>
                                     </div>
                                 </div>
