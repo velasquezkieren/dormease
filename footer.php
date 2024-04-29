@@ -61,13 +61,13 @@
                         Useful links
                     </h6>
                     <p>
-                        <a href="index.php?page=about" class="text-reset">About Us</a>
+                        <a href="about" class="text-reset">About Us</a>
                     </p>
                     <p>
-                        <a href="index.php?page=find" class="text-reset">Find a Home</a>
+                        <a href="find" class="text-reset">Find a Home</a>
                     </p>
                     <p>
-                        <a href="index.php?page=list" class="text-reset">List Your Property!</a>
+                        <a href="list" class="text-reset">List Your Property!</a>
                     </p>
                 </div>
                 <!-- Grid column -->
