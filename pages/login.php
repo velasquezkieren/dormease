@@ -1,7 +1,7 @@
 <?php
 if (isset($_SESSION['u_Email'])) {
     // Redirect to the feed page or any other appropriate page
-    header("Location: index.php?page=feed");
+    header("Location: home");
     exit(); // Stop further execution
 }
 
@@ -28,7 +28,7 @@ if (isset($_POST['submit'])) {
 
     if (!$captcha_success->success) {
         // CAPTCHA verification failed, handle accordingly
-        header("Location:?page=login&captcha-failed");
+        header("location:login&captcha-failed");
         exit(); // Stop further execution
     }
 
@@ -62,16 +62,16 @@ if (isset($_POST['submit'])) {
                 $_SESSION['u_LName'] = $dbLastname;
                 $_SESSION['u_Account_Type'] = $dbAccounttype;
                 // Redirect
-                header("Location:?page=index");
+                header("Location:home");
                 exit(); // Stop further execution after redirect
             } else {
                 // Wrong password, redirect back to login page
-                header("Location:?page=login&not-match-password");
+                header("Location:login&pw-not-match");
                 exit(); // Stop further execution after redirect
             }
         } else {
             // Wrong email, redirect back to login page
-            header("Location:?page=login&not-match-email");
+            header("Location:login&email-not-match");
             exit(); // Stop further execution after redirect
         }
     }
@@ -128,14 +128,14 @@ if (isset($_POST['submit'])) {
                                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                             </div>';
                                         }
-                                        if (isset($_GET['not-match-password'])) {
+                                        if (isset($_GET['pw-not-match'])) {
                                             echo '
                                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                                 <strong>Wrong Password!</strong>
                                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                             </div>';
                                         }
-                                        if (isset($_GET['not-match-email'])) {
+                                        if (isset($_GET['email-not-match'])) {
                                             echo '
                                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                                 <strong>Wrong Email!</strong>
@@ -182,7 +182,7 @@ if (isset($_POST['submit'])) {
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="d-flex gap-2 gap-md-4 flex-column flex-md-row justify-content-md-center mt-5">
-                                                <a href="index.php?page=signup" class="link-secondary text-decoration-none">Create new account</a>
+                                                <a href="signup" class="link-secondary text-decoration-none">Create new account</a>
                                             </div>
                                         </div>
                                     </div>

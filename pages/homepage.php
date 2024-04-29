@@ -28,8 +28,8 @@
                 <p class="text-light mb-4 lead">Simplifying Student Living.</p>
                 <?php
                 if (!isset($_SESSION['u_Email'])) {
-                    echo '<a class="btn btn-outline-light btn-md" href="index.php?page=signup">Sign Up</a>
-                <a class="btn btn-light btn-lmd" href="index.php?page=login">Login</a>';
+                    echo '<a class="btn btn-outline-light btn-md" href="signup">Sign Up</a>
+                <a class="btn btn-light btn-lmd" href="login">Login</a>';
                 }
                 ?>
 

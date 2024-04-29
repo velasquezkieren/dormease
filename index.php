@@ -1,26 +1,28 @@
 <?php
-
-// title bar page
-if (isset($_GET['page'])) {
-    $page = $_GET['page'];
-    if ($page === 'login') {
-        $title = 'Login | DormEase';
-    } elseif ($page == 'about') {
+$page = isset($_GET['page']) ? $_GET['page'] : 'index';
+switch ($page) {
+    case 'about':
         $title = 'About | DormEase';
-    } elseif ($page == 'find') {
+        break;
+    case 'find':
         $title = 'Find a Home | DormEase';
-    } elseif ($page == 'signup') {
-        $title = 'Sign Up | DormEase';
-    } elseif ($page == 'profile') {
-        $title = 'Profile | DormEase';
-    } elseif ($page == 'list') {
+        break;
+    case 'list':
         $title = 'List Property | DormEase';
-    } else {
+        break;
+    case 'profile':
+        $title = 'Profile | DormEase';
+        break;
+    case 'login':
+        $title = 'Login | DormEase';
+        break;
+    case 'signup':
+        $title = 'Sign Up | DormEase';
+        break;
+    default:
         $title = 'DormEase';
-    }
-} else {
-    $title = 'DormEase';
 }
+
 ?>
 
 <!doctype html>
@@ -85,27 +87,32 @@ if (isset($_GET['page'])) {
         include('navbar.php'); //navbar
         ?>
     </header>
-    <!-- navigation links -->
     <?php
-    if (isset($_GET['page'])) {
-        $page = $_GET['page'];
-        if ($page === 'login') {
-            include('./pages/login.php');
-        } elseif ($page == 'about') {
+    // navigation links
+    $page = isset($_GET['page']) ? $_GET['page'] : 'index';
+
+    switch ($page) {
+        case 'about':
             include('./pages/about.php');
-        } elseif ($page == 'find') {
+            break;
+        case 'find':
             include('./pages/find.php');
-        } elseif ($page == 'signup') {
-            include('./pages/signup.php');
-        } elseif ($page == 'profile') {
-            include('./pages/profile.php');
-        } elseif ($page == 'list') {
+            break;
+        case 'list':
             include('./pages/list.php');
-        } else {
+            break;
+        case 'profile':
+            include('./pages/profile.php');
+            break;
+        case 'login':
+            include('./pages/login.php');
+            break;
+        case 'signup':
+            include('./pages/signup.php');
+            break;
+        default:
             include('./pages/homepage.php');
-        }
-    } else {
-        include('./pages/homepage.php');
+            break;
     }
     ?>
     <footer>

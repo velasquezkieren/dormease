@@ -1,7 +1,7 @@
 <?php
 include('./config.php');
 if (!isset($_SESSION['u_Email'])) {
-    header("location:?page=login&auth-required");
+    header("location:login&auth-required");
     die();
 }
 $email = $_SESSION['u_Email'];

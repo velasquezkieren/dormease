@@ -2,7 +2,7 @@
 // Check session for email and password
 if (isset($_SESSION['u_Email'])) {
     // Redirect to the feed page or any other appropriate page
-    header("Location: index.php?page=index");
+    header("Location:home");
     exit(); // Stop further execution
 }
 
@@ -29,7 +29,7 @@ if (isset($_POST['submit'])) {
 
     if (!$captcha_result->success) {
         // CAPTCHA verification failed, handle accordingly
-        header("Location: ?page=signup&captcha-failed");
+        header("Location:&captcha-failed");
         exit();
     }
 
@@ -50,7 +50,7 @@ if (isset($_POST['submit'])) {
         $validate_email = filter_var($email, FILTER_VALIDATE_EMAIL);
         $validate_confirm_email = filter_var($confirm_email, FILTER_VALIDATE_EMAIL);
     } else {
-        echo "Emails don't match";
+        header('location:&email-not-match');
         die();
     }
 
@@ -66,7 +66,7 @@ if (isset($_POST['submit'])) {
         // Hash password
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
     } else {
-        echo "Passwords don't match";
+        header('location:&pw-not-match');
         die();
     }
 
@@ -91,7 +91,7 @@ if (isset($_POST['submit'])) {
                              VALUES ('$firstname', '$lastname', '$email', '$password_hash', '$contact_num', '$account_type', '$gender')";
 
             if (mysqli_query($con, $insert_query)) {
-                header("location:?page=login&register-success");
+                header("location:login&register-success");
                 exit(); // Stop further execution after redirect
             } else {
                 echo "Error: " . $insert_query . "<br>" . mysqli_error($con);
@@ -135,6 +135,20 @@ if (isset($_POST['submit'])) {
                                             echo '
                                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                                 <strong>Recaptcha is required!</strong>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                            </div>';
+                                        }
+                                        if (isset($_GET['email-not-match'])) {
+                                            echo '
+                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                <strong>Email does not match!</strong>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                            </div>';
+                                        }
+                                        if (isset($_GET['pw-not-match'])) {
+                                            echo '
+                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                <strong>Password does not match!</strong>
                                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                             </div>';
                                         }
