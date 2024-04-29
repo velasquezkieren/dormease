@@ -29,7 +29,7 @@ if (isset($_POST['submit'])) {
 
     if (!$captcha_result->success) {
         // CAPTCHA verification failed, handle accordingly
-        header("Location:&captcha-failed");
+        header("Location:signup&captcha-failed");
         exit();
     }
 
@@ -50,7 +50,7 @@ if (isset($_POST['submit'])) {
         $validate_email = filter_var($email, FILTER_VALIDATE_EMAIL);
         $validate_confirm_email = filter_var($confirm_email, FILTER_VALIDATE_EMAIL);
     } else {
-        header('location:&email-not-match');
+        header('location:signup&email-not-match');
         die();
     }
 
@@ -66,7 +66,7 @@ if (isset($_POST['submit'])) {
         // Hash password
         $password_hash = password_hash($password, PASSWORD_DEFAULT);
     } else {
-        header('location:&pw-not-match');
+        header('location:signup&pw-not-match');
         die();
     }
 
@@ -98,7 +98,7 @@ if (isset($_POST['submit'])) {
                 die();
             }
         } else {
-            header("location:&email-exists");
+            header("location:signup&email-exists");
             die();
         }
     }
