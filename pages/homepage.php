@@ -51,7 +51,7 @@
                 <img src="img/sample.jpg" class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title">Cabanatuan</h5>
-                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>Kapitan Pepe, Cabanatuan City</h6>
+                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>FX49+J2M, Lungsod ng Cabanatuan, Nueva Ecija</h6>
                     <p class="card-text">Starts at<br>$1,000</p>
                     <i class="bi bi-star-fill card-text">5.0 Rating</i><br>
                     <a href="#" class="btn btn-primary">View Property</a>
@@ -61,7 +61,7 @@
                 <img src="img/sample.jpg" class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title">Cabanatuan</h5>
-                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>Kapitan Pepe, Cabanatuan City</h6>
+                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>FX49+J2M, Lungsod ng Cabanatuan, Nueva Ecija</h6>
                     <p class="card-text">Starts at<br>$1,000</p>
                     <i class="bi bi-star-fill card-text">5.0 Rating</i><br>
                     <a href="#" class="btn btn-primary">View Property</a>
@@ -71,7 +71,7 @@
                 <img src="img/sample.jpg" class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title">Cabanatuan</h5>
-                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>Kapitan Pepe, Cabanatuan City</h6>
+                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>FX49+J2M, Lungsod ng Cabanatuan, Nueva Ecija</h6>
                     <p class="card-text">Starts at<br>$1,000</p>
                     <i class="bi bi-star-fill card-text">5.0 Rating</i><br>
                     <a href="#" class="btn btn-primary">View Property</a>
@@ -81,7 +81,7 @@
                 <img src="img/sample.jpg" class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title">Cabanatuan</h5>
-                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>Kapitan Pepe, Cabanatuan City</h6>
+                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>FX49+J2M, Lungsod ng Cabanatuan, Nueva Ecija</h6>
                     <p class="card-text">Starts at<br>$1,000</p>
                     <i class="bi bi-star-fill card-text">5.0 Rating</i><br>
                     <a href="#" class="btn btn-primary">View Property</a>
