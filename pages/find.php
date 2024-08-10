@@ -58,7 +58,7 @@ if (!isset($_SESSION['u_Email'])) {
                     <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>FX49+J2M, Lungsod ng Cabanatuan, Nueva Ecija</h6>
                     <p class="card-text">Starts at<br>$1,000</p>
                     <i class="bi bi-star-fill card-text">5.0 Rating</i><br>
-                    <a href="#" class="btn btn-primary">View Property</a>
+                    <a href="property" class="btn btn-primary">View Property</a>
                 </div>
             </div>
             <div class="col-lg-3 border-0 card mb-2">

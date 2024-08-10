@@ -19,6 +19,9 @@ switch ($page) {
     case 'signup':
         $title = 'Sign Up | DormEase';
         break;
+    case 'property':
+        $title = 'Details | DormEase';
+        break;
     default:
         $title = 'DormEase';
 }
@@ -109,6 +112,9 @@ switch ($page) {
             break;
         case 'signup':
             include('./pages/signup.php');
+            break;
+        case 'property':
+            include('./pages/property.php');
             break;
         default:
             include('./pages/homepage.php');
