@@ -1,6 +1,6 @@
 <div class="container">
-    <div class="row pt-5">
-        <div class="col-12 col-md pt-5">
+    <div class="row pt-5 text-center text-md-start">
+        <div class="col-12 col-md pt-5 d-flex flex-column align-items-center align-items-md-start">
             <p class="h1">Wood Dorm</p>
             <div class="d-flex align-items-center">
                 <i class="bi bi-geo-alt-fill"></i>
