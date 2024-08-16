@@ -168,7 +168,7 @@ if (isset($_POST['submit'])) {
                                             </div>
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">
-                                                    <input type="text" class="form-control" name="lastname" placeholder="First Name" required pattern="^[A-Za-z]+(?:-[A-Za-z]+)*$">
+                                                    <input type="text" class="form-control" name="lastname" placeholder="Last Name" required pattern="^[A-Za-z]+(?:-[A-Za-z]+)*$">
                                                     <label for="lastname" class="form-label">Last Name</label>
                                                 </div>
                                             </div>

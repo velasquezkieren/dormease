@@ -1,7 +1,7 @@
 <?php
 if (isset($_SESSION['u_Email'])) {
     // Redirect to the feed page or any other appropriate page
-    header("Location: home");
+    header("Location: profile");
     exit(); // Stop further execution
 }
 
@@ -49,20 +49,26 @@ if (isset($_POST['submit'])) {
         if ($countEmail == 1) {
             while ($row = mysqli_fetch_assoc($checkEmail)) {
                 // Fetch password and other data
-                $dbPassword = $row['u_Password'];
+                $dbUserID = $row['u_ID'];
                 $dbFirstname = $row['u_FName'];
                 $dbLastname = $row['u_LName'];
+                $dbGender = $row['u_Gender'];
+                $dbPassword = $row['u_Password'];
                 $dbAccounttype = $row['u_Account_Type'];
+                $dbContactNo = $row['u_Contact_Number'];
             }
             // Verify hashed password
             if (password_verify($password, $dbPassword)) {
                 // Store data into session if credentials are correct
                 $_SESSION['u_Email'] = $email;
+                $_SESSION['u_ID'] = $dbUserID;
                 $_SESSION['u_FName'] = $dbFirstname;
                 $_SESSION['u_LName'] = $dbLastname;
+                $_SESSION['u_Gender'] = $dbGender;
+                $_SESSION['u_Contact_Number'] = $dbContactNo;
                 $_SESSION['u_Account_Type'] = $dbAccounttype;
                 // Redirect
-                header("Location:home");
+                header("Location:profile?u_ID=" . $dbUserID);
                 exit(); // Stop further execution after redirect
             } else {
                 // Wrong password, redirect back to login page

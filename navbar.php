@@ -5,6 +5,7 @@ session_start();
 if (isset($_SESSION['u_Email'])) {
     $firstname = $_SESSION['u_FName']; // Get the user's first name from session
     $account_type = $_SESSION['u_Account_Type']; // Get the user's account type from session
+    $u_ID = $_SESSION['u_ID']; // Get the user's ID from session
 }
 
 // logout = destroy session
@@ -21,7 +22,7 @@ if (isset($_GET['page'])) {
 <!-- nav bar -->
 <nav class="navbar navbar-expand-lg fixed-top" style="height:80px;">
     <div class="container-fluid">
-        <a class="navbar-brand me-auto" href="home"><img src="img/logo-no-background.png" height="50" width="auto"></a>
+        <a class="navbar-brand me-auto" href="<?php echo isset($_SESSION['u_Email']) ? 'profile' : 'home'; ?>"><img src="img/logo-no-background.png" height="50" width="auto"></a>
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title" id="offcanvasNavbarLabel"><a href="home"><img src="img/logo-no-background.png" height="50" width="auto"></a></h5>
@@ -30,10 +31,10 @@ if (isset($_GET['page'])) {
             <div class="offcanvas-body">
                 <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                     <li class="nav-item">
-                        <a class="nav-link mx-lg-2 <?php echo ($title == 'DormEase') ? 'active' : ''; ?>" href="home">Home</a>
-
+                        <?php if (!isset($_SESSION['u_Email'])): ?>
+                            <a class="nav-link mx-lg-2 <?php echo ($title == 'DormEase') ? 'active' : ''; ?>" href="home">Home</a>
+                        <?php endif; ?>
                     </li>
-
                     <?php
                     // Show "Find a Home" or "List Your Property!" based on account type
                     if (!isset($_SESSION['u_Account_Type'])) {
@@ -58,19 +59,16 @@ if (isset($_GET['page'])) {
                             <a class="nav-link mx-lg-2 ' . (($title == 'Inbox | DormEase') ? 'active' : '') . '" href="inbox">Inbox</a>
                             </li>';
                     }
-                    ?>
 
-                    <?php
                     if (isset($_SESSION['u_Email'])) {
                         echo '<li class="nav-item">
-                                    <a class="nav-link mx-lg-2 ' . (($title == "Profile | DormEase") ? "active" : "") . '" href="profile">' . $firstname . '</a>
+                                    <a class="nav-link mx-lg-2 ' . (($title == "Profile | DormEase") ? "active" : "") . '" href="profile?u_ID=' . $u_ID . '">' . $firstname . '</a>
                                   </li>'; //link to profile if signed in
                     }
                     ?>
                 </ul>
             </div>
         </div>
-
         <?php
         if (isset($_SESSION['u_Email'])) {
             echo '<a class="login-button" href="logout">Logout</a>'; //logout button if signed in

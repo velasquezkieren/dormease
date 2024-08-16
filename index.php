@@ -22,6 +22,9 @@ switch ($page) {
     case 'property':
         $title = 'Details | DormEase';
         break;
+    case 'edit_profile':
+        $title = 'Edit Profile | DormEase';
+        break;
     default:
         $title = 'DormEase';
 }
@@ -115,6 +118,9 @@ switch ($page) {
             break;
         case 'property':
             include('./pages/property.php');
+            break;
+        case 'edit_profile':
+            include('./pages/edit_profile.php');
             break;
         default:
             include('./pages/homepage.php');

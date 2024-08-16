@@ -8,7 +8,7 @@
             </div>
         </div>
         <div class="col-12 col-md-auto pt-3 pt-md-5 d-flex justify-content-md-end justify-content-center align-items-center align-items-md-end">
-            <a class="login-button" href="#">Book Now for ₱2,000</a>
+            <!-- <a class="login-button" href="#">Book Now for ₱2,000</a> -->
         </div>
     </div>
     <div class="row">
