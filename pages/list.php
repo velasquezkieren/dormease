@@ -76,7 +76,13 @@ if (!isset($_SESSION['u_Email'])) {
         <div class="container" style="margin-top:100px;">
             <div class="row justify-content-center">
                 <div class="col-12 col-xxl-11" id="list-property">
-                    <h2 class="h2 mb-4">Tell us about your property!</h2>
+                    <?php
+                    if (isset($_GET['edit'])) {
+                        echo '<h2 class="h2 mb-4">Edit Property</h2>';
+                    } else {
+                        echo '<h2 class="h2 mb-4">Tell us about your property!</h2>';
+                    }
+                    ?>
                     <div class="card border-light-subtle shadow-sm">
                         <div class="row g-0">
                             <div class="col-12">

@@ -10,7 +10,7 @@
         <div class="col-12 col-md-auto pt-3 pt-md-5 d-flex justify-content-md-end justify-content-center align-items-center align-items-md-end">
             <?php
             if ((isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0)) {
-                echo '<a class="login-button" href="list">Edit listing</a>';
+                echo '<a class="login-button" href="list&edit">Edit listing</a>';
             } elseif ((isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1)) {
                 echo '<a class="login-button" href="list">Book now 2,000/month</a>';
             }
