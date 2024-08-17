@@ -42,96 +42,22 @@ if (!isset($_SESSION['u_Email'])) {
 
     <div class="container">
         <div class="row mt-5">
-            <!-- <div class="col-lg-3 text-center">
-                <div class="card border-0 bg-light mb-2">
-                    <div class="card-body">
-                        <img src="img/sample.jpg" class="img-fluid">
-                    </div>
-                </div>
-                <h6>Sample</h6>
-                <p>$36.33</p>
-            </div> -->
             <div class="col-lg-3 border-0 card mb-2">
-                <img src="img/sample.jpg" class="card-img-top" alt="...">
+                <a href="property"><img src="img/sample.jpg" class="card-img-top" alt="..."></a>
                 <div class="card-body">
                     <h5 class="card-title">Cabanatuan</h5>
                     <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>FX49+J2M, Lungsod ng Cabanatuan, Nueva Ecija</h6>
                     <p class="card-text">Starts at<br>$1,000</p>
-                    <i class="bi bi-star-fill card-text">5.0 Rating</i><br>
-                    <a href="property" class="btn btn-primary">View Property</a>
-                </div>
-            </div>
-            <div class="col-lg-3 border-0 card mb-2">
-                <img src="img/sample.jpg" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Cabanatuan</h5>
-                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>FX49+J2M, Lungsod ng Cabanatuan, Nueva Ecija</h6>
-                    <p class="card-text">Starts at<br>$1,000</p>
-                    <i class="bi bi-star-fill card-text">5.0 Rating</i><br>
-                    <a href="#" class="btn btn-primary">View Property</a>
-                </div>
-            </div>
-            <div class="col-lg-3 border-0 card mb-2">
-                <img src="img/sample.jpg" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Cabanatuan</h5>
-                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>FX49+J2M, Lungsod ng Cabanatuan, Nueva Ecija</h6>
-                    <p class="card-text">Starts at<br>$1,000</p>
-                    <i class="bi bi-star-fill card-text">5.0 Rating</i><br>
-                    <a href="#" class="btn btn-primary">View Property</a>
-                </div>
-            </div>
-            <div class="col-lg-3 border-0 card mb-2">
-                <img src="img/sample.jpg" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Cabanatuan</h5>
-                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>FX49+J2M, Lungsod ng Cabanatuan, Nueva Ecija</h6>
-                    <p class="card-text">Starts at<br>$1,000</p>
-                    <i class="bi bi-star-fill card-text">5.0 Rating</i><br>
-                    <a href="#" class="btn btn-primary">View Property</a>
-                </div>
-            </div>
-            <div class="col-lg-3 border-0 card mb-2">
-                <img src="img/sample.jpg" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Cabanatuan</h5>
-                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>FX49+J2M, Lungsod ng Cabanatuan, Nueva Ecija</h6>
-                    <p class="card-text">Starts at<br>$1,000</p>
-                    <i class="bi bi-star-fill card-text">5.0 Rating</i><br>
-                    <a href="#" class="btn btn-primary">View Property</a>
-                </div>
-            </div>
-            <div class="col-lg-3 border-0 card mb-2">
-                <img src="img/sample.jpg" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Cabanatuan</h5>
-                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>FX49+J2M, Lungsod ng Cabanatuan, Nueva Ecija</h6>
-                    <p class="card-text">Starts at<br>$1,000</p>
-                    <i class="bi bi-star-fill card-text">5.0 Rating</i><br>
-                    <a href="#" class="btn btn-primary">View Property</a>
-                </div>
-            </div>
-            <div class="col-lg-3 border-0 card mb-2">
-                <img src="img/sample.jpg" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Cabanatuan</h5>
-                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>FX49+J2M, Lungsod ng Cabanatuan, Nueva Ecija</h6>
-                    <p class="card-text">Starts at<br>$1,000</p>
-                    <i class="bi bi-star-fill card-text">5.0 Rating</i><br>
-                    <a href="#" class="btn btn-primary">View Property</a>
-                </div>
-            </div>
-            <div class="col-lg-3 border-0 card mb-2">
-                <img src="img/sample.jpg" class="card-img-top" alt="...">
-                <div class="card-body">
-                    <h5 class="card-title">Cabanatuan</h5>
-                    <h6 class="card-text"><i class="bi bi-geo-alt-fill"></i>FX49+J2M, Lungsod ng Cabanatuan, Nueva Ecija</h6>
-                    <p class="card-text">Starts at<br>$1,000</p>
-                    <i class="bi bi-star-fill card-text">5.0 Rating</i><br>
-                    <a href="#" class="btn btn-primary">View Property</a>
-                </div>
-            </div>
+                    <?php
+                    if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) {
+                        echo '<a href="property" class="btn btn-dark">View Property</a>';
+                    } elseif (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
+                        echo '<a href="property" class="btn btn-dark">Edit Property</a>';
+                    }
+                    ?>
 
+                </div>
+            </div>
         </div>
     </div>
 

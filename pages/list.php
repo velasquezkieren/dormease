@@ -1,24 +1,26 @@
 <?php
-// inaccessible for students
+include('./config.php');
+// Inaccessible for students
 if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) {
     header('Location: home');
     die();
 }
 
-// submit
+// Submit
 if (isset($_POST['submit'])) {
     // Sanitize input
-    $d_Name = mysqli_real_escape_string($conn, $_POST['d_Name']);
-    $d_Address = mysqli_real_escape_string($conn, $_POST['d_Address']);
-    $d_Type = mysqli_real_escape_string($conn, $_POST['d_Type']);
-    $d_Capacity = mysqli_real_escape_string($conn, $_POST['d_Capacity']);
-    $d_Price = mysqli_real_escape_string($conn, $_POST['d_Rent']);
-    $d_Desc = mysqli_real_escape_string($conn, $_POST['d_Desc']);
+    $d_Name = mysqli_real_escape_string($con, $_POST['d_Name']);
+    $d_Address = mysqli_real_escape_string($con, $_POST['d_Address']);
+    $d_Type = mysqli_real_escape_string($con, $_POST['d_Type']);
+    $d_Capacity = mysqli_real_escape_string($con, $_POST['d_Capacity']);
+    $d_Rent = mysqli_real_escape_string($con, $_POST['d_Rent']);
+    $d_Desc = mysqli_real_escape_string($con, $_POST['d_Desc']);
+    $u_ID = $_SESSION['u_ID']; // Assuming you have the user's ID stored in the session
 
     // File Upload
     $uploadDir = 'uploads/'; // Directory where uploaded files will be saved
     $uploadedFiles = array();
-    foreach ($_FILES['upload']['name'] as $key => $filename) { // wala pa yung pag filter ng size, let's say, limit natin maximum eh 25 mb yung file size
+    foreach ($_FILES['upload']['name'] as $key => $filename) {
         $tmp_name = $_FILES['upload']['tmp_name'][$key];
         $targetFile = $uploadDir . basename($filename);
         if (move_uploaded_file($tmp_name, $targetFile)) {
@@ -28,16 +30,16 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    // Insert data into the database
-    $sql = "INSERT INTO your_table_name (d_Name, d_Address, d_Type, d_Capacity, d_Price, d_Desc, file_path) VALUES ('$d_Name', '$d_Address', '$d_Type', '$d_Capacity', '$d_Price', '$d_Desc', '" . implode(",", $uploadedFiles) . "')";
+    // Insert data into the dorm table
+    $sql = "INSERT INTO dorm (d_Name, d_Address, d_Type, d_Capacity, d_Rent, d_Desc, file_path, owner_ID) 
+            VALUES ('$d_Name', '$d_Address', '$d_Type', '$d_Capacity', '$d_Rent', '$d_Desc', '" . implode(",", $uploadedFiles) . "', '$u_ID')";
 
-    if (mysqli_query($conn, $sql)) {
+    if (mysqli_query($con, $sql)) {
         echo "New record created successfully";
     } else {
-        echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+        echo "Error: " . $sql . "<br>" . mysqli_error($con);
     }
 }
-
 ?>
 
 <style>
@@ -60,7 +62,7 @@ if (!isset($_SESSION['u_Email'])) {
             <div class="row">
                 <div class="col-12 col-md-8 offset-md-2 col-xl-6 offset-xl-1">
                     <h1 class="fw-bold">List your property</h1>
-                    <p class="text-left lead">Listing your dormitory space online for rent has never been simpler. If you're eager to find tenants for your dormitory, just share some details about your space and yourself, and we'll connect you with genuine renters offering the best rates in the market.</p>
+                    <p class="text-left lead">Listing your dormitory space online for rent has never been simpler. If you're eager to find tenants for your dormitory, just share some details about your space and yourself, and we'll conect you with genuine renters offering the best rates in the market.</p>
                     <a href="login" class="btn btn-dark btn-lg">Get Started</a>
                 </div>
             </div>
@@ -82,13 +84,13 @@ if (!isset($_SESSION['u_Email'])) {
                                     <form action="" class="row g-3" enctype="multipart/form-data" method="post">
                                         <div class="col-12">
                                             <div class="form-floating mb-3">
-                                                <input type="d_Name" class="form-control" id="floatingInput" placeholder="Dorm Name" required>
+                                                <input type="text" name="d_Name" class="form-control" id="floatingInput" placeholder="Dorm Name" required>
                                                 <label for="floatingInput">Dorm Name</label>
                                             </div>
                                         </div>
                                         <div class="col-12">
                                             <div class="form-floating mb-3">
-                                                <input type="d_Address" class="form-control" id="d_Address" placeholder="Address" required>
+                                                <input type="text" name="d_Address" class="form-control" id="d_Address" placeholder="Address" required>
                                                 <label for="d_Address">Address</label>
                                             </div>
                                         </div>
@@ -116,7 +118,7 @@ if (!isset($_SESSION['u_Email'])) {
                                         <div class="col-12">
                                             <div class="form-file" id="dropArea">
                                                 <label class="form-label">Drag and drop images here or click to upload</label>
-                                                <input type="file" name="upload" class="form-control" name="propertyImages[]" accept=".png, .jpg, .gif" multiple required>
+                                                <input type="file" name="upload[]" class="form-control" accept=".png, .jpg, .gif" multiple required>
                                             </div>
                                         </div>
                                         <div class="col-12">

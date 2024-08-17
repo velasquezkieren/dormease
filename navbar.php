@@ -11,7 +11,7 @@ if (isset($_SESSION['u_Email'])) {
 // logout = destroy session
 if (isset($_GET['page'])) {
     $page = $_GET['page'];
-    if ($page == 'logout') {
+    if (isset($u_ID) && $page == 'logout') {
         session_unset();
         session_destroy();
         header("location:login&logout-success");
@@ -50,6 +50,10 @@ if (isset($_GET['page'])) {
                     } elseif (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) {
                         echo '<li class="nav-item">
                             <a class="nav-link mx-lg-2 ' . (($title == 'Find a Home | DormEase') ? 'active' : '') . '" href="find">Find a Home</a>
+                            </li>';
+                    } elseif (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
+                        echo '<li class="nav-item">
+                            <a class="nav-link mx-lg-2 ' . (($title == 'Find a Home | DormEase') ? 'active' : '') . '" href="find">My Listings</a>
                             </li>';
                     }
 
