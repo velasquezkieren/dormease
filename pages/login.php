@@ -44,7 +44,7 @@ if (isset($_POST['submit'])) {
     // Sanitation and validation condition
     if ($validate_email && $result_password == 1) {
         // Check if email exists
-        $checkEmail = mysqli_query($con, "SELECT * FROM users WHERE u_Email = '$email' LIMIT 1");
+        $checkEmail = mysqli_query($con, "SELECT * FROM user WHERE u_Email = '$email' LIMIT 1");
         $countEmail = mysqli_num_rows($checkEmail);
         if ($countEmail == 1) {
             while ($row = mysqli_fetch_assoc($checkEmail)) {

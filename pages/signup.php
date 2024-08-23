@@ -77,18 +77,20 @@ if (isset($_POST['submit'])) {
 
     // Condition for sanitation and validation
     if ($result_firstname == 1 && $result_lastname == 1 && $validate_email && $validate_confirm_email && $result_password == 1 && $result_confirm_password == 1 && $result_contact == 1) {
+        $u_ID = uniqid('u_', true);
+
         // Get account type and gender
         $account_type = mysqli_real_escape_string($con, $_POST['account_type']);
         $gender = mysqli_real_escape_string($con, $_POST['gender']);
 
         // Check if email already exists
-        $check_query = "SELECT * FROM users WHERE u_Email = '$email'";
+        $check_query = "SELECT * FROM user WHERE u_Email = '$email'";
         $check_result = mysqli_query($con, $check_query);
 
         // If email doesn't exist, insert user data into the database
         if (mysqli_num_rows($check_result) == 0) {
-            $insert_query = "INSERT INTO users (u_FName, u_LName, u_Email, u_Password, u_Contact_Number, u_Account_Type, u_Gender) 
-                             VALUES ('$firstname', '$lastname', '$email', '$password_hash', '$contact_num', '$account_type', '$gender')";
+            $insert_query = "INSERT INTO user (u_ID, u_FName, u_LName, u_Email, u_Password, u_ContactNumber, u_Account_Type, u_Gender) 
+                             VALUES ('$u_ID', '$firstname', '$lastname', '$email', '$password_hash', '$contact_num', '$account_type', '$gender')";
 
             if (mysqli_query($con, $insert_query)) {
                 header("location:login&register-success");
@@ -104,6 +106,7 @@ if (isset($_POST['submit'])) {
     }
 }
 ?>
+
 
 <section class="p-3 p-md-4 p-xl-5">
     <div class="container" style="padding-top:80px;">
@@ -204,8 +207,8 @@ if (isset($_POST['submit'])) {
                                             </div>
                                             <div class="col-12">
                                                 <div class="form-check form-check-inline mb-3">
-                                                    <input class="form-check-input" type="radio" name="account_type" id="student" value="1" required>
-                                                    <label class="form-check-label" for="student">Student</label>
+                                                    <input class="form-check-input" type="radio" name="account_type" id="resident" value="1" required>
+                                                    <label class="form-check-label" for="resident">Resident</label>
                                                 </div>
                                                 <div class="form-check form-check-inline mb-3">
                                                     <input class="form-check-input" type="radio" name="account_type" id="Property Manager" value="0">

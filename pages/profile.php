@@ -8,14 +8,13 @@ if (!isset($_SESSION['u_Email'])) {
 
 // Check if u_ID is provided in the URL
 if (isset($_GET['u_ID'])) {
-    $user_ID = $_GET['u_ID'];
-    // Fetch the user data based on u_ID
-    $sql = "SELECT * FROM users WHERE u_ID = '$user_ID'";
+    $user_ID = mysqli_real_escape_string($con, $_GET['u_ID']); // Sanitize input
+    $sql = "SELECT * FROM user WHERE u_ID = '$user_ID'";
 } else {
-    // If no u_ID is provided, fetch the logged-in user's profile
+    // Fetch the logged-in user's profile
     $email = $_SESSION['u_Email'];
-    $sql = "SELECT * FROM users WHERE u_Email = '$email'";
-    $user_ID = $_SESSION['u_ID'];  // Store the logged-in user's ID for comparison
+    $sql = "SELECT * FROM user WHERE u_Email = '$email'";
+    $user_ID = $_SESSION['u_ID']; // Store the logged-in user's ID for comparison
 }
 
 $query = mysqli_query($con, $sql);
@@ -26,8 +25,9 @@ if (!$data) {
     echo "User not found.";
     die();
 }
+
 $email = $_SESSION['u_Email'];
-$contact_num = $_SESSION['u_Contact_Number'];
+$contact_num = $data['u_ContactNumber'];
 $lastname = $data['u_LName'];
 $firstname = $data['u_FName'];
 
@@ -59,18 +59,14 @@ if (isset($_POST['submit'])) {
     $contact_num = mysqli_real_escape_string($con, $_POST['contact_num']);
     $result_contact = preg_match($pattern_contact, $contact_num);
 
-    if ($result_firstname == 1 && $result_lastname == 1 && $validate_email && $result_password == 1 && $result_confirm_password == 1 && $result_contact == 1) {
-        $update_sql = "UPDATE users SET 
-                        u_FName = '$firstname',
-                        u_LName = '$lastname',
-                        u_Email = '$email',
-                        u_Password = '$password_hash',
-                        u_Contact_Number = '$contact_num'
-                        WHERE u_ID = '$user_ID'";
+    if ($result_firstname == 1 && $result_lastname == 1 && $validate_email && $result_password == 1 && $result_contact == 1) {
+        $update_sql = "UPDATE user SET `u_FName` = '$firstname', `u_LName` = '$lastname', `u_Email` = '$email', `u_Password` = '$password_hash', `u_ContactNumber` = '$contact_num' WHERE `u_ID` = '$user_ID'";
         if (mysqli_query($con, $update_sql)) {
-            echo "Profile updated successfully.";
+            $_SESSION['u_FName'] = $firstname;
+            $_SESSION['u_LName'] = $lastname;
+            $_SESSION['u_Email'] = $email; // Optional if email is updated
             // Refresh the page to reflect the changes
-            header("Location: profile");
+            header("Location: profile?u_ID=" . $user_ID . "&edit-success");
             die();
         } else {
             echo "Error updating profile: " . mysqli_error($con);
@@ -89,30 +85,38 @@ if (isset($_POST['submit'])) {
             if (isset($_GET['u_ID']) && $_GET['u_ID'] != $_SESSION['u_ID']) {
                 echo '<p class="h1 text-center text-md-left">' . $fullname . '</p>'; // Show the full name for another user's profile
             } else {
-                echo '<p class="h1 text-center text-md-left">Welcome, ' . $firstname . '!</p>'; // Show the greeting if it's their own profile
+                echo '<p class="h1 text-center text-md-left">Welcome, ' . $fullname . '!</p>'; // Show the greeting if it's their own profile
             }
             ?>
         </div>
         <div class="col-12 col-md-6 pt-3 pt-md-5 d-flex justify-content-center justify-content-md-end align-items-center">
             <?php
-            // Check if the profile belongs to the logged-in user or is being viewed by someone else
-            if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0 && (!isset($_GET['u_ID']) || $_GET['u_ID'] == $_SESSION['u_ID'])) {
-                // Display the "Create a listing" button if the account type is 0 and the user is viewing their own profile
-                echo '<a class="login-button" href="list">Create a listing</a>';
-            } elseif (!isset($_GET['u_ID']) || $_GET['u_ID'] == $_SESSION['u_ID']) {
-                // Display the "Edit Profile" button if the user is viewing their own profile
+            // Check if the user is viewing their own profile
+            $isOwnProfile = isset($_GET['u_ID']) && $_GET['u_ID'] == $_SESSION['u_ID'];
+
+            if ($isOwnProfile) {
+                // Display the "Edit Profile" button
                 echo '<button type="button" class="btn login-button" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit Profile</button>';
-                // echo '<a class="login-button" href="profile?edit_ID=' . $user_ID . '">Edit Profile</a>';
             }
             ?>
         </div>
     </div>
+    <?php
+    if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
+    ?>
+        <div class="col-12 col-md-6 pt-3 pt-md-5 d-flex justify-content-center justify-content-md-end align-items-center">
+            <a class="login-button" href="list">Create a listing</a>
+        </div>
+    <?php
+    }
+    ?>
+
     <div class="row">
-        <div class="col pt-5">
+        <div class="col pt-2">
             <div class="col-12 col-md-6 pt-5 d-flex justify-content-center justify-content-md-start">
                 <?php
                 if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
-                    echo '<p class="h2 pb-5">My Listings</p>';
+                    echo '<p class="h2 pb-5">My Listings</p><br>';
                 } else {
                     echo '<p class="h2 pb-5">Statement of Account</p>';
                 }
@@ -120,6 +124,7 @@ if (isset($_POST['submit'])) {
             </div>
             <div class="alert alert-secondary text-center mx-auto p-5" role="alert">
                 No listings available at the moment
+
             </div>
         </div>
     </div>
@@ -159,7 +164,7 @@ if (isset($_POST['submit'])) {
                     </div>
                     <!-- Add more fields as needed -->
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-dark">Save changes</button>
+                        <button name="submit" class="btn btn-dark">Save changes</button>
                     </div>
                 </form>
             </div>

@@ -6,40 +6,6 @@ if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) {
     die();
 }
 
-// Submit
-if (isset($_POST['submit'])) {
-    // Sanitize input
-    $d_Name = mysqli_real_escape_string($con, $_POST['d_Name']);
-    $d_Address = mysqli_real_escape_string($con, $_POST['d_Address']);
-    $d_Type = mysqli_real_escape_string($con, $_POST['d_Type']);
-    $d_Capacity = mysqli_real_escape_string($con, $_POST['d_Capacity']);
-    $d_Rent = mysqli_real_escape_string($con, $_POST['d_Rent']);
-    $d_Desc = mysqli_real_escape_string($con, $_POST['d_Desc']);
-    $u_ID = $_SESSION['u_ID']; // Assuming you have the user's ID stored in the session
-
-    // File Upload
-    $uploadDir = 'uploads/'; // Directory where uploaded files will be saved
-    $uploadedFiles = array();
-    foreach ($_FILES['upload']['name'] as $key => $filename) {
-        $tmp_name = $_FILES['upload']['tmp_name'][$key];
-        $targetFile = $uploadDir . basename($filename);
-        if (move_uploaded_file($tmp_name, $targetFile)) {
-            $uploadedFiles[] = $targetFile;
-        } else {
-            echo "Error uploading file " . $filename . "<br>";
-        }
-    }
-
-    // Insert data into the dorm table
-    $sql = "INSERT INTO dorm (d_Name, d_Address, d_Type, d_Capacity, d_Rent, d_Desc, file_path, owner_ID) 
-            VALUES ('$d_Name', '$d_Address', '$d_Type', '$d_Capacity', '$d_Rent', '$d_Desc', '" . implode(",", $uploadedFiles) . "', '$u_ID')";
-
-    if (mysqli_query($con, $sql)) {
-        echo "New record created successfully";
-    } else {
-        echo "Error: " . $sql . "<br>" . mysqli_error($con);
-    }
-}
 ?>
 
 <style>
@@ -124,7 +90,7 @@ if (!isset($_SESSION['u_Email'])) {
                                         <div class="col-12">
                                             <div class="form-file" id="dropArea">
                                                 <label class="form-label">Drag and drop images here or click to upload</label>
-                                                <input type="file" name="upload[]" class="form-control" accept=".png, .jpg, .gif" multiple required>
+                                                <input type="file" name="upload[]" class="form-control" accept=".png, .jpg, .gif" multiple>
                                             </div>
                                         </div>
                                         <div class="col-12">
