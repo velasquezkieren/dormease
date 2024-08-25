@@ -1,3 +1,8 @@
+<?php
+if (isset($_GET['d_ID'])) {
+}
+
+?>
 <div class="container">
     <div class="row pt-5 text-center text-md-start">
         <div class="col-12 col-md pt-5 d-flex flex-column align-items-center align-items-md-start">

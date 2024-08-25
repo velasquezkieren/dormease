@@ -122,8 +122,46 @@ if (isset($_POST['submit'])) {
                 }
                 ?>
             </div>
-            <div class="alert alert-secondary text-center mx-auto p-5" role="alert">
-                No listings available at the moment
+
+            <div class="row">
+                <?php
+                if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
+                    // Check if the user has posted any dorms
+                    $user_ID = mysqli_real_escape_string($con, $_SESSION['u_ID']); // Sanitize user_ID
+                    $sql = "SELECT * FROM dormitory WHERE d_Owner = '$user_ID'";
+                    $dorms_query = mysqli_query($con, $sql);
+
+                    if (mysqli_num_rows($dorms_query) > 0) {
+                        // Display dorm listings as cards
+                        while ($dorm = mysqli_fetch_assoc($dorms_query)) {
+                            // Fetch the owner's name
+                            $owner_ID = mysqli_real_escape_string($con, $dorm['d_Owner']);
+                            $owner_query = mysqli_query($con, "SELECT u_FName, u_LName FROM user WHERE u_ID = '$owner_ID'");
+                            $owner_data = mysqli_fetch_assoc($owner_query);
+                            $owner_name = $owner_data ? htmlspecialchars($owner_data['u_FName'] . ' ' . $owner_data['u_LName']) : 'Unknown';
+
+                            echo '<div class="col-12 col-md-4 mb-4 d-flex align-items-stretch">';
+                            echo '<div class="card h-100">'; // 'h-100' for equal height
+                            echo '<img src="path/to/dorm-image.jpg" class="card-img-top" alt="Dorm Image">'; // Placeholder for image
+                            echo '<div class="card-body d-flex flex-column">';
+                            echo '<h5 class="card-title">' . htmlspecialchars($dorm['d_Name']) . '</h5>';
+                            echo '<p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;">' . htmlspecialchars($dorm['d_Description']) . '</p>';
+                            echo '<p class="card-text"><i class="bi bi-geo-alt-fill"></i> ' . htmlspecialchars($dorm['d_Street']) . ', ' . htmlspecialchars($dorm['d_City']) . '</p>';
+                            echo '<p class="card-text"><strong>Owner:</strong> ' . $owner_name . '</p>';
+                            echo '<a href="property?d_ID=' . urlencode($dorm['d_ID']) . '" class="btn btn-primary mt-auto">View Details</a>'; // 'mt-auto' to push button to the bottom
+                            echo '</div>';
+                            echo '</div>';
+                            echo '</div>';
+                        }
+                    } else {
+                        // Display "No listings available" message
+                        echo '<div class="alert alert-secondary text-center mx-auto p-5" role="alert">';
+                        echo 'No listings available at the moment';
+                        echo '</div>';
+                    }
+                }
+                ?>
+
 
             </div>
         </div>
@@ -171,3 +209,9 @@ if (isset($_POST['submit'])) {
         </div>
     </div>
 </div>
+
+<script>
+    $(document).on('submit', '#editProfileForm', function() {
+
+    })
+</script>
