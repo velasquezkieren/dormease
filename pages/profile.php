@@ -65,14 +65,15 @@ if (isset($_POST['submit'])) {
             $_SESSION['u_FName'] = $firstname;
             $_SESSION['u_LName'] = $lastname;
             $_SESSION['u_Email'] = $email; // Optional if email is updated
+
             // Refresh the page to reflect the changes
             header("Location: profile?u_ID=" . $user_ID . "&edit-success");
             die();
         } else {
-            echo "Error updating profile: " . mysqli_error($con);
+            echo "<script>alert('Error updating profile: " . mysqli_error($con) . "');</script>";
         }
     } else {
-        echo "Invalid input. Please check your data.";
+        echo "<script>alert('Invalid input. Please check your data.');</script>";
     }
 }
 ?>
@@ -92,7 +93,7 @@ if (isset($_POST['submit'])) {
         <div class="col-12 col-md-6 pt-3 pt-md-5 d-flex justify-content-center justify-content-md-end align-items-center">
             <?php
             // Check if the user is viewing their own profile
-            $isOwnProfile = isset($_GET['u_ID']) && $_GET['u_ID'] == $_SESSION['u_ID'];
+            $isOwnProfile = !isset($_GET['u_ID']) || $_GET['u_ID'] == $_SESSION['u_ID'];
 
             if ($isOwnProfile) {
                 // Display the "Edit Profile" button
@@ -102,7 +103,8 @@ if (isset($_POST['submit'])) {
         </div>
     </div>
     <?php
-    if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
+    // Display the "Create a listing" button if viewing own profile and account type is 0
+    if ($isOwnProfile && isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
     ?>
         <div class="col-12 col-md-6 pt-3 pt-md-5 d-flex justify-content-center justify-content-md-end align-items-center">
             <a class="login-button" href="list">Create a listing</a>
@@ -110,7 +112,6 @@ if (isset($_POST['submit'])) {
     <?php
     }
     ?>
-
     <div class="row">
         <div class="col pt-2">
             <div class="col-12 col-md-6 pt-5 d-flex justify-content-center justify-content-md-start">
@@ -122,48 +123,60 @@ if (isset($_POST['submit'])) {
                 }
                 ?>
             </div>
-
             <div class="row">
                 <?php
-                if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
-                    // Check if the user has posted any dorms
-                    $user_ID = mysqli_real_escape_string($con, $_SESSION['u_ID']); // Sanitize user_ID
-                    $sql = "SELECT * FROM dormitory WHERE d_Owner = '$user_ID'";
-                    $dorms_query = mysqli_query($con, $sql);
+                // Retrieve the user ID from the query string
+                $profile_ID = isset($_GET['u_ID']) ? mysqli_real_escape_string($con, $_GET['u_ID']) : $_SESSION['u_ID'];
 
-                    if (mysqli_num_rows($dorms_query) > 0) {
-                        // Display dorm listings as cards
-                        while ($dorm = mysqli_fetch_assoc($dorms_query)) {
-                            // Fetch the owner's name
-                            $owner_ID = mysqli_real_escape_string($con, $dorm['d_Owner']);
-                            $owner_query = mysqli_query($con, "SELECT u_FName, u_LName FROM user WHERE u_ID = '$owner_ID'");
-                            $owner_data = mysqli_fetch_assoc($owner_query);
-                            $owner_name = $owner_data ? htmlspecialchars($owner_data['u_FName'] . ' ' . $owner_data['u_LName']) : 'Unknown';
+                // Check if the user ID is valid and fetch dormitories
+                $sql = "SELECT * FROM dormitory WHERE d_Owner = '$profile_ID'";
+                $dorms_query = mysqli_query($con, $sql);
 
-                            echo '<div class="col-12 col-md-4 mb-4 d-flex align-items-stretch">';
-                            echo '<div class="card h-100">'; // 'h-100' for equal height
-                            echo '<img src="path/to/dorm-image.jpg" class="card-img-top" alt="Dorm Image">'; // Placeholder for image
-                            echo '<div class="card-body d-flex flex-column">';
-                            echo '<h5 class="card-title">' . htmlspecialchars($dorm['d_Name']) . '</h5>';
-                            echo '<p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;">' . htmlspecialchars($dorm['d_Description']) . '</p>';
-                            echo '<p class="card-text"><i class="bi bi-geo-alt-fill"></i> ' . htmlspecialchars($dorm['d_Street']) . ', ' . htmlspecialchars($dorm['d_City']) . '</p>';
-                            echo '<p class="card-text"><strong>Owner:</strong> ' . $owner_name . '</p>';
-                            echo '<a href="property?d_ID=' . urlencode($dorm['d_ID']) . '" class="btn btn-primary mt-auto">View Details</a>'; // 'mt-auto' to push button to the bottom
-                            echo '</div>';
-                            echo '</div>';
-                            echo '</div>';
+                if (mysqli_num_rows($dorms_query) > 0):
+                    // Display dorm listings as cards
+                    while ($dorm = mysqli_fetch_assoc($dorms_query)):
+                        // Fetch the owner's name
+                        $owner_ID = mysqli_real_escape_string($con, $dorm['d_Owner']);
+                        $owner_query = mysqli_query($con, "SELECT u_FName, u_LName FROM user WHERE u_ID = '$owner_ID'");
+                        $owner_data = mysqli_fetch_assoc($owner_query);
+                        $owner_name = $owner_data ? htmlspecialchars($owner_data['u_FName'] . ' ' . $owner_data['u_LName']) : 'Unknown';
+
+                        // Get the image names and use the first image for the card
+                        $images = explode(',', $dorm['d_PicName']);
+                        $first_image = $images[0];
+
+                        // Limit the description to 100 characters
+                        $description = substr($dorm['d_Description'], 0, 100);
+                        if (strlen($dorm['d_Description']) > 100) {
+                            $description .= '...';
                         }
-                    } else {
-                        // Display "No listings available" message
-                        echo '<div class="alert alert-secondary text-center mx-auto p-5" role="alert">';
-                        echo 'No listings available at the moment';
-                        echo '</div>';
-                    }
-                }
                 ?>
-
-
+                        <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
+                            <div class="card h-100 border-1">
+                                <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>">
+                                    <div class="card-img-container">
+                                        <img src="upload/<?= htmlspecialchars($first_image); ?>" class="card-img-top" alt="<?= htmlspecialchars($dorm['d_Name']); ?>">
+                                    </div>
+                                </a>
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title"><?= htmlspecialchars($dorm['d_Name']); ?></h5>
+                                    <p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;"><?= htmlspecialchars($description); ?></p>
+                                    <p class="card-text"><i class="bi bi-geo-alt-fill"></i> <?= htmlspecialchars($dorm['d_Street']) . ', ' . htmlspecialchars($dorm['d_City']); ?></p>
+                                    <p class="card-text"><strong>Owner:</strong> <?= htmlspecialchars($owner_name); ?></p>
+                                    <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="btn btn-dark mt-auto">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    <?php
+                    endwhile;
+                else:
+                    ?>
+                    <div class="alert alert-secondary text-center mx-auto p-5" role="alert">
+                        No listings available at the moment
+                    </div>
+                <?php endif; ?>
             </div>
+
         </div>
     </div>
 </div>
@@ -202,6 +215,7 @@ if (isset($_POST['submit'])) {
                     </div>
                     <!-- Add more fields as needed -->
                     <div class="modal-footer">
+                        <button name="delete" class="btn btn-danger">Delete Account</button>
                         <button name="submit" class="btn btn-dark">Save changes</button>
                     </div>
                 </form>
@@ -209,9 +223,3 @@ if (isset($_POST['submit'])) {
         </div>
     </div>
 </div>
-
-<script>
-    $(document).on('submit', '#editProfileForm', function() {
-
-    })
-</script>

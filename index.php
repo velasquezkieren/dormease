@@ -22,9 +22,6 @@ switch ($page) {
     case 'property':
         $title = 'Details | DormEase';
         break;
-    case 'edit_profile':
-        $title = 'Edit Profile | DormEase';
-        break;
     default:
         $title = 'DormEase';
 }
@@ -41,7 +38,7 @@ switch ($page) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="scripts/jquery-3.7.1.min.js"></script>
     <link rel="icon" type="image/x-icon" href="./img/favicon.png">
 
     <!-- style for navbar -->
@@ -119,9 +116,6 @@ switch ($page) {
             break;
         case 'property':
             include('./pages/property.php');
-            break;
-        case 'edit_profile':
-            include('./pages/edit_profile.php');
             break;
         default:
             include('./pages/homepage.php');

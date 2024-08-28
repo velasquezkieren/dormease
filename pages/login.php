@@ -7,30 +7,6 @@ if (isset($_SESSION['u_Email'])) {
 
 // Condition for logging in
 if (isset($_POST['submit'])) {
-    // Verify CAPTCHA response
-    $captcha_response = $_POST['g-recaptcha-response'];
-    $captcha_url = 'https://www.google.com/recaptcha/api/siteverify';
-    $captcha_secret = '6LfDVMUpAAAAALRaMy-M7sEY0mPZGbj1fStxGhyl'; // Replace with your reCAPTCHA secret key
-    $data = array(
-        'secret' => $captcha_secret,
-        'response' => $captcha_response
-    );
-    $options = array(
-        'http' => array(
-            'header' => "Content-Type: application/x-www-form-urlencoded\r\n",
-            'method' => 'POST',
-            'content' => http_build_query($data)
-        )
-    );
-    $context = stream_context_create($options);
-    $verify = file_get_contents($captcha_url, false, $context);
-    $captcha_success = json_decode($verify);
-
-    if (!$captcha_success->success) {
-        // CAPTCHA verification failed, handle accordingly
-        header("location:login&captcha-failed");
-        exit(); // Stop further execution
-    }
 
     // Email validation
     $email = mysqli_real_escape_string($con, $_POST['email']);
@@ -177,7 +153,6 @@ if (isset($_POST['submit'])) {
                                                     </label>
                                                 </div>
                                             </div>
-                                            <div class="col-12 g-recaptcha d-grid" data-sitekey="6LfDVMUpAAAAAEkZN-4ynoTkLnFYkCRRdZuj3iSI" required></div>
                                             <div class="col-12">
                                                 <div class="d-grid">
                                                     <button class="btn btn-dark btn-lg" name="submit" type="submit">Log in now</button>

@@ -132,7 +132,7 @@ if (!isset($_SESSION['u_Email'])) {
                 e.preventDefault();
 
                 $.ajax({
-                    url: 'process_form.php', // Your PHP file to handle the form submission
+                    url: '', // Your PHP file to handle the form submission
                     type: 'POST',
                     data: $(this).serialize(),
                     success: function(response) {

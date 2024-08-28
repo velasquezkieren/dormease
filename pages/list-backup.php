@@ -1,5 +1,5 @@
 <?php
-// Inaccessible for students
+// Redirect students away from this page
 if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) {
     header('Location: home');
     exit();
@@ -7,43 +7,46 @@ if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) {
 
 // Handle form submission
 if (isset($_POST['submit'])) {
-    // Sanitize and validate inputs
-    $d_Name = filter_var(trim($_POST['d_Name']), FILTER_SANITIZE_STRING);
-    $d_Street = filter_var(trim($_POST['d_Street']), FILTER_SANITIZE_STRING);
-    $d_City = filter_var(trim($_POST['d_City']), FILTER_SANITIZE_STRING);
-    $d_ZIPCode = filter_var(trim($_POST['d_ZIPCode']), FILTER_SANITIZE_NUMBER_INT);
-    $d_Province = filter_var(trim($_POST['d_Province']), FILTER_SANITIZE_STRING);
-    $d_Region = filter_var(trim($_POST['d_Region']), FILTER_SANITIZE_STRING);
-    $d_Description = filter_var(trim($_POST['d_Description']), FILTER_SANITIZE_STRING);
-
-    // Basic validation
-    if (empty($d_Name) || empty($d_Street) || empty($d_City) || empty($d_ZIPCode) || empty($d_Province) || empty($d_Region) || empty($d_Description)) {
-        echo "<div class='alert alert-danger'>Please fill in all fields.</div>";
-        exit();
-    }
-
-    if (!filter_var($d_ZIPCode, FILTER_VALIDATE_INT)) {
-        echo "<div class='alert alert-danger'>Invalid ZIP Code.</div>";
-        exit();
-    }
-
-    // Generate a unique ID for the dormitory
+    // Dorm Details form
     $d_ID = uniqid('d_');
-    $d_Availability = 'Available';  // Default to 'Available'
+    $d_Name = $_POST['d_Name'];
+    $d_Street = $_POST['d_Street'];
+    $d_City = $_POST['d_City'];
+    $d_ZIPCode = $_POST['d_ZIPCode'];
+    $d_Province = $_POST['d_Province'];
+    $d_Region = $_POST['d_Region'];
+    $d_Description = $_POST['d_Description'];
+    $d_Availability = '1';  // Default availability
     $d_Owner = $_SESSION['u_ID'];  // Assuming the user ID is stored in session
 
-    // Prepare and execute the SQL statement
-    $stmt = $con->prepare("INSERT INTO dormitory (d_ID, d_Name, d_Street, d_City, d_ZIPCode, d_Province, d_Region, d_Availability, d_Description, d_Owner) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param('ssssisssss', $d_ID, $d_Name, $d_Street, $d_City, $d_ZIPCode, $d_Province, $d_Region, $d_Availability, $d_Description, $d_Owner);
+    // Handle multiple image uploads
+    $imageNames = [];
+    foreach ($_FILES['d_PicName']['tmp_name'] as $key => $tmp_name) {
+        $file_name = $_FILES['d_PicName']['name'][$key];
+        $file_tmp = $_FILES['d_PicName']['tmp_name'][$key];
 
-    if ($stmt->execute()) {
-        echo "<div class='alert alert-success'>Property listed successfully!</div>";
-    } else {
-        echo "<div class='alert alert-danger'>Error: " . $stmt->error . "</div>";
+        // Generate a unique name for the image to avoid overwriting
+        $uniqueFileName = uniqid() . '@dormease@' . $file_name;
+
+        // Move the uploaded file to the desired directory
+        move_uploaded_file($file_tmp, "upload/" . $uniqueFileName);
+
+        // Collect the image name
+        $imageNames[] = $uniqueFileName;
     }
 
-    $stmt->close();
-    $con->close();
+    // Convert image names array to a comma-separated string
+    $d_PicNames = implode(',', $imageNames);
+
+    // Insert dormitory details into the database
+    $sql = "INSERT INTO dormitory (d_ID, d_Name, d_Street, d_City, d_ZIPCode, d_Province, d_Region, d_Availability, d_Description, d_Owner, d_PicName)
+            VALUES ('$d_ID', '$d_Name', '$d_Street', '$d_City', '$d_ZIPCode', '$d_Province', '$d_Region', '$d_Availability', '$d_Description', '$d_Owner', '$d_PicNames')";
+
+    if (mysqli_query($con, $sql)) {
+        echo "<script>alert(`Dormitory listed successfully!`);</script>";
+    } else {
+        echo "<script>(Error: " . mysqli_error($con) . "); </script>";
+    }
 }
 
 ?>
@@ -124,10 +127,11 @@ if (!isset($_SESSION['u_Email'])) {
                                             <textarea class="form-control" name="d_Description" id="d_Description" rows="5" required></textarea>
                                         </div>
                                         <div class="col-12">
+                                            <input type="file" name="d_PicName[]" accept="image/*" multiple required>
+                                        </div>
+                                        <div class="col-12">
                                             <input type="submit" value="Submit" name="submit" class="btn btn-dark">
                                         </div>
-
-
                                     </form>
                                 </div>
                             </div>

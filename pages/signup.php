@@ -8,30 +8,6 @@ if (isset($_SESSION['u_Email'])) {
 
 // Condition for signup
 if (isset($_POST['submit'])) {
-    // Verify CAPTCHA response
-    $captcha_response = $_POST['g-recaptcha-response'];
-    $captcha_secret = '6LfDVMUpAAAAALRaMy-M7sEY0mPZGbj1fStxGhyl';
-    $captcha_verify_url = 'https://www.google.com/recaptcha/api/siteverify';
-    $data = array(
-        'secret' => $captcha_secret,
-        'response' => $captcha_response
-    );
-    $options = array(
-        'http' => array(
-            'header' => "Content-Type: application/x-www-form-urlencoded\r\n",
-            'method' => 'POST',
-            'content' => http_build_query($data)
-        )
-    );
-    $context = stream_context_create($options);
-    $captcha_verify_response = file_get_contents($captcha_verify_url, false, $context);
-    $captcha_result = json_decode($captcha_verify_response);
-
-    if (!$captcha_result->success) {
-        // CAPTCHA verification failed, handle accordingly
-        header("Location:signup&captcha-failed");
-        exit();
-    }
 
     // Sanitize first and last name
     $pattern_name = '/^[A-Za-z]+(?:-[A-Za-z]+)*$/';
@@ -106,7 +82,6 @@ if (isset($_POST['submit'])) {
     }
 }
 ?>
-
 
 <section class="p-3 p-md-4 p-xl-5">
     <div class="container" style="padding-top:80px;">
@@ -233,7 +208,6 @@ if (isset($_POST['submit'])) {
                                                     </label>
                                                 </div>
                                             </div>
-                                            <div class="col-12 g-recaptcha d-grid" data-sitekey="6LfDVMUpAAAAAEkZN-4ynoTkLnFYkCRRdZuj3iSI" required></div>
                                             <div class="col-12">
                                                 <div class="d-grid">
                                                     <button class="btn btn-dark btn-lg" name="submit" type="submit">Sign up</button>
