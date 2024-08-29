@@ -66,7 +66,7 @@ if (!$is_logged_in) {
                         $description .= '...';
                     }
                     ?>
-                    <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
+                    <div class="col-lg-3 col-md-6 col-12 mb-2">
                         <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="text-decoration-none">
                             <div class="card h-100 border-1">
                                 <div class="card-img-container">
