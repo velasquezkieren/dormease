@@ -49,7 +49,6 @@ if (isset($_POST['submit'])) {
         echo "<script>(`Error: " . mysqli_error($con) . "`); </script>";
     }
 }
-
 ?>
 
 <?php

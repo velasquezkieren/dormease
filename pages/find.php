@@ -67,20 +67,20 @@ if (!$is_logged_in) {
                     }
                     ?>
                     <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
-                        <div class="card h-100 border-1">
-                            <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>">
+                        <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="text-decoration-none">
+                            <div class="card h-100 border-1">
                                 <div class="card-img-container">
                                     <img src="upload/<?= htmlspecialchars($first_image); ?>" class="card-img-top" alt="<?= htmlspecialchars($dorm['d_Name']); ?>">
                                 </div>
-                            </a>
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title"><?= htmlspecialchars($dorm['d_Name']); ?></h5>
-                                <p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;"><?= htmlspecialchars($description); ?></p>
-                                <p class="card-text"><i class="bi bi-geo-alt-fill"></i> <?= htmlspecialchars($dorm['d_Street']) . ', ' . htmlspecialchars($dorm['d_City']); ?></p>
-                                <p class="card-text"><strong>Owner:</strong> <?= htmlspecialchars($owner_name); ?></p>
-                                <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="btn btn-dark mt-auto">View Details</a>
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title"><?= htmlspecialchars($dorm['d_Name']); ?></h5>
+                                    <p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;"><?= htmlspecialchars($description); ?></p>
+                                    <p class="card-text"><i class="bi bi-geo-alt-fill"></i> <?= htmlspecialchars($dorm['d_Street']) . ', ' . htmlspecialchars($dorm['d_City']); ?></p>
+                                    <p class="card-text"><strong>Owner:</strong> <?= htmlspecialchars($owner_name); ?></p>
+                                    <span class="btn btn-dark mt-auto">View Details</span>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 <?php endwhile; ?>
             </div>
