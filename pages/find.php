@@ -88,9 +88,13 @@ if (!$is_logged_in) {
     <?php
     else:
     ?>
-        <div class="container">
-            <div class="alert alert-secondary text-center mx-auto p-5" role="alert">
-                No listings available at the moment
+        <div class="container pt-5">
+            <div class="mt-auto pt-5">
+                <div class="col pt-5">
+                    <div class="alert alert-secondary text-center mx-auto p-5" role="alert">
+                        No listings available at the moment
+                    </div>
+                </div>
             </div>
         </div>
 <?php endif;

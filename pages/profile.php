@@ -1,5 +1,4 @@
 <?php
-include('./config.php');
 
 if (!isset($_SESSION['u_Email'])) {
     header("location:login&auth-required");
@@ -22,7 +21,7 @@ $data = mysqli_fetch_assoc($query);
 
 // Check if the user exists
 if (!$data) {
-    echo "User not found.";
+    echo "<script>alert('User not found');</script>";
     die();
 }
 
@@ -76,6 +75,49 @@ if (isset($_POST['submit'])) {
         echo "<script>alert('Invalid input. Please check your data.');</script>";
     }
 }
+
+if (isset($_POST['delete'])) {
+    // Delete user images from the server
+    $image_query = mysqli_query($con, "SELECT u_PicName FROM user WHERE u_ID = '$user_ID'");
+    $image_data = mysqli_fetch_assoc($image_query);
+    $picName = $image_data['u_PicName'];
+    if ($picName) {
+        $file_path = 'upload/' . $picName;
+        if (file_exists($file_path)) {
+            unlink($file_path); // Delete the profile picture
+        }
+    }
+
+    // Delete all dormitory listings associated with the user
+    $dorms_query = mysqli_query($con, "SELECT d_PicName FROM dormitory WHERE d_Owner = '$user_ID'");
+    while ($dorm = mysqli_fetch_assoc($dorms_query)) {
+        $dorm_images = explode(',', $dorm['d_PicName']);
+        foreach ($dorm_images as $image) {
+            $file_path = 'upload/' . $image;
+            if (file_exists($file_path)) {
+                unlink($file_path); // Delete each dormitory image
+            }
+        }
+    }
+
+    // Delete dormitory listings
+    mysqli_query($con, "DELETE FROM dormitory WHERE d_Owner = '$user_ID'");
+
+    // Delete user-related records in other tables
+    mysqli_query($con, "DELETE FROM ledger WHERE l_Biller = '$user_ID' OR l_Recipient = '$user_ID'");
+    mysqli_query($con, "DELETE FROM occupancy WHERE o_Occupant = '$user_ID'");
+    mysqli_query($con, "DELETE FROM room WHERE r_Dormitory IN (SELECT d_ID FROM dormitory WHERE d_Owner = '$user_ID')");
+
+    // Delete the user
+    mysqli_query($con, "DELETE FROM user WHERE u_ID = '$user_ID'");
+
+    // End session and redirect to login page
+    session_unset();
+    session_destroy();
+    header("Location: login?account-deleted");
+    die();
+}
+
 ?>
 
 <div class="container pt-5">
@@ -215,10 +257,33 @@ if (isset($_POST['submit'])) {
                     </div>
                     <!-- Add more fields as needed -->
                     <div class="modal-footer">
-                        <button name="delete" class="btn btn-danger">Delete Account</button>
+                        <!-- Button to trigger delete confirmation modal -->
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">Delete Account</button>
                         <button name="submit" class="btn btn-dark">Save changes</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Delete Account Confirmation Modal -->
+<div class="modal" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountModalLabel">Confirm Account Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <!-- Confirm delete -->
+                <form method="POST" action="">
+                    <input type="hidden" name="u_ID" value="<?= htmlspecialchars($user_ID); ?>">
+                    <button type="submit" name="delete" class="btn btn-danger">Delete</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
