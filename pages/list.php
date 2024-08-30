@@ -7,15 +7,16 @@ if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) {
 
 // Handle form submission
 if (isset($_POST['submit'])) {
+
     // Dorm Details form
     $d_ID = uniqid('d_');
-    $d_Name = $_POST['d_Name'];
-    $d_Street = $_POST['d_Street'];
-    $d_City = $_POST['d_City'];
-    $d_ZIPCode = $_POST['d_ZIPCode'];
-    $d_Province = $_POST['d_Province'];
-    $d_Region = $_POST['d_Region'];
-    $d_Description = $_POST['d_Description'];
+    $d_Name = mysqli_real_escape_string($con, $_POST['d_Name']);
+    $d_Street = mysqli_real_escape_string($con, $_POST['d_Street']);
+    $d_City = mysqli_real_escape_string($con, $_POST['d_City']);
+    $d_ZIPCode = mysqli_real_escape_string($con, $_POST['d_ZIPCode']);
+    $d_Province = mysqli_real_escape_string($con, $_POST['d_Province']);
+    $d_Region = mysqli_real_escape_string($con, $_POST['d_Region']);
+    $d_Description = mysqli_real_escape_string($con, $_POST['d_Description']);
     $d_Availability = '1';  // Default availability
     $d_Owner = $_SESSION['u_ID'];  // Assuming the user ID is stored in session
 
@@ -30,10 +31,13 @@ if (isset($_POST['submit'])) {
         $uniqueFileName = uniqid() . '@dormease@' . $file_name;
 
         // Move the uploaded file to the desired directory
-        move_uploaded_file($file_tmp, $file_directory . $uniqueFileName);
-
-        // Collect the image name
-        $imageNames[] = $uniqueFileName;
+        if (move_uploaded_file($file_tmp, $file_directory . $uniqueFileName)) {
+            // Collect the image name
+            $imageNames[] = $uniqueFileName;
+        } else {
+            echo '<script>alert("Error uploading image: ' . htmlspecialchars($file_name) . '");</script>';
+            exit();
+        }
     }
 
     // Convert image names array to a comma-separated string
@@ -44,7 +48,7 @@ if (isset($_POST['submit'])) {
             VALUES ('$d_ID', '$d_Name', '$d_Street', '$d_City', '$d_ZIPCode', '$d_Province', '$d_Region', '$d_Availability', '$d_Description', '$d_Owner', '$d_PicNames')";
 
     if (mysqli_query($con, $sql)) {
-        echo "<script>alert(`Dormitory listed successfully!`);</script>";
+        header("location: property?d_ID=" . $d_ID);
     } else {
         echo "<script>(`Error: " . mysqli_error($con) . "`); </script>";
     }

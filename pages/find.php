@@ -1,8 +1,70 @@
 <?php
 $is_logged_in = isset($_SESSION['u_Email']);
 
-if (!$is_logged_in) {
+// Handle AJAX requests for search and sort
+if (isset($_POST['search']) || isset($_POST['sort'])) {
+    $search_query = mysqli_real_escape_string($con, $_POST['search']);
+    $sort_order = mysqli_real_escape_string($con, $_POST['sort']);
+
+    $sql = "SELECT * FROM dormitory WHERE d_Name LIKE '%$search_query%' OR d_Street LIKE '%$search_query%' OR d_City LIKE '%$search_query%'";
+
+    // Sorting
+    if ($sort_order == "1") {
+        $sql .= " ORDER BY d_Name ASC";
+    } elseif ($sort_order == "2") {
+        $sql .= " ORDER BY d_Name DESC";
+    } elseif ($sort_order == "3") {
+        $sql .= " ORDER BY d_Price ASC";
+    } elseif ($sort_order == "4") {
+        $sql .= " ORDER BY d_Price DESC";
+    }
+
+    $dorms_query = mysqli_query($con, $sql);
+
+    if (mysqli_num_rows($dorms_query) > 0) {
+        while ($dorm = mysqli_fetch_assoc($dorms_query)) {
+            // Fetch the owner's name
+            $owner_ID = mysqli_real_escape_string($con, $dorm['d_Owner']);
+            $owner_query = mysqli_query($con, "SELECT u_FName, u_LName FROM user WHERE u_ID = '$owner_ID'");
+            $owner_data = mysqli_fetch_assoc($owner_query);
+            $owner_name = $owner_data ? htmlspecialchars($owner_data['u_FName'] . ' ' . $owner_data['u_LName']) : 'Unknown';
+
+            // Get the image names and use the first image for the card
+            $images = explode(',', $dorm['d_PicName']);
+            $first_image = $images[0];
+
+            // Limit the description to 100 characters
+            $description = substr($dorm['d_Description'], 0, 100);
+            if (strlen($dorm['d_Description']) > 100) {
+                $description .= '...';
+            }
 ?>
+            <div class="col-lg-3 col-md-6 col-12 mb-2">
+                <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="text-decoration-none">
+                    <div class="card h-100 border-1">
+                        <div class="card-img-container">
+                            <img src="upload/<?= htmlspecialchars($first_image); ?>" class="card-img-top" alt="<?= htmlspecialchars($dorm['d_Name']); ?>">
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title"><?= htmlspecialchars($dorm['d_Name']); ?></h5>
+                            <p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;"><?= htmlspecialchars($description); ?></p>
+                            <p class="card-text"><i class="bi bi-geo-alt-fill"></i> <?= htmlspecialchars($dorm['d_Street']) . ', ' . htmlspecialchars($dorm['d_City']); ?></p>
+                            <p class="card-text"><strong>Owner:</strong> <?= htmlspecialchars($owner_name); ?></p>
+                            <span class="btn btn-dark mt-auto">View Details</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+    <?php
+        }
+    } else {
+        echo '<div class="alert alert-secondary text-center mx-auto p-5" role="alert">No listings available for your search</div>';
+    }
+    exit;
+}
+
+if (!$is_logged_in) {
+    ?>
     <section class="p-3 p-md-4 p-xl-5">
         <div class="container p-xl-5" style="margin-top: 100px;">
             <div class="row">
@@ -14,89 +76,66 @@ if (!$is_logged_in) {
             </div>
         </div>
     </section>
-    <?php
+<?php
 } else {
-    // Fetch all dormitories from the database
-    $sql = "SELECT * FROM dormitory";
-    $dorms_query = mysqli_query($con, $sql);
-
-    if (mysqli_num_rows($dorms_query) > 0):
-    ?>
-        <div class="container">
-            <div class="row m-auto">
-                <div class="col">
-                    <div class="input-group mt-5 pt-5 p-4">
-                        <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Type to search...">
-                        <datalist id="datalistOptions">
-                            <option value="Cabanatuan">
-                            <option value="Sta. Rosa">
-                            <option value="Sumacab">
-                        </datalist>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="input-group mt-5 pt-5">
-                        <select class="form-select" aria-label="Default select example">
-                            <option value="Sort By" selected disabled>Sort By</option>
-                            <option value="1">Price - Low to High</option>
-                            <option value="2">Price - High to Low</option>
-                            <option value="3">Rating - Low to High</option>
-                            <option value="4">Rating - High to Low</option>
-                        </select>
-                    </div>
+    // Initial fetch of all dormitories
+?>
+    <div class="container">
+        <div class="row m-auto">
+            <div class="col">
+                <div class="input-group mt-5 pt-5 p-4">
+                    <input class="form-control" list="datalistOptions" id="searchInput" placeholder="Type to search...">
+                    <datalist id="datalistOptions">
+                        <option value="Cabanatuan">
+                        <option value="Sta. Rosa">
+                        <option value="Sumacab">
+                    </datalist>
                 </div>
             </div>
-
-            <div class="row mt-5">
-                <?php while ($dorm = mysqli_fetch_assoc($dorms_query)): ?>
-                    <?php
-                    // Fetch the owner's name
-                    $owner_ID = mysqli_real_escape_string($con, $dorm['d_Owner']);
-                    $owner_query = mysqli_query($con, "SELECT u_FName, u_LName FROM user WHERE u_ID = '$owner_ID'");
-                    $owner_data = mysqli_fetch_assoc($owner_query);
-                    $owner_name = $owner_data ? htmlspecialchars($owner_data['u_FName'] . ' ' . $owner_data['u_LName']) : 'Unknown';
-
-                    // Get the image names and use the first image for the card
-                    $images = explode(',', $dorm['d_PicName']);
-                    $first_image = $images[0];
-
-                    // Limit the description to 100 characters
-                    $description = substr($dorm['d_Description'], 0, 100);
-                    if (strlen($dorm['d_Description']) > 100) {
-                        $description .= '...';
-                    }
-                    ?>
-                    <div class="col-lg-3 col-md-6 col-12 mb-2">
-                        <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="text-decoration-none">
-                            <div class="card h-100 border-1">
-                                <div class="card-img-container">
-                                    <img src="upload/<?= htmlspecialchars($first_image); ?>" class="card-img-top" alt="<?= htmlspecialchars($dorm['d_Name']); ?>">
-                                </div>
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title"><?= htmlspecialchars($dorm['d_Name']); ?></h5>
-                                    <p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;"><?= htmlspecialchars($description); ?></p>
-                                    <p class="card-text"><i class="bi bi-geo-alt-fill"></i> <?= htmlspecialchars($dorm['d_Street']) . ', ' . htmlspecialchars($dorm['d_City']); ?></p>
-                                    <p class="card-text"><strong>Owner:</strong> <?= htmlspecialchars($owner_name); ?></p>
-                                    <span class="btn btn-dark mt-auto">View Details</span>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                <?php endwhile; ?>
-            </div>
-        </div>
-    <?php
-    else:
-    ?>
-        <div class="container pt-5">
-            <div class="mt-auto pt-5">
-                <div class="col pt-5">
-                    <div class="alert alert-secondary text-center mx-auto p-5" role="alert">
-                        No listings available at the moment
-                    </div>
+            <div class="col">
+                <div class="input-group mt-5 pt-5">
+                    <select class="form-select" id="sortSelect" aria-label="Default select example">
+                        <option value="" selected disabled>Sort By</option>
+                        <option value="1">Name - A to Z</option>
+                        <option value="2">Name - Z to A</option>
+                        <option value="3">Price - Low to High</option>
+                        <option value="4">Price - High to Low</option>
+                    </select>
                 </div>
             </div>
         </div>
-<?php endif;
+
+        <div class="row mt-5" id="dormsContainer">
+            <!-- Dormitory listings will be loaded here via AJAX -->
+        </div>
+    </div>
+<?php
 }
 ?>
+
+<script>
+    $(document).ready(function() {
+        function loadDorms() {
+            var search_query = $('#searchInput').val();
+            var sort_order = $('#sortSelect').val();
+
+            $.ajax({
+                type: 'POST',
+                url: '', // Loads the file itself
+                data: {
+                    search: search_query,
+                    sort: sort_order
+                },
+                success: function(response) {
+                    $('#dormsContainer').html(response);
+                }
+            });
+        }
+
+        $('#searchInput').on('input', loadDorms);
+        $('#sortSelect').on('change', loadDorms);
+
+        // Load all dorms on page load
+        loadDorms();
+    });
+</script>

@@ -25,6 +25,8 @@ if (!$data) {
     die();
 }
 
+$profile_pic = !empty($data['u_PicName']) ? 'upload/' . htmlspecialchars($data['u_PicName']) : 'upload/avatar.png';
+
 $email = $_SESSION['u_Email'];
 $contact_num = $data['u_ContactNumber'];
 $lastname = $data['u_LName'];
@@ -114,7 +116,7 @@ if (isset($_POST['delete'])) {
     // End session and redirect to login page
     session_unset();
     session_destroy();
-    header("Location: login?account-deleted");
+    header("Location: login");
     die();
 }
 
@@ -123,6 +125,7 @@ if (isset($_POST['delete'])) {
 <div class="container pt-5">
     <div class="row pt-5">
         <div class="col-12 col-md-6 pt-5 d-flex justify-content-center justify-content-md-start">
+            <img src="<?php echo $profile_pic; ?>" alt="Profile Picture" class="img-fluid h-50  rounded-circle">
             <?php
             // Check if the logged-in user is viewing their own profile
             if (isset($_GET['u_ID']) && $_GET['u_ID'] != $_SESSION['u_ID']) {
