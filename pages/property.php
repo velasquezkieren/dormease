@@ -146,7 +146,7 @@ if (isset($_POST['delete_dormitory'])) {
                     $isActive = 'active';
                     foreach ($images as $image) {
                         echo '<div class="carousel-item ' . $isActive . '">';
-                        echo '<img src="./upload/' . htmlspecialchars($image) . '" class="d-block w-50" alt="Dormitory Image">';
+                        echo '<img src="./upload/' . htmlspecialchars($image) . '" class="d-block w-100" alt="Dormitory Image">';
                         echo '</div>';
                         $isActive = '';
                     }
@@ -218,7 +218,7 @@ if (isset($_POST['delete_dormitory'])) {
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteListingModal">Delete Listing</button>
-                        <button type="submit" name="edit_dormitory" class="btn btn-primary">Save changes</button>
+                        <button type="submit" name="edit_dormitory" class="btn btn-dark">Save changes</button>
                     </div>
                 </form>
             </div>
