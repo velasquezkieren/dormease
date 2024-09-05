@@ -163,13 +163,17 @@ if (isset($_POST['delete_dormitory'])) {
             </div>
         </div>
     </div>
+
+
     <div class="row pt-5">
         <p class="h1">About</p>
         <div class="col-12 col-md">
             <p><?php echo nl2br(htmlspecialchars($dormitory['d_Description'])); ?></p>
         </div>
         <div class="col-12">
+            <h1>Where you'll be</h1>
             <!-- Google Maps integration here -->
+            <div id="map" style="height: 400px;"></div>
         </div>
     </div>
 </div>
@@ -247,3 +251,12 @@ if (isset($_POST['delete_dormitory'])) {
         </div>
     </div>
 </div>
+
+
+<script>
+    var map = L.map('map').setView([51.505, -0.09], 13);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+</script>

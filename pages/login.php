@@ -60,7 +60,6 @@ if (isset($_POST['submit'])) {
 }
 ?>
 
-
 <section class="p-3 p-md-4 p-xl-5">
     <div class="container" style="padding-top: 80px;">
         <div class="row justify-content-center">

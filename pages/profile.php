@@ -152,7 +152,7 @@ if (isset($_POST['delete'])) {
     if ($isOwnProfile && isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
     ?>
         <div class="col-12 col-md-6 pt-3 pt-md-5 d-flex justify-content-center justify-content-md-end align-items-center">
-            <a class="login-button" href="list">Create a listing</a>
+            <a class="login-button" href="listing">Create a listing</a>
         </div>
     <?php
     }
@@ -225,7 +225,6 @@ if (isset($_POST['delete'])) {
         </div>
     </div>
 </div>
-
 <!-- Edit Profile Modal -->
 <div class="modal" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -291,3 +290,22 @@ if (isset($_POST['delete'])) {
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function(e) {
+        loadDormListings();
+
+        function loadDormListings() {
+            $.ajax({
+                url: '',
+                method: 'POST',
+                success: function(response) {
+                    $('#cards').html(response);
+                },
+                error: function() {
+                    alert('Error loading dorm listings.');
+                }
+            });
+        }
+    });
+</script>
