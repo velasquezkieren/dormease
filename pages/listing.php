@@ -175,38 +175,39 @@ if (!isset($_SESSION['u_Email'])) {
 }
 ?>
 
-
 <script>
     // Initialize Leaflet map
-    var map = L.map('map').setView([15.4443, 120.9435], 19); // Cabanatuan, Nueva Ecija
+    var map = L.map('map', {
+        dragging: true
+    }).setView([15.4443, 120.9435], 20); // Cabanatuan, Nueva Ecija
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 30,
-        // attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
     // Custom Marker Icon
     var customIcon = L.icon({
         iconUrl: './css/marker-icon-2x.png', // Replace with your custom icon path
         iconSize: [38, 38], // size of the icon
-        iconAnchor: [22, 38], // point of the icon which will correspond to marker's location
+        iconAnchor: [19, 38], // point of the icon which will correspond to marker's location
         popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor
         shadowUrl: './css/marker-shadow.png', // optional shadow image
         shadowSize: [50, 64], // size of the shadow
         shadowAnchor: [4, 62] // the same for the shadow
     });
 
-    // Add marker with the custom icon
-    var marker = L.marker([15.4443, 120.9435], {
-        draggable: true,
-        icon: customIcon // Apply the custom icon here
+    // Add the marker at the center of the screen, but we'll update its position dynamically
+    var marker = L.marker(map.getCenter(), {
+        icon: customIcon
     }).addTo(map);
 
-    // Capture marker drag event to update coordinates
-    marker.on('dragend', function(e) {
-        var latLng = marker.getLatLng();
-        document.getElementById('latitude').value = latLng.lat;
-        document.getElementById('longitude').value = latLng.lng;
+    // Update marker position based on map center when map is moved
+    map.on('move', function() {
+        var center = map.getCenter();
+        marker.setLatLng(center); // Set marker position to the map center
+        document.getElementById('latitude').value = center.lat;
+        document.getElementById('longitude').value = center.lng;
     });
 
     // Form navigation script
