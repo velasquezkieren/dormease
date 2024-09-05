@@ -179,17 +179,16 @@ if (!isset($_SESSION['u_Email'])) {
     // Initialize Leaflet map
     var map = L.map('map', {
         dragging: true
-    }).setView([15.4443, 120.9435], 20); // Cabanatuan, Nueva Ecija
+    }).setView([15.4443, 120.9441], 20); // Cabanatuan, Nueva Ecija
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 30,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
     // Custom Marker Icon
     var customIcon = L.icon({
         iconUrl: './css/marker-icon-2x.png', // Replace with your custom icon path
-        iconSize: [38, 38], // size of the icon
+        iconSize: [25, 41], // size of the icon
         iconAnchor: [19, 38], // point of the icon which will correspond to marker's location
         popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor
         shadowUrl: './css/marker-shadow.png', // optional shadow image

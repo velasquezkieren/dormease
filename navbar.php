@@ -45,7 +45,7 @@ if (isset($_GET['page'])) {
                             <a class="nav-link mx-lg-2 ' . (($title == 'Find a Home | DormEase') ? 'active' : '') . '" href="find">Find a Home</a>
                             </li>';
                         echo '<li class="nav-item">
-                            <a class="nav-link mx-lg-2 ' . (($title == 'List Property | DormEase') ? 'active' : '') . '" href="list">List Your Property!</a>
+                            <a class="nav-link mx-lg-2 ' . (($title == 'List Property | DormEase') ? 'active' : '') . '" href="listing">List Your Property!</a>
                             </li>';
                     } elseif (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) {
                         echo '<li class="nav-item">
