@@ -31,7 +31,7 @@ if (isset($_POST['submit'])) {
                 $dbGender = $row['u_Gender'];
                 $dbPassword = $row['u_Password'];
                 $dbAccounttype = $row['u_Account_Type'];
-                $dbContactNo = $row['u_Contact_Number'];
+                $dbContactNo = $row['u_ContactNumber'];
             }
             // Verify hashed password
             if (password_verify($password, $dbPassword)) {
@@ -41,10 +41,10 @@ if (isset($_POST['submit'])) {
                 $_SESSION['u_FName'] = $dbFirstname;
                 $_SESSION['u_LName'] = $dbLastname;
                 $_SESSION['u_Gender'] = $dbGender;
-                $_SESSION['u_Contact_Number'] = $dbContactNo;
+                $_SESSION['u_ContactNumber'] = $dbContactNo;
                 $_SESSION['u_Account_Type'] = $dbAccounttype;
                 // Redirect
-                header("Location:profile?u_ID=" . $dbUserID);
+                header("Location:profile");
                 exit(); // Stop further execution after redirect
             } else {
                 // Wrong password, redirect back to login page
