@@ -1,5 +1,4 @@
 <?php
-
 if (!isset($_SESSION['u_Email'])) {
     header("location:login&auth-required");
     die();

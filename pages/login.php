@@ -1,8 +1,8 @@
 <?php
+// Check if the user is already logged in, and redirect if true
 if (isset($_SESSION['u_Email'])) {
-    // Redirect to the feed page or any other appropriate page
     header("Location: profile");
-    exit(); // Stop further execution
+    exit(); // Stop further execution after redirect
 }
 
 // Condition for logging in
@@ -44,12 +44,12 @@ if (isset($_POST['submit'])) {
                 $_SESSION['u_ContactNumber'] = $dbContactNo;
                 $_SESSION['u_Account_Type'] = $dbAccounttype;
                 // Redirect
-                header("Location:profile");
-                exit(); // Stop further execution after redirect
+                header("Location: profile?u_ID=" . $dbUserID);
+                exit();
             } else {
                 // Wrong password, redirect back to login page
                 header("Location:login&pw-not-match");
-                exit(); // Stop further execution after redirect
+                exit();
             }
         } else {
             // Wrong email, redirect back to login page

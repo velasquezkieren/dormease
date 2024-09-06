@@ -25,7 +25,6 @@ switch ($page) {
     default:
         $title = 'DormEase';
 }
-
 ?>
 
 <!doctype html>
@@ -88,11 +87,7 @@ switch ($page) {
 </head>
 
 <body>
-    <header>
-        <?php
-        include('navbar.php'); //navbar
-        ?>
-    </header>
+    <header><?php include('navbar.php'); ?></header>
     <?php
     // navigation links
     $page = isset($_GET['page']) ? $_GET['page'] : 'index';
@@ -125,7 +120,8 @@ switch ($page) {
     }
     ?>
     <footer class="mt-5 text-center text-lg-start bg-body-tertiary text-muted">
-        <?php include('footer.php'); //footer 
+        <?php
+        include('footer.php'); //footer 
         ?>
     </footer>
 
