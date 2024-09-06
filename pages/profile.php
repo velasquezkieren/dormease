@@ -1,4 +1,5 @@
 <?php
+// Redirect to Login if not logged in
 if (!isset($_SESSION['u_Email'])) {
     header("location:login&auth-required");
     die();
@@ -15,6 +16,7 @@ if (isset($_GET['u_ID'])) {
     $user_ID = $_SESSION['u_ID']; // Store the logged-in user's ID for comparison
 }
 
+// SQL Connection
 $query = mysqli_query($con, $sql);
 $data = mysqli_fetch_assoc($query);
 
@@ -24,6 +26,7 @@ if (!$data) {
     die();
 }
 
+// Display profile picture
 $profile_pic = !empty($data['u_PicName']) ? 'upload/' . htmlspecialchars($data['u_PicName']) : 'upload/avatar.png';
 
 $email = $_SESSION['u_Email'];

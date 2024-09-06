@@ -43,9 +43,13 @@ if (isset($_POST['submit'])) {
     // Convert image names array to a comma-separated string
     $d_PicNames = implode(',', $imageNames);
 
+    // Retrieve latitude and longitude
+    $d_Latitude = mysqli_real_escape_string($con, $_POST['d_Latitude']);
+    $d_Longitude = mysqli_real_escape_string($con, $_POST['d_Longitude']);
+
     // Insert dormitory details into the database
-    $sql = "INSERT INTO dormitory (d_ID, d_Name, d_Street, d_City, d_ZIPCode, d_Province, d_Region, d_Availability, d_Description, d_Owner, d_PicName)
-            VALUES ('$d_ID', '$d_Name', '$d_Street', '$d_City', '$d_ZIPCode', '$d_Province', '$d_Region', '$d_Availability', '$d_Description', '$d_Owner', '$d_PicNames')";
+    $sql = "INSERT INTO dormitory (d_ID, d_Name, d_Street, d_City, d_ZIPCode, d_Province, d_Region, d_Availability, d_Description, d_Owner, d_PicName, d_Latitude, d_Longitude)
+            VALUES ('$d_ID', '$d_Name', '$d_Street', '$d_City', '$d_ZIPCode', '$d_Province', '$d_Region', '$d_Availability', '$d_Description', '$d_Owner', '$d_PicNames', '$d_Latitude', '$d_Longitude')";
 
     if (mysqli_query($con, $sql)) {
         header("location: property?d_ID=" . $d_ID);
@@ -55,6 +59,7 @@ if (isset($_POST['submit'])) {
 }
 ?>
 
+<!-- HTML Section -->
 <?php
 if (!isset($_SESSION['u_Email'])) {
 ?>
@@ -101,6 +106,13 @@ if (!isset($_SESSION['u_Email'])) {
                                             <div class="form-floating mb-3">
                                                 <input type="text" name="d_Street" class="form-control" id="d_Street" placeholder="Street Address" required>
                                                 <label for="d_Street">Street Address</label>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-floating mb-3">
+                                                <input type="hidden" name="d_Latitude" id="latitude">
+                                                <input type="hidden" name="d_Longitude" id="longitude">
                                                 <div id="map" style="height: 450px; width:450px;"></div>
                                             </div>
                                         </div>

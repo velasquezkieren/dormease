@@ -22,6 +22,11 @@ if (!$dormitory) {
 $d_Owner_ID = $dormitory['d_Owner'];
 $loggedInUserID = $_SESSION['u_ID']; // Assuming you have this session variable
 
+// Retrieve coordinates and Dorm Name
+$latitude = $dormitory['d_Latitude'];
+$longitude = $dormitory['d_Longitude'];
+$dormName = htmlspecialchars($dormitory['d_Name']); // Sanitize dormitory name
+
 if (isset($_POST['edit_dormitory'])) {
     // Process the form to update the dormitory
     $d_ID = $_POST['d_ID'];
@@ -164,7 +169,6 @@ if (isset($_POST['delete_dormitory'])) {
         </div>
     </div>
 
-
     <div class="row pt-5">
         <p class="h1">About</p>
         <div class="col-12 col-md">
@@ -172,7 +176,7 @@ if (isset($_POST['delete_dormitory'])) {
         </div>
         <div class="col-12">
             <h1>Where you'll be</h1>
-            <!-- Google Maps integration here -->
+            <!-- OpenStreetMap Integration here -->
             <div id="map" style="height: 400px;"></div>
         </div>
     </div>
@@ -252,11 +256,18 @@ if (isset($_POST['delete_dormitory'])) {
     </div>
 </div>
 
-
 <script>
-    var map = L.map('map').setView([51.505, -0.09], 13);
+    // Initialize the map
+    var map = L.map('map').setView([<?php echo htmlspecialchars($latitude); ?>, <?php echo htmlspecialchars($longitude); ?>], 19);
+
+    // Add tile layer
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
+
+    // Add marker and display dorm name
+    L.marker([<?php echo htmlspecialchars($latitude); ?>, <?php echo htmlspecialchars($longitude); ?>]).addTo(map)
+        .bindPopup('<?php echo $dormName; ?>')
+        .openPopup();
 </script>

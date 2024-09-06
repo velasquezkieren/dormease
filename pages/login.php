@@ -54,7 +54,7 @@ if (isset($_POST['submit'])) {
         } else {
             // Wrong email, redirect back to login page
             header("Location:login&email-not-match");
-            exit(); // Stop further execution after redirect
+            exit();
         }
     }
 }
@@ -134,13 +134,13 @@ if (isset($_POST['submit'])) {
                                         <div class="row gy-3 overflow-hidden">
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">
-                                                    <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" required>
+                                                    <input type="email" class="form-control" name="email" id="email" autocomplete="on" placeholder="name@example.com" required>
                                                     <label for="email" class="form-label">Email</label>
                                                 </div>
                                             </div>
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">
-                                                    <input type="password" class="form-control" name="password" id="password" value="" placeholder="Password" minlength="8" maxlength="20" required pattern=".{8,20}">
+                                                    <input type="password" class="form-control" name="password" id="password" autocomplete="on" placeholder="Password" minlength="8" maxlength="20" required pattern=".{8,20}">
                                                     <label for="password" class="form-label">Password</label>
                                                 </div>
                                             </div>
