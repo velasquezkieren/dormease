@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     if ($new_email !== $email) {
         $check_query = "SELECT 1 FROM user WHERE u_Email = ? AND u_ID != ?";
         $stmt = $con->prepare($check_query);
-        $stmt->bind_param('si', $new_email, $user_ID);
+        $stmt->bind_param('ss', $new_email, $user_ID);
         $stmt->execute();
         $stmt->store_result();
 
@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $update_query = "UPDATE user SET " . implode(', ', $update_fields) . " WHERE u_ID = ?";
     $stmt = $con->prepare($update_query);
     $params[] = $user_ID;
-    $param_types .= 'i';
+    $param_types .= 's';
     $stmt->bind_param($param_types, ...$params);
     $stmt->execute();
 
@@ -195,11 +195,14 @@ if (isset($_POST['delete'])) {
         $con->prepare("DELETE FROM user WHERE u_ID = ?")->execute([$user_ID]);
 
         $con->commit();
+
+        // Logout after delete
         session_unset();
         session_destroy();
         header("Location: login");
         exit();
     } catch (Exception $e) {
+        // Rollback if an error is encountered to retain data integrity
         $con->rollback();
         echo "<script>alert('Error deleting account: " . $e->getMessage() . "');</script>";
     }
