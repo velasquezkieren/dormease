@@ -127,7 +127,7 @@ if (isset($_POST['delete'])) {
 <div class="container pt-5">
     <div class="row pt-5">
         <div class="col-12 col-md-6 pt-5 d-flex justify-content-center justify-content-md-start">
-            <img src="<?php echo $profile_pic; ?>" alt="Profile Picture" class="img-fluid h-50  rounded-circle">
+            <img src="<?php echo $profile_pic; ?>" alt="<?php echo $fullname; ?>" class="img-fluid h-50  rounded-circle">
             <?php
             // Check if the logged-in user is viewing their own profile
             if (isset($_GET['u_ID']) && $_GET['u_ID'] != $_SESSION['u_ID']) {
@@ -159,6 +159,21 @@ if (isset($_POST['delete'])) {
     <?php
     }
     ?>
+    <hr>
+    <ul class="nav nav-underline">
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Listings</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">Pending (0)</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">Currently Hosting</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#">Payment</a>
+        </li>
+    </ul>
     <div class="row">
         <div class="col pt-2">
             <div class="col-12 col-md-6 pt-5 d-flex justify-content-center justify-content-md-start">
@@ -227,12 +242,13 @@ if (isset($_POST['delete'])) {
         </div>
     </div>
 </div>
+
 <!-- Edit Profile Modal -->
 <div class="modal" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                <h5 class="modal-title text-center" id="editProfileModalLabel">Edit Profile</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -292,22 +308,3 @@ if (isset($_POST['delete'])) {
         </div>
     </div>
 </div>
-
-<script>
-    $(document).ready(function(e) {
-        loadDormListings();
-
-        function loadDormListings() {
-            $.ajax({
-                url: '',
-                method: 'POST',
-                success: function(response) {
-                    $('#cards').html(response);
-                },
-                error: function() {
-                    alert('Error loading dorm listings.');
-                }
-            });
-        }
-    });
-</script>
