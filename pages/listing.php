@@ -1,15 +1,14 @@
 <?php
-// Redirect students away from this page
+// Redirect students away from this page if they are logged in as students
 if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) {
     header('Location: home');
     exit();
 }
 
-// Handle form submission
+// Handle form submission when the user clicks the submit button
 if (isset($_POST['submit'])) {
-
-    // Dorm Details form
-    $d_ID = uniqid('d_');
+    // Sanitize input data to prevent SQL injection
+    $d_ID = uniqid('d_');  // Generate a unique ID for the dormitory
     $d_Name = mysqli_real_escape_string($con, $_POST['d_Name']);
     $d_Street = mysqli_real_escape_string($con, $_POST['d_Street']);
     $d_City = mysqli_real_escape_string($con, $_POST['d_City']);
@@ -17,43 +16,86 @@ if (isset($_POST['submit'])) {
     $d_Province = mysqli_real_escape_string($con, $_POST['d_Province']);
     $d_Region = mysqli_real_escape_string($con, $_POST['d_Region']);
     $d_Description = mysqli_real_escape_string($con, $_POST['d_Description']);
-    $d_Availability = '1';  // Default availability
-    $d_Owner = $_SESSION['u_ID'];  // Assuming the user ID is stored in session
+    $d_Availability = '1';  // Default availability status
+    $d_Owner = $_SESSION['u_ID'];  // Get the logged-in user ID from the session
 
-    // Handle multiple image uploads
+    // Initialize array to store image names
     $imageNames = [];
-    foreach ($_FILES['d_PicName']['tmp_name'] as $key => $tmp_name) {
-        $file_name = $_FILES['d_PicName']['name'][$key];
-        $file_tmp = $_FILES['d_PicName']['tmp_name'][$key];
-        $file_directory = "upload/";
+    // Allowed image types
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+    $maxFileSize = 5 * 1024 * 1024; // Maximum file size: 5MB
 
-        // Generate a unique name for the image to avoid overwriting
-        $uniqueFileName = uniqid() . '@dormease@' . $file_name;
-
-        // Move the uploaded file to the desired directory
-        if (move_uploaded_file($file_tmp, $file_directory . $uniqueFileName)) {
-            // Collect the image name
-            $imageNames[] = $uniqueFileName;
-        } else {
-            echo '<script>alert("Error uploading image: ' . htmlspecialchars($file_name) . '");</script>';
-            exit();
-        }
+    // Check if the number of images uploaded is within the allowed range (3-5 images)
+    if (count($_FILES['d_PicName']['name']) < 3 || count($_FILES['d_PicName']['name']) > 5) {
+        echo '<script>alert("Please upload between 3 and 5 images.");</script>';
+        exit();
     }
 
-    // Convert image names array to a comma-separated string
-    $d_PicNames = implode(',', $imageNames);
+    // Begin a transaction
+    $con->begin_transaction();
 
-    // Retrieve latitude and longitude
-    $d_Latitude = mysqli_real_escape_string($con, $_POST['d_Latitude']);
-    $d_Longitude = mysqli_real_escape_string($con, $_POST['d_Longitude']);
+    try {
+        // Create a directory for the dormitory using its unique ID
+        $directoryPath = "upload/" . $d_ID . "/";
+        if (!is_dir($directoryPath)) {
+            mkdir($directoryPath, 0777, true);  // Create the directory with proper permissions
+        }
 
-    // Insert dormitory details into the database
-    $sql = "INSERT INTO dormitory (d_ID, d_Name, d_Street, d_City, d_ZIPCode, d_Province, d_Region, d_Availability, d_Description, d_Owner, d_PicName, d_Latitude, d_Longitude) VALUES ('$d_ID', '$d_Name', '$d_Street', '$d_City', '$d_ZIPCode', '$d_Province', '$d_Region', '$d_Availability', '$d_Description', '$d_Owner', '$d_PicNames', '$d_Latitude', '$d_Longitude')";
+        // Loop through each uploaded file
+        foreach ($_FILES['d_PicName']['tmp_name'] as $key => $tmp_name) {
+            $file_name = $_FILES['d_PicName']['name'][$key];
+            $file_tmp = $_FILES['d_PicName']['tmp_name'][$key];
+            $file_type = $_FILES['d_PicName']['type'][$key];
+            $file_size = $_FILES['d_PicName']['size'][$key];
 
-    if (mysqli_query($con, $sql)) {
-        header("location: profile");
-    } else {
-        echo "<script>(`Error: " . mysqli_error($con) . "`); </script>";
+            // Validate file type and size
+            if (!in_array($file_type, $allowedTypes)) {
+                throw new Exception("Invalid file type: " . htmlspecialchars($file_name));
+            }
+            if ($file_size > $maxFileSize) {
+                throw new Exception("File size too large: " . htmlspecialchars($file_name));
+            }
+
+            // Generate a unique name for each image to avoid overwriting
+            $uniqueFileName = uniqid() . '@dormease@' . $file_name;
+
+            // Move the uploaded file to the new folder
+            if (!move_uploaded_file($file_tmp, $directoryPath . $uniqueFileName)) {
+                throw new Exception("Error uploading image: " . htmlspecialchars($file_name));
+            }
+
+            // Add the unique image name to the array
+            $imageNames[] = $uniqueFileName;
+        }
+
+        // Convert array of image names to a comma-separated string
+        $d_PicNames = implode(',', $imageNames);
+
+        // Sanitize latitude and longitude
+        $d_Latitude = mysqli_real_escape_string($con, $_POST['d_Latitude']);
+        $d_Longitude = mysqli_real_escape_string($con, $_POST['d_Longitude']);
+
+        // Prepare an SQL statement to insert dormitory details into the database
+        $stmt = $con->prepare("INSERT INTO dormitory (d_ID, d_Name, d_Street, d_City, d_ZIPCode, d_Province, d_Region, d_Availability, d_Description, d_Owner, d_PicName, d_Latitude, d_Longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+        // Bind parameters to the SQL statement
+        $stmt->bind_param('sssssssssssss', $d_ID, $d_Name, $d_Street, $d_City, $d_ZIPCode, $d_Province, $d_Region, $d_Availability, $d_Description, $d_Owner, $d_PicNames, $d_Latitude, $d_Longitude);
+
+        // Execute the statement and check if it was successful
+        if (!$stmt->execute()) {
+            throw new Exception("Database insert failed: " . htmlspecialchars($stmt->error));
+        }
+
+        // Commit the transaction
+        $con->commit();
+
+        // Redirect to the profile page on success
+        header("Location: profile");
+        exit();
+    } catch (Exception $e) {
+        // Rollback the transaction if there was an error
+        $con->rollback();
+        echo "<script>alert('Error: " . htmlspecialchars($e->getMessage()) . "');</script>";
     }
 }
 ?>
@@ -105,7 +147,6 @@ if (!isset($_SESSION['u_Email'])) {
                                             <div class="form-floating mb-3">
                                                 <input type="text" name="d_Street" class="form-control" id="d_Street" placeholder="Street Address" required>
                                                 <label for="d_Street">Street Address</label>
-
                                             </div>
                                         </div>
                                         <div class="col-12">
@@ -144,7 +185,7 @@ if (!isset($_SESSION['u_Email'])) {
                                             <textarea class="form-control" name="d_Description" id="d_Description" rows="5" required></textarea>
                                         </div>
                                         <div class="col-12">
-                                            <input type="file" name="d_PicName[]" accept="image/*" multiple required>
+                                            <input type="file" name="d_PicName[]" accept=".jpg, .jpeg, .png, .gif" multiple required>
                                         </div>
                                         <div class="col-12">
                                             <input type="submit" value="Submit" name="submit" class="btn btn-dark">
