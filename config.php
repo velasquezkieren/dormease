@@ -1,6 +1,7 @@
 <?php
-$con = mysqli_connect("localhost", "root", "Kieren123", "dormease");
+$con = mysqli_connect("localhost", "root", "", "dormease");
 
 if (!$con) {
-    die("Connection to the database failed");
+    die("<script>alert(`Connection to the database failed`);</script>");
+    exit();
 }

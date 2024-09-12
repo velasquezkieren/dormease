@@ -39,6 +39,7 @@ if (isset($_POST['search']) || isset($_POST['sort'])) {
                 $description .= '...';
             }
 ?>
+            <!-- Dorm Cards -->
             <div class="col-lg-3 col-md-6 col-12 mb-2">
                 <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="text-decoration-none">
                     <div class="card h-100 border-1">
@@ -60,7 +61,7 @@ if (isset($_POST['search']) || isset($_POST['sort'])) {
     } else {
         echo '<div class="alert alert-secondary text-center mx-auto p-5" role="alert">No listings available for your search</div>';
     }
-    exit;
+    exit();
 }
 
 if (!$is_logged_in) {
@@ -116,6 +117,7 @@ if (!$is_logged_in) {
 <script>
     $(document).ready(function() {
         function loadDorms() {
+
             var search_query = $('#searchInput').val();
             var sort_order = $('#sortSelect').val();
 
@@ -132,7 +134,8 @@ if (!$is_logged_in) {
             });
         }
 
-        $('#searchInput').on('input', loadDorms);
+        // Use keyup event instead of input
+        $('#searchInput').on('keyup', loadDorms);
         $('#sortSelect').on('change', loadDorms);
 
         // Load all dorms on page load

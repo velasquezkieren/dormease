@@ -1,11 +1,10 @@
 <?php
 // Landing page accessible only if not logged in
 if (isset($_SESSION['u_ID'])) {
-    header('Location: profile');
+    header("Location: profile");
     exit();
 }
 ?>
-
 
 <style>
     .main {
@@ -27,8 +26,9 @@ if (isset($_SESSION['u_ID'])) {
         /* Move the blurred background behind other content */
     }
 </style>
+
 <!-- hero section -->
-<section class="main py-5">
+<section class="jumbotron main">
     <div class="bg-blur"></div>
     <div class="container py-5">
         <div class="row py-5">
@@ -41,6 +41,7 @@ if (isset($_SESSION['u_ID'])) {
         </div>
     </div>
 </section>
+
 <!-- featured -->
 <section class="featured">
     <div class="container">
@@ -91,7 +92,6 @@ if (isset($_SESSION['u_ID'])) {
                     <a href="#" class="btn btn-primary">View Property</a>
                 </div>
             </div>
-
         </div>
     </div>
 </section>

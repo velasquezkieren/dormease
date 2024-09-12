@@ -6,79 +6,88 @@ if (isset($_SESSION['u_Email'])) {
     exit(); // Stop further execution
 }
 
-// Condition for signup
-if (isset($_POST['submit'])) {
+// Process signup form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 
-    // Sanitize first and last name
-    $pattern_name = '/^[A-Za-z]+(?:-[A-Za-z]+)*$/';
-    $firstname = mysqli_real_escape_string($con, $_POST['firstname']);
-    $lastname = mysqli_real_escape_string($con, $_POST['lastname']);
+    // Sanitize and validate input
+    $firstname = trim(mysqli_real_escape_string($con, $_POST['firstname']));
+    $lastname = trim(mysqli_real_escape_string($con, $_POST['lastname']));
+    $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
+    $confirm_email = filter_var(trim($_POST['confirm_email']), FILTER_SANITIZE_EMAIL);
+    $password = $_POST['password']; // No need to escape this
+    $confirm_password = $_POST['confirm_password']; // No need to escape this
+    $contact_num = trim(mysqli_real_escape_string($con, $_POST['contact_num']));
+    $account_type = mysqli_real_escape_string($con, $_POST['account_type']);
+    $gender = mysqli_real_escape_string($con, $_POST['gender']);
 
-    $result_firstname = preg_match($pattern_name, $firstname);
-    $result_lastname = preg_match($pattern_name, $lastname);
+    // Extract the local part of the email (before the @ symbol)
+    $email_parts = explode('@', $email);
+    $local_part = $email_parts[0] ?? '';
 
-    // Validate email and confirm email
-    $email = mysqli_real_escape_string($con, $_POST['email']);
-    $confirm_email = mysqli_real_escape_string($con, $_POST['confirm_email']);
+    // Flag for errors
+    $error_code = '';
 
-    // Check if emails match
-    if ($email == $confirm_email) {
-        $validate_email = filter_var($email, FILTER_VALIDATE_EMAIL);
-        $validate_confirm_email = filter_var($confirm_email, FILTER_VALIDATE_EMAIL);
-    } else {
-        header('location:signup&email-not-match');
-        die();
+    // Validate names
+    $pattern_name = '/^[A-Za-z]{2,}(?:-[A-Za-z]{2,})*$/'; // Minimum 2 characters
+    if (
+        !preg_match($pattern_name, $firstname) || !preg_match($pattern_name, $lastname)
+    ) {
+        $error_code = 'invalid-name';
     }
 
-    // Sanitize password
+    // Validate email
+    if ($email !== $confirm_email) {
+        $error_code = 'email-not-match';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error_code = 'invalid-email-format';
+    } elseif (strlen($local_part) < 6) {
+        $error_code = 'email-local-part-short';
+    }
+
+    // Validate password
     $pattern_pass = '/.{8,20}/';
-    $password = mysqli_real_escape_string($con, $_POST['password']);
-    $confirm_password = mysqli_real_escape_string($con, $_POST['confirm_password']);
-
-    // Check if passwords match
-    if ($password == $confirm_password) {
-        $result_password = preg_match($pattern_pass, $password);
-        $result_confirm_password = preg_match($pattern_pass, $confirm_password);
-        // Hash password
-        $password_hash = password_hash($password, PASSWORD_DEFAULT);
-    } else {
-        header('location:signup&pw-not-match');
-        die();
+    if ($password !== $confirm_password || !preg_match($pattern_pass, $password)) {
+        $error_code = $error_code ?: 'pw-not-match';
     }
 
-    // Sanitize contact number
+    // Validate contact number
     $pattern_contact = '/09\d{9}/';
-    $contact_num = mysqli_real_escape_string($con, $_POST['contact_num']);
-    $result_contact = preg_match($pattern_contact, $contact_num);
+    if (!preg_match($pattern_contact, $contact_num)) {
+        $error_code = $error_code ?: 'invalid-contact';
+    }
 
-    // Condition for sanitation and validation
-    if ($result_firstname == 1 && $result_lastname == 1 && $validate_email && $validate_confirm_email && $result_password == 1 && $result_confirm_password == 1 && $result_contact == 1) {
-        $u_ID = uniqid('u_', true);
+    // Check if email already exists
+    $check_query = "SELECT 1 FROM user WHERE u_Email = ?";
+    $stmt = mysqli_prepare($con, $check_query);
+    mysqli_stmt_bind_param($stmt, 's', $email);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_store_result($stmt);
 
-        // Get account type and gender
-        $account_type = mysqli_real_escape_string($con, $_POST['account_type']);
-        $gender = mysqli_real_escape_string($con, $_POST['gender']);
+    if (mysqli_stmt_num_rows($stmt) > 0) {
+        $error_code = $error_code ?: 'email-exists';
+    }
 
-        // Check if email already exists
-        $check_query = "SELECT * FROM user WHERE u_Email = '$email'";
-        $check_result = mysqli_query($con, $check_query);
+    // If there is any error, redirect to signup with the error code
+    if ($error_code) {
+        header("Location: signup&$error_code");
+        exit();
+    }
 
-        // If email doesn't exist, insert user data into the database
-        if (mysqli_num_rows($check_result) == 0) {
-            $insert_query = "INSERT INTO user (u_ID, u_FName, u_LName, u_Email, u_Password, u_ContactNumber, u_Account_Type, u_Gender) 
-                             VALUES ('$u_ID', '$firstname', '$lastname', '$email', '$password_hash', '$contact_num', '$account_type', '$gender')";
+    // Hash password
+    $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-            if (mysqli_query($con, $insert_query)) {
-                header("location:login&register-success");
-                exit(); // Stop further execution after redirect
-            } else {
-                echo "Error: " . $insert_query . "<br>" . mysqli_error($con);
-                die();
-            }
-        } else {
-            header("location:signup&email-exists");
-            die();
-        }
+    // Insert user data into database
+    $u_ID = uniqid('u_', true);
+    $insert_query = "INSERT INTO user (u_ID, u_FName, u_LName, u_Email, u_Password, u_ContactNumber, u_Account_Type, u_Gender) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = mysqli_prepare($con, $insert_query);
+    mysqli_stmt_bind_param($stmt, 'ssssssss', $u_ID, $firstname, $lastname, $email, $password_hash, $contact_num, $account_type, $gender);
+
+    if (mysqli_stmt_execute($stmt)) {
+        header("Location: login&register-success");
+        exit();
+    } else {
+        echo "<script>alert('Error: " . mysqli_error($con) . "');</script>";
+        exit();
     }
 }
 ?>
@@ -90,7 +99,7 @@ if (isset($_POST['submit'])) {
                 <div class="card border-light-subtle shadow-sm">
                     <div class="row g-0">
                         <div class="col-12 col-md-6">
-                            <img class="img-fluid rounded-start w-100 h-100 object-fit-cover d-none d-md-block" loading="lazy" src="./img/yellow.jpg">
+                            <img class="img-fluid rounded-start w-100 h-100 object-fit-cover d-none d-md-block" loading="lazy" src="./img/yellow.jpg" alt="Background Image">
                         </div>
                         <div class="col-12 col-md-6 d-flex align-items-center justify-content-center">
                             <div class="col-12 col-lg-11 col-xl-10">
@@ -100,7 +109,7 @@ if (isset($_POST['submit'])) {
                                             <div class="mb-5">
                                                 <div class="text-center mb-4">
                                                     <a href="">
-                                                        <img class="img-fluid rounded-start" src="./img/logo.png" width="auto" height="70">
+                                                        <img class="img-fluid rounded-start" src="./img/logo-b.svg" width="auto" height="70" alt="Logo">
                                                     </a>
                                                 </div>
                                             </div>
@@ -108,45 +117,38 @@ if (isset($_POST['submit'])) {
                                     </div>
                                     <form action="" method="post">
                                         <?php
-                                        if (isset($_GET['captcha-failed'])) {
-                                            echo '
-                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                                <strong>Recaptcha is required!</strong>
-                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                            </div>';
-                                        }
-                                        if (isset($_GET['email-not-match'])) {
-                                            echo '
-                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                                <strong>Email does not match!</strong>
-                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                            </div>';
-                                        }
-                                        if (isset($_GET['pw-not-match'])) {
-                                            echo '
-                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                                <strong>Password does not match!</strong>
-                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                            </div>';
-                                        }
-                                        if (isset($_GET['email-exists'])) {
-                                            echo '
-                                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                                <strong>Email already exists!</strong>
-                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                            </div>';
+                                        $alerts = [
+                                            'email-not-match' => 'Email does not match!',
+                                            'email-local-part-short' => 'Email must be at least 6 characters long!',
+                                            'invalid-email-format' => 'Invalid email format!',
+                                            'pw-not-match' => 'Password does not match!',
+                                            'email-exists' => 'Email already exists!',
+                                            'invalid-name' => 'Invalid name format!',
+                                            'invalid-contact' => 'Invalid contact number!'
+                                        ];
+
+                                        foreach ($alerts as $key => $message) {
+                                            if (isset($_GET[$key])) {
+                                                $alertType = ($key === 'email-exists' || $key === 'email-local-part-short') ? 'warning' : 'danger';
+                                                echo "
+                                                <div class=\"alert alert-$alertType alert-dismissible fade show\" role=\"alert\">
+                                                    <strong>$message</strong>
+                                                    <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>
+                                                </div>";
+                                            }
                                         }
                                         ?>
                                         <div class="row gy-3 overflow-hidden">
+                                            <!-- Form fields with improved HTML attributes for better validation -->
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">
-                                                    <input type="text" class="form-control" name="firstname" placeholder="First Name" required pattern="^[A-Za-z]+(?:-[A-Za-z]+)*$">
+                                                    <input type="text" class="form-control" name="firstname" placeholder="First Name" required pattern="^[A-Za-z]{2,}(?:-[A-Za-z]{2,})*$">
                                                     <label for="firstname" class="form-label">First Name</label>
                                                 </div>
                                             </div>
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">
-                                                    <input type="text" class="form-control" name="lastname" placeholder="Last Name" required pattern="^[A-Za-z]+(?:-[A-Za-z]+)*$">
+                                                    <input type="text" class="form-control" name="lastname" placeholder="Last Name" required pattern="^[A-Za-z]{2,}(?:-[A-Za-z]{2,})*$">
                                                     <label for="lastname" class="form-label">Last Name</label>
                                                 </div>
                                             </div>
@@ -159,7 +161,7 @@ if (isset($_POST['submit'])) {
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">
                                                     <input type="email" class="form-control" name="confirm_email" placeholder="name@example.com" required>
-                                                    <label for="email" class="form-label">Confirm Email</label>
+                                                    <label for="confirm_email" class="form-label">Confirm Email</label>
                                                 </div>
                                             </div>
                                             <div class="col-12">
@@ -186,8 +188,8 @@ if (isset($_POST['submit'])) {
                                                     <label class="form-check-label" for="resident">Resident</label>
                                                 </div>
                                                 <div class="form-check form-check-inline mb-3">
-                                                    <input class="form-check-input" type="radio" name="account_type" id="Property Manager" value="0">
-                                                    <label class="form-check-label" for="Property Manager">Property Manager</label>
+                                                    <input class="form-check-input" type="radio" name="account_type" id="property_manager" value="0">
+                                                    <label class="form-check-label" for="property_manager">Property Manager</label>
                                                 </div>
                                             </div>
                                             <div class="col-12">
@@ -202,7 +204,7 @@ if (isset($_POST['submit'])) {
                                             </div>
                                             <div class="col-12">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="" name="iAgree" id="iAgree" required>
+                                                    <input class="form-check-input" type="checkbox" name="iAgree" id="iAgree" required>
                                                     <label class="form-check-label text-secondary" for="iAgree">
                                                         I agree to the <a href="#!" class="link-primary text-decoration-none">terms and conditions</a>
                                                     </label>

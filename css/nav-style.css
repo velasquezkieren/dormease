@@ -1,0 +1,22 @@
+.navbar {
+  padding: 10px 0px;
+}
+
+/* Transparent Navbar */
+.navbar.transparent {
+  background-color: rgba(255, 255, 255, 0);
+}
+
+/* Solid background color on scroll */
+.navbar.solid {
+  background-color: white !important;
+  border-color: white !important;
+  -webkit-transition: background-color 0.2s ease, box-shadow 0.2s ease,
+    border-color 0.2s ease;
+  -webkit-box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.22);
+}
+
+.logo {
+  height: 50px;
+  width: auto;
+}

@@ -14,21 +14,18 @@ if (isset($_GET['page'])) {
     if (isset($u_ID) && $page == 'logout') {
         session_unset();
         session_destroy();
-        header("location: login&logout-success");
+        header("location:login&logout-success");
     }
 }
 ?>
-<nav class="navbar navbar-expand-sm fixed-top transparent">
-    <div class="container">
-        <div class="navbar-brand me-auto">
-            <a href="<?php echo isset($_SESSION['u_Email']) ? 'profile' : 'home'; ?>">
-                <!-- DormEase Logo -->
-                <img class="logo" src="img/logo-b.svg" alt="DormEase Logo">
-            </a>
-        </div>
+
+<!-- nav bar -->
+<nav class="navbar navbar-expand-lg fixed-top" style="height:80px;">
+    <div class="container-fluid">
+        <a class="navbar-brand me-auto" href="<?php echo isset($_SESSION['u_Email']) ? 'profile' : 'home'; ?>"><img src="img/logo-no-background.png" height="50" width="auto"></a>
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
             <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+                <h5 class="offcanvas-title" id="offcanvasNavbarLabel"><a href="home"><img src="img/logo-no-background.png" height="50" width="auto"></a></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
@@ -79,7 +76,8 @@ if (isset($_GET['page'])) {
         <?php
         if (isset($_SESSION['u_Email'])) {
             echo '<a class="login-button" href="logout">Logout</a>'; //logout button if signed in
-        } else {
+        }
+        if (!isset($_SESSION['u_Email'])) {
             echo '<a href="login" class="login-button">Login</a>'; //login button to sign in
         }
         ?>
@@ -88,18 +86,3 @@ if (isset($_GET['page'])) {
         </button>
     </div>
 </nav>
-
-<script>
-    $(document).ready(function() {
-        // When the page is scrolled
-        $(window).scroll(function() {
-            if ($(this).scrollTop() > 50) {
-                $('.navbar').removeClass('transparent').addClass('solid');
-                $('.logo').attr('src', 'img/logo-c.svg');
-            } else {
-                $('.navbar').removeClass('solid').addClass('transparent');
-                $('.logo').attr('src', 'img/logo-b.svg');
-            }
-        });
-    });
-</script>
