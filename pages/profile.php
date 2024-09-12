@@ -7,121 +7,203 @@ if (!isset($_SESSION['u_Email'])) {
 
 // Check if u_ID is provided in the URL
 if (isset($_GET['u_ID'])) {
-    $user_ID = mysqli_real_escape_string($con, $_GET['u_ID']); // Sanitize input
-    $sql = "SELECT * FROM user WHERE u_ID = '$user_ID'";
+    $user_ID = $_GET['u_ID'];
+    $sql = "SELECT * FROM user WHERE u_ID = ?";
 } else {
     // Fetch the logged-in user's profile
     $email = $_SESSION['u_Email'];
-    $sql = "SELECT * FROM user WHERE u_Email = '$email'";
+    $sql = "SELECT * FROM user WHERE u_Email = ?";
     $user_ID = $_SESSION['u_ID']; // Store the logged-in user's ID for comparison
 }
 
-// SQL Connection
-$query = mysqli_query($con, $sql);
-$data = mysqli_fetch_assoc($query);
+// Prepare and execute the query
+$stmt = $con->prepare($sql);
+if (isset($email)) {
+    $stmt->bind_param("s", $email);
+} else {
+    $stmt->bind_param("s", $user_ID);
+}
+$stmt->execute();
+$data = $stmt->get_result()->fetch_assoc();
 
 // Check if the user exists
 if (!$data) {
     echo "<script>alert('User not found');</script>";
-    die();
+    exit();
 }
 
 // Display profile picture
 $profile_pic = !empty($data['u_PicName']) ? 'upload/' . htmlspecialchars($data['u_PicName']) : 'upload/avatar.png';
 
-$email = $_SESSION['u_Email'];
-$contact_num = $data['u_ContactNumber'];
-$lastname = $data['u_LName'];
-$firstname = $data['u_FName'];
+$email = htmlspecialchars($data['u_Email']);
+$contact_num = htmlspecialchars($data['u_ContactNumber']);
+$lastname = htmlspecialchars($data['u_LName']);
+$firstname = htmlspecialchars($data['u_FName']);
 
 $fullname = ucwords($firstname) . " " . ucwords($lastname);
 
-// Condition for edit profile
-if (isset($_POST['submit'])) {
-    // Sanitize first and last name
-    $pattern_name = '/^[A-Za-z]+(?:-[A-Za-z]+)*$/';
-    $firstname = mysqli_real_escape_string($con, $_POST['firstname']);
-    $lastname = mysqli_real_escape_string($con, $_POST['lastname']);
+// Handle form submission for profile edit
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
+    $error_code = '';
 
-    $result_firstname = preg_match($pattern_name, $firstname);
-    $result_lastname = preg_match($pattern_name, $lastname);
+    // Sanitize input
+    $new_firstname = ucwords(trim(mysqli_real_escape_string($con, $_POST['firstname'])));
+    $new_lastname = ucwords(trim(mysqli_real_escape_string($con, $_POST['lastname'])));
+    $new_contact_num = trim(mysqli_real_escape_string($con, $_POST['contact_num']));
+    $new_email = !empty(trim($_POST['email'])) ? filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL) : $email;
+    $new_password = !empty(trim($_POST['password'])) ? $_POST['password'] : '';
+    $confirm_email = !empty(trim($_POST['confirm_email'])) ? filter_var(trim($_POST['confirm_email']), FILTER_SANITIZE_EMAIL) : $new_email;
+    $confirm_password = !empty(trim($_POST['confirm_password'])) ? $_POST['confirm_password'] : '';
 
-    // Validate email
-    $email = mysqli_real_escape_string($con, $_POST['email']);
-    $validate_email = filter_var($email, FILTER_VALIDATE_EMAIL);
+    // Validate names
+    $pattern_name = '/^[A-Za-zÀ-ÿ\s\'\-]+$/u';
+    if (!preg_match($pattern_name, $new_firstname) || !preg_match($pattern_name, $new_lastname)) {
+        $error_code = 'invalid-name';
+    }
 
-    // Sanitize password
-    $pattern_pass = '/.{8,20}/';
-    $password = mysqli_real_escape_string($con, $_POST['password']);
-    $result_password = preg_match($pattern_pass, $password);
-    // Hash password
-    $password_hash = password_hash($password, PASSWORD_DEFAULT);
+    // Validate email if provided
+    if ($new_email !== $confirm_email) {
+        $error_code = 'email-not-match';
+    } elseif (!empty($new_email) && !filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
+        $error_code = 'invalid-email-format';
+    }
 
-    // Sanitize contact number
+    // Validate password if provided
+    if (!empty($new_password) && ($new_password !== $confirm_password || !preg_match('/.{8,20}/', $new_password))) {
+        $error_code = $error_code ?: 'pw-not-match';
+    }
+
+    // Validate contact number
     $pattern_contact = '/09\d{9}/';
-    $contact_num = mysqli_real_escape_string($con, $_POST['contact_num']);
-    $result_contact = preg_match($pattern_contact, $contact_num);
+    if (!preg_match($pattern_contact, $new_contact_num)) {
+        $error_code = $error_code ?: 'invalid-contact';
+    }
 
-    if ($result_firstname == 1 && $result_lastname == 1 && $validate_email && $result_password == 1 && $result_contact == 1) {
-        $update_sql = "UPDATE user SET `u_FName` = '$firstname', `u_LName` = '$lastname', `u_Email` = '$email', `u_Password` = '$password_hash', `u_ContactNumber` = '$contact_num' WHERE `u_ID` = '$user_ID'";
-        if (mysqli_query($con, $update_sql)) {
-            $_SESSION['u_FName'] = $firstname;
-            $_SESSION['u_LName'] = $lastname;
-            $_SESSION['u_Email'] = $email; // Optional if email is updated
+    // Check if email already exists
+    if ($new_email !== $email) {
+        $check_query = "SELECT 1 FROM user WHERE u_Email = ? AND u_ID != ?";
+        $stmt = $con->prepare($check_query);
+        $stmt->bind_param('si', $new_email, $user_ID);
+        $stmt->execute();
+        $stmt->store_result();
 
-            // Refresh the page to reflect the changes
-            header("Location: profile?u_ID=" . $user_ID . "&edit-success");
-            die();
-        } else {
-            echo "<script>alert('Error updating profile: " . mysqli_error($con) . "');</script>";
+        if ($stmt->num_rows > 0) {
+            $error_code = $error_code ?: 'email-exists';
         }
+    }
+
+    // If there is any error, redirect to profile with the error code
+    if ($error_code) {
+        header("Location: profile?error=$error_code");
+        exit();
+    }
+
+    // Build the update query dynamically
+    $update_fields = [];
+    $params = [];
+    $param_types = '';
+
+    if ($new_firstname !== $firstname) {
+        $update_fields[] = 'u_FName = ?';
+        $params[] = $new_firstname;
+        $param_types .= 's';
+    }
+    if ($new_lastname !== $lastname) {
+        $update_fields[] = 'u_LName = ?';
+        $params[] = $new_lastname;
+        $param_types .= 's';
+    }
+    if ($new_email !== $email) {
+        $update_fields[] = 'u_Email = ?';
+        $params[] = $new_email;
+        $param_types .= 's';
+    }
+    if (!empty($new_password)) {
+        $update_fields[] = 'u_Password = ?';
+        $params[] = password_hash($new_password, PASSWORD_DEFAULT);
+        $param_types .= 's';
+    }
+    if ($new_contact_num !== $contact_num) {
+        $update_fields[] = 'u_ContactNumber = ?';
+        $params[] = $new_contact_num;
+        $param_types .= 's';
+    }
+
+    if (empty($update_fields)) {
+        echo "<script>alert('No changes made.');</script>";
+        exit();
+    }
+
+    $update_query = "UPDATE user SET " . implode(', ', $update_fields) . " WHERE u_ID = ?";
+    $stmt = $con->prepare($update_query);
+    $params[] = $user_ID;
+    $param_types .= 'i';
+    $stmt->bind_param($param_types, ...$params);
+    $stmt->execute();
+
+    if ($stmt->affected_rows > 0) {
+        echo "<script>alert('Profile updated successfully.');</script>";
+        // Refresh the page to reflect changes
+        header("Refresh:0");
     } else {
-        echo "<script>alert('Invalid input. Please check your data.');</script>";
+        echo "<script>alert('No changes made or update failed.');</script>";
     }
 }
 
+// Handle account deletion
 if (isset($_POST['delete'])) {
-    // Delete user images from the server
-    $image_query = mysqli_query($con, "SELECT u_PicName FROM user WHERE u_ID = '$user_ID'");
-    $image_data = mysqli_fetch_assoc($image_query);
-    $picName = $image_data['u_PicName'];
-    if ($picName) {
-        $file_path = 'upload/' . $picName;
-        if (file_exists($file_path)) {
-            unlink($file_path); // Delete the profile picture
-        }
-    }
-
-    // Delete all dormitory listings associated with the user
-    $dorms_query = mysqli_query($con, "SELECT d_PicName FROM dormitory WHERE d_Owner = '$user_ID'");
-    while ($dorm = mysqli_fetch_assoc($dorms_query)) {
-        $dorm_images = explode(',', $dorm['d_PicName']);
-        foreach ($dorm_images as $image) {
-            $file_path = 'upload/' . $image;
+    $con->begin_transaction();
+    try {
+        // Delete user images from the server
+        $image_query = $con->prepare("SELECT u_PicName FROM user WHERE u_ID = ?");
+        $image_query->bind_param("s", $user_ID);
+        $image_query->execute();
+        $image_data = $image_query->get_result()->fetch_assoc();
+        $picName = $image_data['u_PicName'];
+        if ($picName) {
+            $file_path = 'upload/' . $picName;
             if (file_exists($file_path)) {
-                unlink($file_path); // Delete each dormitory image
+                unlink($file_path); // Delete the profile picture
             }
         }
+
+        // Delete all dormitory listings associated with the user
+        $dorms_query = $con->prepare("SELECT d_PicName FROM dormitory WHERE d_Owner = ?");
+        $dorms_query->bind_param("s", $user_ID);
+        $dorms_query->execute();
+        $dorms = $dorms_query->get_result();
+
+        while ($dorm = $dorms->fetch_assoc()) {
+            $dorm_images = explode(',', $dorm['d_PicName']);
+            foreach ($dorm_images as $image) {
+                $file_path = 'upload/' . $image;
+                if (file_exists($file_path)) {
+                    unlink($file_path); // Delete each dormitory image
+                }
+            }
+        }
+
+        // Delete dormitory listings
+        $con->prepare("DELETE FROM dormitory WHERE d_Owner = ?")->execute([$user_ID]);
+
+        // Delete user-related records in other tables
+        $con->prepare("DELETE FROM ledger WHERE l_Biller = ? OR l_Recipient = ?")->execute([$user_ID, $user_ID]);
+        $con->prepare("DELETE FROM occupancy WHERE o_Occupant = ?")->execute([$user_ID]);
+        $con->prepare("DELETE FROM room WHERE r_Dormitory IN (SELECT d_ID FROM dormitory WHERE d_Owner = ?)")->execute([$user_ID]);
+
+        // Delete the user
+        $con->prepare("DELETE FROM user WHERE u_ID = ?")->execute([$user_ID]);
+
+        $con->commit();
+        session_unset();
+        session_destroy();
+        header("Location: login");
+        exit();
+    } catch (Exception $e) {
+        $con->rollback();
+        echo "<script>alert('Error deleting account: " . $e->getMessage() . "');</script>";
     }
-
-    // Delete dormitory listings
-    mysqli_query($con, "DELETE FROM dormitory WHERE d_Owner = '$user_ID'");
-
-    // Delete user-related records in other tables
-    mysqli_query($con, "DELETE FROM ledger WHERE l_Biller = '$user_ID' OR l_Recipient = '$user_ID'");
-    mysqli_query($con, "DELETE FROM occupancy WHERE o_Occupant = '$user_ID'");
-    mysqli_query($con, "DELETE FROM room WHERE r_Dormitory IN (SELECT d_ID FROM dormitory WHERE d_Owner = '$user_ID')");
-
-    // Delete the user
-    mysqli_query($con, "DELETE FROM user WHERE u_ID = '$user_ID'");
-
-    // End session and redirect to login page
-    session_unset();
-    session_destroy();
-    header("Location: login");
-    die();
 }
-
 ?>
 
 <div class="container pt-5">
@@ -254,22 +336,30 @@ if (isset($_POST['delete'])) {
             <div class="modal-body">
                 <form id="editProfileForm" method="POST" action="">
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" name="firstname" placeholder="First Name" value="<?php echo $firstname; ?>" required pattern="^[A-Za-z]+(?:-[A-Za-z]+)*$">
+                        <input type="text" class="form-control" name="firstname" placeholder="First Name" value="<?php echo $firstname; ?>" required pattern="^[A-Za-zÀ-ÿ\s\'\-]+">
                         <label for="firstname" class="form-label">First Name</label>
                     </div>
                     <div class="mb-3">
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" name="lastname" placeholder="First Name" value="<?php echo $lastname; ?>" required pattern="^[A-Za-z]+(?:-[A-Za-z]+)*$">
+                            <input type="text" class="form-control" name="lastname" placeholder="Last Name" value="<?php echo $lastname; ?>" required pattern="^[A-Za-zÀ-ÿ\s\'\-]+">
                             <label for="lastname" class="form-label">Last Name</label>
                         </div>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="email" class="form-control" name="email" placeholder="name@example.com" value="<?php echo $email; ?>" required>
+                        <input type="email" class="form-control" name="email" placeholder="name@example.com" value="<?php echo $email; ?>">
                         <label for="email" class="form-label">Email</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="password" class="form-control" name="password" placeholder="Password" minlength="8" maxlength="20" required pattern=".{8,20}">
+                        <input type="email" class="form-control" name="confirm_email" id="confirm_email" placeholder="name@example.com">
+                        <label for="confirm_email" class="form-label">Confirm Email</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" name="password" placeholder="Password" id="password" minlength="8" maxlength="20" pattern=".{8,20}">
                         <label for="password" class="form-label">Password</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Confirm Password" minlength="8" maxlength="20" pattern=".{8,20}">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
                     </div>
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" name="contact_num" placeholder="Contact Number" value="<?php echo $contact_num; ?>" required pattern="09\d{9}">

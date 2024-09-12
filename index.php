@@ -50,7 +50,7 @@ switch ($page) {
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./css/nav-style.css">
-    <link rel="icon" type="image/x-icon" href="./img/favicon.png">
+    <link rel="icon" type="image/x-icon" href="./assets/favicon.svg">
 
     <!-- style for navbar -->
     <style>

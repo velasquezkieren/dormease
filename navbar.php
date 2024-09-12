@@ -23,7 +23,7 @@ if (isset($_GET['page'])) {
         <div class="navbar-brand me-auto">
             <a href="<?php echo isset($_SESSION['u_Email']) ? 'profile' : 'home'; ?>">
                 <!-- DormEase Logo -->
-                <img class="logo" src="img/logo-b.svg" alt="DormEase Logo">
+                <img class="logo" src="assets/logo_img/logo-b.svg" alt="DormEase Logo">
             </a>
         </div>
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
@@ -95,10 +95,10 @@ if (isset($_GET['page'])) {
         $(window).scroll(function() {
             if ($(this).scrollTop() > 50) {
                 $('.navbar').removeClass('transparent').addClass('solid');
-                $('.logo').attr('src', 'img/logo-c.svg');
+                $('.logo').attr('src', 'assets/logo_img/logo-c.svg');
             } else {
                 $('.navbar').removeClass('solid').addClass('transparent');
-                $('.logo').attr('src', 'img/logo-b.svg');
+                $('.logo').attr('src', 'assets/logo_img/logo-b.svg');
             }
         });
     });

@@ -10,8 +10,8 @@ if (isset($_SESSION['u_Email'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 
     // Sanitize and validate input
-    $firstname = trim(mysqli_real_escape_string($con, $_POST['firstname']));
-    $lastname = trim(mysqli_real_escape_string($con, $_POST['lastname']));
+    $firstname = ucwords(trim(mysqli_real_escape_string($con, $_POST['firstname'])));
+    $lastname = ucwords(trim(mysqli_real_escape_string($con, $_POST['lastname'])));
     $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
     $confirm_email = filter_var(trim($_POST['confirm_email']), FILTER_SANITIZE_EMAIL);
     $password = $_POST['password']; // No need to escape this
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $error_code = '';
 
     // Validate names
-    $pattern_name = '/^[A-Za-z]{2,}(?:-[A-Za-z]{2,})*$/'; // Minimum 2 characters
+    $pattern_name = '/^[A-Za-zÀ-ÿ\s\'\-]+$/u'; // Minimum 2 characters
     if (
         !preg_match($pattern_name, $firstname) || !preg_match($pattern_name, $lastname)
     ) {
@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                                             <div class="mb-5">
                                                 <div class="text-center mb-4">
                                                     <a href="">
-                                                        <img class="img-fluid rounded-start" src="./img/logo-b.svg" width="auto" height="70" alt="Logo">
+                                                        <img class="img-fluid rounded-start" src="./assets/logo_img/logo-b.svg" width="auto" height="70" alt="Logo">
                                                     </a>
                                                 </div>
                                             </div>
@@ -142,31 +142,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                                             <!-- Form fields with improved HTML attributes for better validation -->
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">
-                                                    <input type="text" class="form-control" name="firstname" placeholder="First Name" required pattern="^[A-Za-z]{2,}(?:-[A-Za-z]{2,})*$">
+                                                    <input type="text" class="form-control" name="firstname" placeholder="First Name" required pattern="^[A-Za-zÀ-ÿ\s\'\-]+">
                                                     <label for="firstname" class="form-label">First Name</label>
                                                 </div>
                                             </div>
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">
-                                                    <input type="text" class="form-control" name="lastname" placeholder="Last Name" required pattern="^[A-Za-z]{2,}(?:-[A-Za-z]{2,})*$">
+                                                    <input type="text" class="form-control" name="lastname" placeholder="Last Name" required pattern="^[A-Za-zÀ-ÿ\s\'\-]+">
                                                     <label for="lastname" class="form-label">Last Name</label>
                                                 </div>
                                             </div>
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">
-                                                    <input type="email" class="form-control" name="email" placeholder="name@example.com" required>
+                                                    <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" required>
                                                     <label for="email" class="form-label">Email</label>
                                                 </div>
                                             </div>
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">
-                                                    <input type="email" class="form-control" name="confirm_email" placeholder="name@example.com" required>
+                                                    <input type="email" class="form-control" name="confirm_email" id="confirm_email" placeholder="name@example.com" required>
                                                     <label for="confirm_email" class="form-label">Confirm Email</label>
                                                 </div>
                                             </div>
                                             <div class="col-12">
                                                 <div class="form-floating mb-3">
-                                                    <input type="password" class="form-control" name="password" placeholder="Password" minlength="8" maxlength="20" required pattern=".{8,20}">
+                                                    <input type="password" class="form-control" name="password" placeholder="Password" id="password" minlength="8" maxlength="20" required pattern=".{8,20}">
                                                     <label for="password" class="form-label">Password</label>
                                                 </div>
                                             </div>

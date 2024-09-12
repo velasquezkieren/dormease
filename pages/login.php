@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                                             <div class="mb-5">
                                                 <div class="text-center mb-4">
                                                     <a href="">
-                                                        <img class="img-fluid rounded-start" src="./img/logo-b.svg" width="auto" height="70">
+                                                        <img class="img-fluid rounded-start" src="./assets/logo_img/logo-b.svg" width="auto" height="70">
                                                     </a>
                                                 </div>
                                             </div>
