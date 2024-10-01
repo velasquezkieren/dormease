@@ -6,23 +6,16 @@ if (!isset($_SESSION['u_Email'])) {
 }
 
 // Check if u_ID is provided in the URL
+$user_ID = $_SESSION['u_ID']; // Store the logged-in user's ID for comparison
+$sql = "SELECT * FROM user WHERE u_ID = ?";
+
 if (isset($_GET['u_ID'])) {
     $user_ID = $_GET['u_ID'];
-    $sql = "SELECT * FROM user WHERE u_ID = ?";
-} else {
-    // Fetch the logged-in user's profile
-    $email = $_SESSION['u_Email'];
-    $sql = "SELECT * FROM user WHERE u_Email = ?";
-    $user_ID = $_SESSION['u_ID']; // Store the logged-in user's ID for comparison
 }
 
 // Prepare and execute the query
 $stmt = $con->prepare($sql);
-if (isset($email)) {
-    $stmt->bind_param("s", $email);
-} else {
-    $stmt->bind_param("s", $user_ID);
-}
+$stmt->bind_param("s", $user_ID);
 $stmt->execute();
 $data = $stmt->get_result()->fetch_assoc();
 
@@ -32,14 +25,15 @@ if (!$data) {
     exit();
 }
 
-// Display profile picture
-$profile_pic = !empty($data['u_PicName']) ? 'upload/' . htmlspecialchars($data['u_PicName']) : 'upload/avatar.png';
+$profile_pic = !empty($data['u_PicName']) && file_exists('upload/' . htmlspecialchars($data['u_PicName']))
+    ? 'upload/' . htmlspecialchars($data['u_PicName'])
+    : 'user_avatar/default_avatar.png';
 
 $email = htmlspecialchars($data['u_Email']);
 $contact_num = htmlspecialchars($data['u_ContactNumber']);
 $lastname = htmlspecialchars($data['u_LName']);
 $firstname = htmlspecialchars($data['u_FName']);
-
+$account_type = htmlspecialchars($data['u_Account_Type']);
 $fullname = ucwords($firstname) . " " . ucwords($lastname);
 
 // Handle form submission for profile edit
@@ -142,9 +136,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $stmt->execute();
 
     if ($stmt->affected_rows > 0) {
+        // Update session variables with new details
+        $_SESSION['u_FName'] = $new_firstname;
+        $_SESSION['u_LName'] = $new_lastname;
         echo "<script>alert('Profile updated successfully.');</script>";
         // Refresh the page to reflect changes
-        header("Refresh:0");
+        header("location:profile?u_ID=" . $user_ID);
     } else {
         echo "<script>alert('No changes made or update failed.');</script>";
     }
@@ -207,127 +204,79 @@ if (isset($_POST['delete'])) {
         echo "<script>alert('Error deleting account: " . $e->getMessage() . "');</script>";
     }
 }
+
 ?>
 
-<div class="container pt-5">
-    <div class="row pt-5">
-        <div class="col-12 col-md-6 pt-5 d-flex justify-content-center justify-content-md-start">
-            <img src="<?php echo $profile_pic; ?>" alt="<?php echo $fullname; ?>" class="img-fluid h-50  rounded-circle">
-            <?php
-            // Check if the logged-in user is viewing their own profile
-            if (isset($_GET['u_ID']) && $_GET['u_ID'] != $_SESSION['u_ID']) {
-                echo '<p class="h1 text-center text-md-left">' . $fullname . '</p>'; // Show the full name for another user's profile
-            } else {
-                echo '<p class="h1 text-center text-md-left">Welcome, ' . $fullname . '!</p>'; // Show the greeting if it's their own profile
-            }
-            ?>
-        </div>
-        <div class="col-12 col-md-6 pt-3 pt-md-5 d-flex justify-content-center justify-content-md-end align-items-center">
-            <?php
-            // Check if the user is viewing their own profile
-            $isOwnProfile = !isset($_GET['u_ID']) || $_GET['u_ID'] == $_SESSION['u_ID'];
-
-            if ($isOwnProfile) {
-                // Display the "Edit Profile" button
-                echo '<button type="button" class="btn login-button" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit Profile</button>';
-            }
-            ?>
-        </div>
-    </div>
-    <?php
-    // Display the "Create a listing" button if viewing own profile and account type is 0
-    if ($isOwnProfile && isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
-    ?>
-        <div class="col-12 col-md-6 pt-3 pt-md-5 d-flex justify-content-center justify-content-md-end align-items-center">
-            <a class="login-button" href="listing">Create a listing</a>
-        </div>
-    <?php
-    }
-    ?>
-    <hr>
-    <ul class="nav nav-underline">
-        <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">Listings</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">Pending (0)</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">Currently Hosting</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">Payment</a>
-        </li>
-    </ul>
+<!-- HTML Section -->
+<div class="container pt-5" style="margin-top: 100px;"> <!-- Adjust margin for fixed navbar -->
     <div class="row">
-        <div class="col pt-2">
-            <div class="col-12 col-md-6 pt-5 d-flex justify-content-center justify-content-md-start">
-                <?php
-                if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
-                    echo '<p class="h2 pb-5">My Listings</p><br>';
-                } else {
-                    echo '<p class="h2 pb-5">Statement of Account</p>';
-                }
-                ?>
-            </div>
-            <div class="row">
-                <?php
-                // Retrieve the user ID from the query string
-                $profile_ID = isset($_GET['u_ID']) ? mysqli_real_escape_string($con, $_GET['u_ID']) : $_SESSION['u_ID'];
 
-                // Check if the user ID is valid and fetch dormitories
-                $sql = "SELECT * FROM dormitory WHERE d_Owner = '$profile_ID'";
-                $dorms_query = mysqli_query($con, $sql);
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <?php include('sidebar_profile.php'); ?>
+        </div>
 
-                if (mysqli_num_rows($dorms_query) > 0):
-                    // Display dorm listings as cards
-                    while ($dorm = mysqli_fetch_assoc($dorms_query)):
-                        // Fetch the owner's name
-                        $owner_ID = mysqli_real_escape_string($con, $dorm['d_Owner']);
-                        $owner_query = mysqli_query($con, "SELECT u_FName, u_LName FROM user WHERE u_ID = '$owner_ID'");
-                        $owner_data = mysqli_fetch_assoc($owner_query);
-                        $owner_name = $owner_data ? htmlspecialchars($owner_data['u_FName'] . ' ' . $owner_data['u_LName']) : 'Unknown';
-
-                        // Get the image names and use the first image for the card
-                        $images = explode(',', $dorm['d_PicName']);
-                        $first_image = $images[0];
-
-                        // Limit the description to 100 characters
-                        $description = substr($dorm['d_Description'], 0, 100);
-                        if (strlen($dorm['d_Description']) > 100) {
-                            $description .= '...';
-                        }
-                ?>
-                        <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
-                            <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="text-decoration-none">
-                                <div class="card h-100 border-1">
-                                    <div class="card-img-container">
-                                        <img src="upload/<?= htmlspecialchars($first_image); ?>" class="card-img-top" alt="<?= htmlspecialchars($dorm['d_Name']); ?>">
-                                    </div>
-                                    <div class="card-body d-flex flex-column">
-                                        <h5 class="card-title"><?= htmlspecialchars($dorm['d_Name']); ?></h5>
-                                        <p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;"><?= htmlspecialchars($description); ?></p>
-                                        <p class="card-text"><i class="bi bi-geo-alt-fill"></i> <?= htmlspecialchars($dorm['d_Street']) . ', ' . htmlspecialchars($dorm['d_City']); ?></p>
-                                        <p class="card-text"><strong>Owner:</strong> <?= htmlspecialchars($owner_name); ?></p>
-                                        <span class="btn btn-dark mt-auto">View Details</span>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    <?php
-                    endwhile;
-                else:
-                    ?>
-                    <div class="alert alert-secondary text-center mx-auto p-5" role="alert">
-                        No listings available at the moment
-                    </div>
+        <!-- Main Profile Content -->
+        <div class="col-md-8">
+            <div class="d-flex flex-column align-items-center text-center">
+                <a href="#">
+                    <!-- profile picture here -->
+                    <img src="<?php echo $profile_pic; ?>" alt="<?php echo $fullname; ?>" class="img-fluid mb-3 rounded-circle">
+                </a>
+                <?php if (!isset($_GET['u_ID']) || $_GET['u_ID'] == $_SESSION['u_ID']): ?>
+                    <button type="button" class="btn btn-outline-secondary mb-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#changeProfilePicModal">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-image me-2" viewBox="0 0 16 16">
+                            <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
+                            <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z" />
+                        </svg>
+                        Change Profile Picture
+                    </button>
+                    <button type="button" class="btn text-reset" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill me-2" viewBox="0 0 16 16">
+                            <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
+                        </svg>
+                        Edit Profile Details
+                    </button>
                 <?php endif; ?>
+                <p class="h1 mb-0"><?php echo $fullname; ?></p>
             </div>
 
+            <!-- User Details Table -->
+            <div class="mt-4">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>Name</th>
+                            <td><?php echo htmlspecialchars($fullname); ?></td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td><?php echo $email; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Contact Number</th>
+                            <td><?php echo $contact_num; ?></td>
+                        </tr>
+                        <tr>
+                            <th>Account Type</th>
+                            <td>
+                                <?php
+                                if (isset($_SESSION['u_Account_Type']) && ($_SESSION['u_Account_Type'] == 0)) {
+                                    echo 'Owner';
+                                } else if (isset($_SESSION['u_Account_Type']) && ($_SESSION['u_Account_Type'] == 1)) {
+                                    echo 'Tenant';
+                                }
+                                ?>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- Modals -->
 <!-- Edit Profile Modal -->
 <div class="modal" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -371,14 +320,26 @@ if (isset($_POST['delete'])) {
                     <!-- Add more fields as needed -->
                     <div class="modal-footer">
                         <!-- Button to trigger delete confirmation modal -->
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">Delete Account</button>
-                        <button name="submit" class="btn btn-dark">Save changes</button>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
+                            </svg>
+                            Delete Account
+                        </button>
+                        <button name="submit" class="btn btn-dark">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy-fill" viewBox="0 0 16 16">
+                                <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0H3v5.5A1.5 1.5 0 0 0 4.5 7h7A1.5 1.5 0 0 0 13 5.5V0h.086a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5H14v-5.5A1.5 1.5 0 0 0 12.5 9h-9A1.5 1.5 0 0 0 2 10.5V16h-.5A1.5 1.5 0 0 1 0 14.5z" />
+                                <path d="M3 16h10v-5.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5zm9-16H4v5.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5zM9 1h2v4H9z" />
+                            </svg>
+                            Save changes
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
 <!-- Delete Account Confirmation Modal -->
 <div class="modal" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -394,7 +355,12 @@ if (isset($_POST['delete'])) {
                 <!-- Confirm delete -->
                 <form method="POST" action="">
                     <input type="hidden" name="u_ID" value="<?= htmlspecialchars($user_ID); ?>">
-                    <button type="submit" name="delete" class="btn btn-danger">Delete</button>
+                    <button type="submit" name="delete" class="btn btn-danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
+                        </svg>
+                        Delete
+                    </button>
                 </form>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>

@@ -44,7 +44,8 @@ if (isset($_POST['search']) || isset($_POST['sort'])) {
                 <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="text-decoration-none">
                     <div class="card h-100 border-1">
                         <div class="card-img-container">
-                            <img src="upload/<?= htmlspecialchars($first_image); ?>" class="card-img-top" alt="<?= htmlspecialchars($dorm['d_Name']); ?>">
+                            <img src="upload/<?= htmlspecialchars($dorm['d_ID'] . '/' . $first_image); ?>" class="card-img-top" alt="<?= htmlspecialchars($dorm['d_Name']); ?>">
+
                         </div>
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title"><?= htmlspecialchars($dorm['d_Name']); ?></h5>
@@ -117,24 +118,28 @@ if (!$is_logged_in) {
 <script>
     $(document).ready(function() {
         function loadDorms() {
-
             var search_query = $('#searchInput').val();
             var sort_order = $('#sortSelect').val();
 
             $.ajax({
                 type: 'POST',
-                url: '', // Loads the file itself
+                url: window.location.href, // Loads the file itself
                 data: {
                     search: search_query,
                     sort: sort_order
                 },
                 success: function(response) {
                     $('#dormsContainer').html(response);
+
+                    // Re-initialize Bootstrap offcanvas
+                    var offcanvasElements = document.querySelectorAll('.offcanvas');
+                    offcanvasElements.forEach(function(offcanvasEl) {
+                        var bsOffcanvas = new bootstrap.Offcanvas(offcanvasEl);
+                    });
                 }
             });
         }
 
-        // Use keyup event instead of input
         $('#searchInput').on('keyup', loadDorms);
         $('#sortSelect').on('change', loadDorms);
 

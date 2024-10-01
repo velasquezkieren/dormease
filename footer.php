@@ -42,7 +42,7 @@
                 <!-- Content -->
                 <h6 class="text-uppercase fw-bold mb-4">
                     <i class="fas fa-gem me-3"></i>
-                    <img src="img/logo.png" class="img-fluid" style="width: 70%; height: auto;" alt="">
+                    <img src="assets/logo_img/logo-c.svg" class="img-fluid" style="width: 70%; height: auto;" alt="">
                 </h6>
                 <p>
                     <!-- Here you can use rows and columns to organize your footer content. Lorem ipsum

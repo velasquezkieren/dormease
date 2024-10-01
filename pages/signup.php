@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
     // Insert user data into database
-    $u_ID = uniqid('u_', true);
+    $u_ID = uniqid('u_');
     $insert_query = "INSERT INTO user (u_ID, u_FName, u_LName, u_Email, u_Password, u_ContactNumber, u_Account_Type, u_Gender) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($con, $insert_query);
     mysqli_stmt_bind_param($stmt, 'ssssssss', $u_ID, $firstname, $lastname, $email, $password_hash, $contact_num, $account_type, $gender);
@@ -92,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 }
 ?>
 
+<!-- HTML Section -->
 <section class="p-3 p-md-4 p-xl-5">
     <div class="container" style="padding-top:80px;">
         <div class="row justify-content-center">

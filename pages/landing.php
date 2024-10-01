@@ -1,11 +1,3 @@
-<?php
-// Landing page accessible only if not logged in
-if (isset($_SESSION['u_ID'])) {
-    header("Location: profile");
-    exit();
-}
-?>
-
 <style>
     .main {
         position: relative;
@@ -35,8 +27,12 @@ if (isset($_SESSION['u_ID'])) {
             <div class="col-lg-7 pt-5 text-left">
                 <h1 class="text-light mb-4 fw-bold pt-5" style="font-size:3.5rem;">Student Living<br>Made Simple</h1>
                 <p class="text-light mb-4 lead">Simplifying Student Living.</p>
-                <a class="btn btn-outline-light btn-md" href="signup">Sign Up</a>
-                <a class="btn btn-light btn-lmd" href="login">Login</a>
+                <?php
+                if (!isset($_SESSION['u_Email'])) {
+                ?>
+                    <a class="btn btn-outline-light btn-md" href="signup">Sign Up</a>
+                    <a class="btn btn-light btn-lmd" href="login">Login</a>
+                <?php } ?>
             </div>
         </div>
     </div>

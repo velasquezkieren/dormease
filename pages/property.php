@@ -51,7 +51,7 @@ if (isset($_POST['edit_dormitory'])) {
         if ($dormitory) {
             $images = explode(',', $dormitory['d_PicName']);
             foreach ($images as $image) {
-                $filePath = './upload/' . $image;
+                $filePath = './upload/' . $d_ID . '/' . $image;
                 if (file_exists($filePath)) {
                     unlink($filePath); // Remove the old image file
                 }
@@ -65,7 +65,7 @@ if (isset($_POST['edit_dormitory'])) {
 
     // Upload new images
     if (!empty($d_PicName['name'][0])) {
-        $uploadDir = './upload/';
+        $uploadDir = './upload/' . $d_ID . '/';
         $imageNames = [];
         foreach ($d_PicName['tmp_name'] as $key => $tmpName) {
             $fileName = basename($d_PicName['name'][$key]);
@@ -74,10 +74,7 @@ if (isset($_POST['edit_dormitory'])) {
             move_uploaded_file($tmpName, $uploadFile);
             $imageNames[] = $uniqueFileName;
         }
-        $d_PicNames = implode(
-            ',',
-            $imageNames
-        );
+        $d_PicNames = implode(',', $imageNames);
 
         if ($replaceImages) {
             // Insert new images names
@@ -106,7 +103,7 @@ if (isset($_POST['delete_dormitory'])) {
         // Delete associated images
         $images = explode(',', $dormitory['d_PicName']);
         foreach ($images as $image) {
-            $filePath = './upload/' . $image;
+            $filePath = './upload/' . $d_ID . '/' . $image; // Add the folder name
             if (file_exists($filePath)) {
                 unlink($filePath); // Remove the image file
             }
@@ -115,17 +112,35 @@ if (isset($_POST['delete_dormitory'])) {
         // Delete the dormitory record
         $sql = "DELETE FROM dormitory WHERE d_ID = '$d_ID'";
         mysqli_query($con, $sql);
+
+        // Delete the folder
+        $folderPath = './upload/' . $d_ID;
+        if (is_dir($folderPath)) {
+            rmdir($folderPath); // Remove the folder
+        }
     }
 
     // Redirect to profile page
     echo "<script>alert('Listing deleted successfully.'); window.location.href='profile';</script>";
     exit();
 }
+
 ?>
 
 <div class="container">
     <div class="row pt-5 text-center text-md-start">
         <div class="col-12 col-md pt-5 d-flex flex-column align-items-center align-items-md-start">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="find">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house">
+                                <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
+                                <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            </svg>
+                        </a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($dormitory['d_Name']); ?></li>
+                </ol>
+            </nav>
             <p class="h1"><?php echo htmlspecialchars($dormitory['d_Name']); ?></p>
             <div class="d-flex align-items-center">
                 <i class="bi bi-geo-alt-fill"></i>
@@ -151,7 +166,7 @@ if (isset($_POST['delete_dormitory'])) {
                     $isActive = 'active';
                     foreach ($images as $image) {
                         echo '<div class="carousel-item ' . $isActive . '">';
-                        echo '<img src="./upload/' . htmlspecialchars($image) . '" class="d-block w-100" alt="Dormitory Image">';
+                        echo '<img src="./upload/' . $d_ID . '/' . htmlspecialchars($image) . '" class="d-block w-100" alt="Dormitory Image">';
                         echo '</div>';
                         $isActive = '';
                     }
@@ -175,9 +190,12 @@ if (isset($_POST['delete_dormitory'])) {
             <p><?php echo nl2br(htmlspecialchars($dormitory['d_Description'])); ?></p>
         </div>
         <div class="col-12">
-            <h1>Where you'll be</h1>
+            <h2>Location</h2>
             <!-- OpenStreetMap Integration here -->
             <div id="map" style="height: 400px;"></div>
+        </div>
+        <div class="col-12 col-md">
+            <h2>Available Rooms</h2>
         </div>
     </div>
 </div>

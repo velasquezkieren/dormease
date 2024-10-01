@@ -23,6 +23,21 @@ switch ($page) {
     case 'property':
         $title = 'Details | DormEase';
         break;
+    case 'my-listings':
+        $title = 'Listings | DormEase';
+        break;
+    case 'ledger':
+        $title = 'Ledger | DormEase';
+        break;
+    case 'add-ledger':
+        $title = 'Ledger | DormEase';
+        break;
+    case 'statement':
+        $title = 'Statement | DormEase';
+        break;
+    case 'edit-ledger':
+        $title = 'Ledger | DormEase';
+        break;
     default:
         $title = 'DormEase';
 }
@@ -128,6 +143,21 @@ switch ($page) {
             break;
         case 'property':
             include('./pages/property.php');
+            break;
+        case 'my-listings':
+            include('./pages/my-listings.php');
+            break;
+        case 'ledger':
+            include('./pages/ledger.php');
+            break;
+        case 'add-ledger':
+            include('./pages/add-ledger.php');
+            break;
+        case 'statement':
+            include('./pages/statement.php');
+            break;
+        case 'edit-ledger':
+            include('./pages/edit-ledger.php');
             break;
         default:
             include('./pages/landing.php');

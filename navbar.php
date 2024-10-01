@@ -14,29 +14,24 @@ if (isset($_GET['page'])) {
     if (isset($u_ID) && $page == 'logout') {
         session_unset();
         session_destroy();
-        header("location: login&logout-success");
+        header("location:login&logout-success");
     }
 }
 ?>
-<nav class="navbar navbar-expand-sm fixed-top transparent">
+
+<!-- nav bar -->
+<nav class="navbar navbar-expand-lg fixed-top" style="height:80px;">
     <div class="container">
-        <div class="navbar-brand me-auto">
-            <a href="<?php echo isset($_SESSION['u_Email']) ? 'profile' : 'home'; ?>">
-                <!-- DormEase Logo -->
-                <img class="logo" src="assets/logo_img/logo-b.svg" alt="DormEase Logo">
-            </a>
-        </div>
+        <a class="navbar-brand me-auto" href="<?php echo isset($_SESSION['u_Email']) ? 'profile' : 'home'; ?>"><img src="assets/logo_img/logo-c.svg" height="50" width="auto"></a>
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
             <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+                <h5 class="offcanvas-title" id="offcanvasNavbarLabel"><a href="home"><img src="assets/logo_img/logo-c.svg" height="50" width="auto"></a></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
                 <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                     <li class="nav-item">
-                        <?php if (!isset($_SESSION['u_Email'])): ?>
-                            <a class="nav-link mx-lg-2 <?php echo ($title == 'DormEase') ? 'active' : ''; ?>" href="home">Home</a>
-                        <?php endif; ?>
+                        <a class="nav-link mx-lg-2 <?php echo ($title == 'DormEase') ? 'active' : ''; ?>" href="home">Home</a>
                     </li>
                     <?php
                     // Show "Find a Home" or "List Your Property!" based on account type
@@ -56,7 +51,7 @@ if (isset($_GET['page'])) {
                             </li>';
                     } elseif (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
                         echo '<li class="nav-item">
-                            <a class="nav-link mx-lg-2 ' . (($title == 'Find a Home | DormEase') ? 'active' : '') . '" href="find">My Listings</a>
+                            <a class="nav-link mx-lg-2 ' . (($title == 'Find a Home | DormEase') ? 'active' : '') . '" href="find">Find a Dorm</a>
                             </li>';
                     }
 
@@ -79,7 +74,8 @@ if (isset($_GET['page'])) {
         <?php
         if (isset($_SESSION['u_Email'])) {
             echo '<a class="login-button" href="logout">Logout</a>'; //logout button if signed in
-        } else {
+        }
+        if (!isset($_SESSION['u_Email'])) {
             echo '<a href="login" class="login-button">Login</a>'; //login button to sign in
         }
         ?>
@@ -88,18 +84,3 @@ if (isset($_GET['page'])) {
         </button>
     </div>
 </nav>
-
-<script>
-    $(document).ready(function() {
-        // When the page is scrolled
-        $(window).scroll(function() {
-            if ($(this).scrollTop() > 50) {
-                $('.navbar').removeClass('transparent').addClass('solid');
-                $('.logo').attr('src', 'assets/logo_img/logo-c.svg');
-            } else {
-                $('.navbar').removeClass('solid').addClass('transparent');
-                $('.logo').attr('src', 'assets/logo_img/logo-b.svg');
-            }
-        });
-    });
-</script>
