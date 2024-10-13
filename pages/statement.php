@@ -1,12 +1,12 @@
 <?php
 // Redirect to Login if not logged in
 if (!isset($_SESSION['u_Email'])) {
-    header("location:login&auth-required");
+    header("location:login?auth-required");
     die();
 }
 
 // Only allow tenants (Account Type 1) to access this page
-if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] !== 1) {
+if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] != 1) {
     header("location: profile?u_ID=" . $_SESSION['u_ID']);
     die();
 }

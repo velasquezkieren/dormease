@@ -17,6 +17,8 @@ if (isset($_POST['submit'])) {
     $d_Region = mysqli_real_escape_string($con, $_POST['d_Region']);
     $d_Description = mysqli_real_escape_string($con, $_POST['d_Description']);
     $d_Availability = '1';  // Default availability status
+    $d_Price = mysqli_real_escape_string($con, $_POST['d_Price']);
+    $d_Gender = mysqli_real_escape_string($con, $_POST['d_Gender']);
     $d_Owner = $_SESSION['u_ID'];  // Get the logged-in user ID from the session
 
     // Initialize array to store image names
@@ -76,10 +78,10 @@ if (isset($_POST['submit'])) {
         $d_Longitude = mysqli_real_escape_string($con, $_POST['d_Longitude']);
 
         // Prepare an SQL statement to insert dormitory details into the database
-        $stmt = $con->prepare("INSERT INTO dormitory (d_ID, d_Name, d_Street, d_City, d_ZIPCode, d_Province, d_Region, d_Availability, d_Description, d_Owner, d_PicName, d_Latitude, d_Longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $con->prepare("INSERT INTO dormitory (d_ID, d_Name, d_Street, d_City, d_ZIPCode, d_Province, d_Region, d_Availability, d_Description, d_Owner, d_PicName, d_Latitude, d_Longitude, d_Price, d_Gender) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
         // Bind parameters to the SQL statement
-        $stmt->bind_param('sssssssssssss', $d_ID, $d_Name, $d_Street, $d_City, $d_ZIPCode, $d_Province, $d_Region, $d_Availability, $d_Description, $d_Owner, $d_PicNames, $d_Latitude, $d_Longitude);
+        $stmt->bind_param('sssssssssssssss', $d_ID, $d_Name, $d_Street, $d_City, $d_ZIPCode, $d_Province, $d_Region, $d_Availability, $d_Description, $d_Owner, $d_PicNames, $d_Latitude, $d_Longitude, $d_Price, $d_Gender);
 
         // Execute the statement and check if it was successful
         if (!$stmt->execute()) {
@@ -124,13 +126,6 @@ if (!isset($_SESSION['u_Email'])) {
         <div class="container" style="margin-top:100px;">
             <div class="row justify-content-center">
                 <div class="col-12 col-xxl-11" id="list-property">
-                    <?php
-                    if (isset($_GET['edit'])) {
-                        echo '<h2 class="h2 mb-4">Edit Property</h2>';
-                    } else {
-                        echo '<h2 class="h2 mb-4">Tell us about your property!</h2>';
-                    }
-                    ?>
                     <div class="card border-light-subtle shadow-sm">
                         <div class="row g-0">
                             <div class="col-12">
@@ -180,12 +175,33 @@ if (!isset($_SESSION['u_Email'])) {
                                                 <label for="d_Region">Region</label>
                                             </div>
                                         </div>
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <input type="number" name="d_Price" class="form-control" id="d_Price" placeholder="Price" required>
+                                                <label for="d_Price">Price</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-floating mb-3">
+                                                <select class="form-select" id="d_Gender" name="d_Gender" required>
+                                                    <option value="" disabled selected>Select Gender Restriction</option>
+                                                    <option value="">No Restriction</option>
+                                                    <option value="1">Male Only</option>
+                                                    <option value="0">Female Only</option>
+                                                </select>
+                                                <label for="d_Gender">Gender Restriction</label>
+                                            </div>
+                                        </div>
+
                                         <div class="col-12">
                                             <label for="d_Description" class="form-label">Property Description</label>
                                             <textarea class="form-control" name="d_Description" id="d_Description" rows="5" required></textarea>
                                         </div>
                                         <div class="col-12">
-                                            <input type="file" name="d_PicName[]" accept=".jpg, .jpeg, .png, .gif" multiple required>
+                                            <label for="d_PicName" class="form-label">Upload Images</label>
+                                            <input class="form-control" type="file" name="d_PicName[]" accept=".jpg, .jpeg, .png, .gif" multiple required onchange="previewImages(event)">
+                                            <div id="image-preview" class="mt-2"></div>
                                         </div>
                                         <div class="col-12">
                                             <input type="submit" value="Submit" name="submit" class="btn btn-dark">
@@ -200,37 +216,60 @@ if (!isset($_SESSION['u_Email'])) {
         </div>
     </section>
     <script>
-        // Initialize Leaflet map
-        var map = L.map('map', {
-            dragging: true
-        }).setView([15.4443, 120.9441], 20); // Cabanatuan, Nueva Ecija
+        $(document).ready(function() {
+            // Initialize Leaflet map
+            var map = L.map('map', {
+                dragging: true
+            }).setView([15.4443, 120.9441], 20); // Cabanatuan, Nueva Ecija
 
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
 
-        // Custom Marker Icon
-        var customIcon = L.icon({
-            iconUrl: './css/marker-icon-2x.png', // Replace with your custom icon path
-            iconSize: [25, 41], // size of the icon
-            iconAnchor: [19, 38], // point of the icon which will correspond to marker's location
-            popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor
-            shadowUrl: './css/marker-shadow.png', // optional shadow image
-            shadowSize: [50, 64], // size of the shadow
-            shadowAnchor: [4, 62] // the same for the shadow
-        });
+            // Custom Marker Icon
+            var customIcon = L.icon({
+                iconUrl: './css/marker-icon-2x.png', // Replace with your custom icon path
+                iconSize: [25, 41], // size of the icon
+                iconAnchor: [19, 38], // point of the icon which will correspond to marker's location
+                popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor
+                shadowUrl: './css/marker-shadow.png', // optional shadow image
+                shadowSize: [50, 64], // size of the shadow
+                shadowAnchor: [4, 62] // the same for the shadow
+            });
 
-        // Add the marker at the center of the screen, but we'll update its position dynamically
-        var marker = L.marker(map.getCenter(), {
-            icon: customIcon
-        }).addTo(map);
+            // Add the marker at the center of the screen, but we'll update its position dynamically
+            var marker = L.marker(map.getCenter(), {
+                icon: customIcon
+            }).addTo(map);
 
-        // Update marker position based on map center when map is moved
-        map.on('move', function() {
-            var center = map.getCenter();
-            marker.setLatLng(center); // Set marker position to the map center
-            document.getElementById('latitude').value = center.lat;
-            document.getElementById('longitude').value = center.lng;
+            // Update marker position based on map center when the map is moved
+            map.on('move', function() {
+                var center = map.getCenter();
+                marker.setLatLng(center); // Set marker position to the map center
+                $('#latitude').val(center.lat);
+                $('#longitude').val(center.lng);
+            });
+
+            // Image preview functionality
+            $('input[name="d_PicName[]"]').on('change', function(event) {
+                const imagePreview = $('#image-preview');
+                imagePreview.empty(); // Clear previous previews
+
+                $.each(event.target.files, function(index, file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = $('<img>', {
+                            src: e.target.result,
+                            css: {
+                                width: '100px', // Set preview size
+                                marginRight: '10px'
+                            }
+                        });
+                        imagePreview.append(img);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            });
         });
     </script>
 <?php

@@ -1,33 +1,13 @@
 <?php
 // Redirect to Login if not logged in
 if (!isset($_SESSION['u_Email'])) {
-    header("location:login&auth-required");
+    header("location:login?auth-required");
     die();
 }
 
 if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] !== 0) {
     header("location: profile?u_ID=" . $_SESSION['u_ID']);
     die();
-}
-
-// Handle deletion
-if (isset($_POST['delete'])) {
-    $ledger_id = $_POST['ledger_id'];
-
-    // Prepare the delete statement
-    $delete_query = "DELETE FROM ledger WHERE l_ID = ?";
-    $stmt = mysqli_prepare($con, $delete_query);
-    mysqli_stmt_bind_param($stmt, 'i', $ledger_id);
-
-    // Execute the statement
-    if (mysqli_stmt_execute($stmt)) {
-        header("location: ledger?delete-success=1");
-    } else {
-        header("location: ledger?error=1");
-    }
-
-    // Close the statement
-    mysqli_stmt_close($stmt);
 }
 
 // Prepare and execute the query to fetch transactions
@@ -43,7 +23,6 @@ if ($transactions_query) {
 } else {
     echo "Error: " . mysqli_error($con);
 }
-
 ?>
 
 <!-- HTML -->
@@ -96,13 +75,15 @@ if ($transactions_query) {
                             </td>
                             <td><?= htmlspecialchars($transaction['l_Date']) ?></td>
                             <td>
-                                <a class="btn btn-secondary edit-btn" href="edit-ledger?l_ID=<?= htmlspecialchars($transaction['l_ID']) ?>">
+                                <a class="btn btn-secondary " href="edit-ledger?l_ID=<?= htmlspecialchars($transaction['l_ID']) ?>">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
                                         <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
                                     </svg>
                                     Edit
                                 </a>
-                                <button type="button" class="btn btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteLedgerModal" data-id="<?= htmlspecialchars($transaction['l_ID']) ?>">
+
+                                <button type="button" class="btn btn-danger delete-btn" data-bs-toggle="modal" data-bs-target="#deleteLedgerModal<?= htmlspecialchars($transaction['l_ID']); ?>" data-id="<?= htmlspecialchars($transaction['l_ID']) ?>">
+
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
                                         <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
                                     </svg>
@@ -129,7 +110,7 @@ if ($transactions_query) {
 </div>
 
 <!-- Delete Ledger Confirmation Modal -->
-<div class="modal" id="deleteLedgerModal" tabindex="-1" aria-labelledby="deleteLedgerModalLabel" aria-hidden="true">
+<div class="modal" id="deleteLedgerModal<?= $transaction['l_ID']; ?>"" tabindex=" -1" aria-labelledby="deleteLedgerModalLabel<?= $transaction['l_ID']; ?>"" aria-hidden=" true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -140,8 +121,8 @@ if ($transactions_query) {
                 <p>Are you sure you want to delete this transaction? This action cannot be undone.</p>
             </div>
             <div class="modal-footer">
-                <form method="POST" action="">
-                    <input type="hidden" name="ledger_id" id="delete_ledger_id">
+                <form method="POST" action="delete-ledger?l_ID<?= urlencode($transaction['l_ID']); ?>">
+                    <input type="hidden" name="ledger_id" value="<?= $transaction['l_ID']; ?>">
                     <button type="submit" name="delete" class="btn btn-danger">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
                             <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5" />
@@ -154,13 +135,3 @@ if ($transactions_query) {
         </div>
     </div>
 </div>
-
-<script>
-    $(document).ready(function() {
-        // When delete button is clicked
-        $('.delete-btn').on('click', function() {
-            var ledgerId = $(this).data('id'); // Get the ledger ID from data attribute
-            $('#delete_ledger_id').val(ledgerId); // Set the value in the hidden input
-        });
-    });
-</script>

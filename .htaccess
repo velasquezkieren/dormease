@@ -1,7 +1,10 @@
-    RewriteEngine On
-    RewriteBase /dormease/
-    
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php?page=$1 [L,QSA]
+RewriteEngine On
+RewriteBase /dormease/
 
+# Redirect all requests to the admin section directly
+RewriteRule ^admin/(.*)$ admin/index.php?page=$1 [L,QSA]
+
+# Handle other requests
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?page=$1 [L,QSA]

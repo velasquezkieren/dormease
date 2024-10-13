@@ -8,21 +8,21 @@ if (isset($_SESSION['u_Email'])) {
     $u_ID = $_SESSION['u_ID']; // Get the user's ID from session
 }
 
-// logout = destroy session
-if (isset($_GET['page'])) {
-    $page = $_GET['page'];
-    if (isset($u_ID) && $page == 'logout') {
-        session_unset();
-        session_destroy();
-        header("location:login&logout-success");
-    }
+// Logout functionality
+if (isset($_GET['page']) && $_GET['page'] === 'logout') {
+    session_unset();
+    session_destroy();
+    header("Location: login?logout-success");
+    exit(); // Ensure to stop script execution after redirection
 }
 ?>
 
 <!-- nav bar -->
-<nav class="navbar navbar-expand-lg fixed-top" style="height:80px;">
+<nav class="navbar navbar-expand-lg fixed-top">
     <div class="container">
-        <a class="navbar-brand me-auto" href="<?php echo isset($_SESSION['u_Email']) ? 'profile' : 'home'; ?>"><img src="assets/logo_img/logo-c.svg" height="50" width="auto"></a>
+        <a class="navbar-brand me-auto" href="<?php echo isset($_SESSION['u_Email']) ? 'profile' : 'home'; ?>">
+            <img src="assets/logo_img/logo-c.svg" height="50" width="auto">
+        </a>
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title" id="offcanvasNavbarLabel"><a href="home"><img src="assets/logo_img/logo-c.svg" height="50" width="auto"></a></h5>
@@ -58,7 +58,7 @@ if (isset($_GET['page'])) {
                     // Show "Inbox" only if logged in
                     if (isset($_SESSION['u_Email'])) {
                         echo '<li class="nav-item">
-                            <a class="nav-link mx-lg-2 ' . (($title == 'Inbox | DormEase') ? 'active' : '') . '" href="inbox">Inbox</a>
+                            <a class="nav-link mx-lg-2 ' . (($title == 'Messages | DormEase') ? 'active' : '') . '" href="messages">Messages</a>
                             </li>';
                     }
 

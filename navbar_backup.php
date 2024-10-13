@@ -8,32 +8,30 @@ if (isset($_SESSION['u_Email'])) {
     $u_ID = $_SESSION['u_ID']; // Get the user's ID from session
 }
 
-// logout = destroy session
-if (isset($_GET['page'])) {
-    $page = $_GET['page'];
-    if (isset($u_ID) && $page == 'logout') {
-        session_unset();
-        session_destroy();
-        header("location:login&logout-success");
-    }
+// Logout functionality
+if (isset($_GET['page']) && $_GET['page'] === 'logout') {
+    session_unset();
+    session_destroy();
+    header("Location: login?logout-success");
+    exit(); // Ensure to stop script execution after redirection
 }
 ?>
 
 <!-- nav bar -->
-<nav class="navbar navbar-expand-lg fixed-top" style="height:80px;">
-    <div class="container-fluid">
-        <a class="navbar-brand me-auto" href="<?php echo isset($_SESSION['u_Email']) ? 'profile' : 'home'; ?>"><img src="img/logo-no-background.png" height="50" width="auto"></a>
+<nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+        <a class="navbar-brand me-auto" href="<?php echo isset($_SESSION['u_Email']) ? 'profile' : 'home'; ?>">
+            <img src="assets/logo_img/logo-c.svg" height="50" width="auto">
+        </a>
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
             <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasNavbarLabel"><a href="home"><img src="img/logo-no-background.png" height="50" width="auto"></a></h5>
+                <h5 class="offcanvas-title" id="offcanvasNavbarLabel"><a href="home"><img src="assets/logo_img/logo-c.svg" height="50" width="auto"></a></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
                 <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                     <li class="nav-item">
-                        <?php if (!isset($_SESSION['u_Email'])): ?>
-                            <a class="nav-link mx-lg-2 <?php echo ($title == 'DormEase') ? 'active' : ''; ?>" href="home">Home</a>
-                        <?php endif; ?>
+                        <a class="nav-link mx-lg-2 <?php echo ($title == 'DormEase') ? 'active' : ''; ?>" href="home">Home</a>
                     </li>
                     <?php
                     // Show "Find a Home" or "List Your Property!" based on account type
@@ -53,7 +51,7 @@ if (isset($_GET['page'])) {
                             </li>';
                     } elseif (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
                         echo '<li class="nav-item">
-                            <a class="nav-link mx-lg-2 ' . (($title == 'Find a Home | DormEase') ? 'active' : '') . '" href="find">My Listings</a>
+                            <a class="nav-link mx-lg-2 ' . (($title == 'Find a Home | DormEase') ? 'active' : '') . '" href="find">Find a Dorm</a>
                             </li>';
                     }
 

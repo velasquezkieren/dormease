@@ -38,6 +38,9 @@ switch ($page) {
     case 'edit-ledger':
         $title = 'Ledger | DormEase';
         break;
+    case 'messages':
+        $title = 'Messages | DormEase';
+        break;
     default:
         $title = 'DormEase';
 }
@@ -64,7 +67,7 @@ switch ($page) {
     <script src="./scripts/jquery-3.7.1.min.js"></script>
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="./css/nav-style.css">
+
     <link rel="icon" type="image/x-icon" href="./assets/favicon.svg">
 
     <!-- style for navbar -->
@@ -158,6 +161,36 @@ switch ($page) {
             break;
         case 'edit-ledger':
             include('./pages/edit-ledger.php');
+            break;
+        case 'delete-ledger':
+            include('./pages/delete-ledger.php');
+            break;
+        case 'application':
+            include('./pages/application.php');
+            break;
+        case 'scheduled-visits':
+            include('./pages/scheduled-visits.php');
+            break;
+        case 'visit-schedules':
+            include('./pages/visit-schedules.php');
+            break;
+        case 'messages':
+            include('./pages/messages.php');
+            break;
+        case 'add-room':
+            include('./pages/add-room.php');
+            break;
+        case 'tenants':
+            include('./pages/tenants.php');
+            break;
+        case 'accept_tenant':
+            include('./pages/accept_tenant.php');
+            break;
+        case 'reject_tenant':
+            include('./pages/reject_tenant.php');
+            break;
+        case 'bookings':
+            include('./pages/bookings.php');
             break;
         default:
             include('./pages/landing.php');

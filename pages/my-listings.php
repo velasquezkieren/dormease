@@ -1,7 +1,7 @@
 <?php
 // Redirect to Login if not logged in
 if (!isset($_SESSION['u_Email'])) {
-    header("location:login&auth-required");
+    header("location:login?auth-required");
     die();
 }
 
@@ -10,16 +10,36 @@ if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] !== 0) {
     die();
 }
 
-// Check if u_ID is provided in the URL
-if (isset($_GET['u_ID'])) {
-    $user_ID = $_GET['u_ID'];
-    $sql = "SELECT * FROM user WHERE u_ID = ?";
-} else {
-    // Fetch the logged-in user's profile
-    $email = $_SESSION['u_Email'];
-    $sql = "SELECT * FROM user WHERE u_Email = ?";
-    $user_ID = $_SESSION['u_ID']; // Store the logged-in user's ID for comparison
+// Fetch the logged-in user's ID for comparison
+$user_ID = $_SESSION['u_ID'];
+
+// Prepare and execute query for dormitories with owner's name and registration status
+$stmt = $con->prepare("
+    SELECT d.*, u.u_FName, u.u_MName, u.u_LName 
+    FROM dormitory d 
+    JOIN user u ON d.d_Owner = u.u_ID 
+    WHERE d.d_Owner = ?
+");
+$stmt->bind_param("s", $user_ID);
+$stmt->execute();
+$dorms_query = $stmt->get_result();
+
+// Categorize the dorms based on registration status
+$pending_dorms = [];
+$active_dorms = [];
+$rejected_dorms = [];
+
+while ($dorm = $dorms_query->fetch_assoc()) {
+    if ($dorm['d_RegistrationStatus'] == 0) {
+        $pending_dorms[] = $dorm;
+    } elseif ($dorm['d_RegistrationStatus'] == 1) {
+        $active_dorms[] = $dorm;
+    } elseif ($dorm['d_RegistrationStatus'] == 2) {
+        $rejected_dorms[] = $dorm;
+    }
 }
+
+$stmt->close();
 ?>
 
 <!-- HTML Section -->
@@ -33,61 +53,78 @@ if (isset($_GET['u_ID'])) {
 
         <!-- Main Content -->
         <div class="col-md-8">
-            <h1>My Listings</h1>
-            <div class="row">
-                <?php
-                // Retrieve the user ID from the query string
-                $profile_ID = isset($_GET['u_ID']) ? mysqli_real_escape_string($con, $_GET['u_ID']) : $_SESSION['u_ID'];
+            <h1 class="mb-4">My Listings</h1>
 
-                // Check if the user ID is valid and fetch dormitories
-                $sql = "SELECT * FROM dormitory WHERE d_Owner = '$profile_ID'";
-                $dorms_query = mysqli_query($con, $sql);
+            <!-- Nav Tabs -->
+            <ul class="nav" id="dormTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="true">
+                        Pending Dorms (<?= count($pending_dorms); ?>)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab" aria-controls="active" aria-selected="false">
+                        Active Dorms (<?= count($active_dorms); ?>)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab" aria-controls="rejected" aria-selected="false">
+                        Rejected Dorms (<?= count($rejected_dorms); ?>)
+                    </button>
+                </li>
+            </ul>
 
-                if (mysqli_num_rows($dorms_query) > 0):
-                    // Display dorm listings as cards
-                    while ($dorm = mysqli_fetch_assoc($dorms_query)):
-                        // Fetch the owner's name
-                        $owner_ID = mysqli_real_escape_string($con, $dorm['d_Owner']);
-                        $owner_query = mysqli_query($con, "SELECT u_FName, u_LName FROM user WHERE u_ID = '$owner_ID'");
-                        $owner_data = mysqli_fetch_assoc($owner_query);
-                        $owner_name = $owner_data ? htmlspecialchars($owner_data['u_FName'] . ' ' . $owner_data['u_LName']) : 'Unknown';
-
-                        // Get the image names and use the first image for the card
-                        $images = explode(',', $dorm['d_PicName']);
-                        $first_image = $images[0];
-
-                        // Limit the description to 100 characters
-                        $description = substr($dorm['d_Description'], 0, 100);
-                        if (strlen($dorm['d_Description']) > 100) {
-                            $description .= '...';
-                        }
-                ?>
-                        <div class="col-lg-3 col-md-6 col-sm-12 mb-2">
-                            <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="text-decoration-none">
-                                <div class="card h-100 border-1">
-                                    <div class="card-img-container">
-                                        <img src="upload/<?= htmlspecialchars($dorm['d_ID'] . '/' . $first_image); ?>" class="card-img-top" alt="<?= htmlspecialchars($dorm['d_Name']); ?>">
-
-                                    </div>
-                                    <div class="card-body d-flex flex-column">
-                                        <h5 class="card-title"><?= htmlspecialchars($dorm['d_Name']); ?></h5>
-                                        <p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;"><?= htmlspecialchars($description); ?></p>
-                                        <p class="card-text"><i class="bi bi-geo-alt-fill"></i> <?= htmlspecialchars($dorm['d_Street']) . ', ' . htmlspecialchars($dorm['d_City']); ?></p>
-                                        <p class="card-text"><strong>Owner:</strong> <?= htmlspecialchars($owner_name); ?></p>
-                                        <span class="btn btn-dark mt-auto">View Details</span>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    <?php
-                    endwhile;
-                else:
-                    ?>
-                    <div class="alert alert-secondary text-center mx-auto p-5" role="alert">
-                        No listings available at the moment
+            <!-- Tab Content -->
+            <div class="tab-content" id="dormTabsContent">
+                <!-- Pending Dorms Tab -->
+                <div class="tab-pane show active" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+                    <div class="row mt-3">
+                        <?php if (!empty($pending_dorms)): ?>
+                            <?php foreach ($pending_dorms as $dorm): ?>
+                                <?php include('dorm-card.php'); ?>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="alert alert-secondary text-center mx-auto p-4" role="alert">
+                                No pending listings.
+                            </div>
+                        <?php endif; ?>
                     </div>
-                <?php endif; ?>
+                </div>
+
+                <!-- Active Dorms Tab -->
+                <div class="tab-pane" id="active" role="tabpanel" aria-labelledby="active-tab">
+                    <div class="row mt-3">
+                        <?php if (!empty($active_dorms)): ?>
+                            <?php foreach ($active_dorms as $dorm): ?>
+                                <?php include('dorm-card.php'); ?>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="alert alert-secondary text-center mx-auto p-4" role="alert">
+                                No active listings.
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Rejected Dorms Tab -->
+                <div class="tab-pane" id="rejected" role="tabpanel" aria-labelledby="rejected-tab">
+                    <div class="row mt-3">
+                        <?php if (!empty($rejected_dorms)): ?>
+                            <?php foreach ($rejected_dorms as $dorm): ?>
+                                <?php include('dorm-card.php'); ?>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="alert alert-secondary text-center mx-auto p-4" role="alert">
+                                No rejected listings.
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<?php
+$con->close(); // Close the database connection
+?>

@@ -1,7 +1,7 @@
 <?php
 // Redirect to Login if not logged in
 if (!isset($_SESSION['u_Email'])) {
-    header("location:login&auth-required");
+    header("location:login?auth-required");
     die();
 }
 
@@ -25,16 +25,17 @@ if (!$data) {
     exit();
 }
 
-$profile_pic = !empty($data['u_PicName']) && file_exists('upload/' . htmlspecialchars($data['u_PicName']))
-    ? 'upload/' . htmlspecialchars($data['u_PicName'])
+$profile_pic = !empty($data['u_Picture']) && file_exists('upload/' . htmlspecialchars($data['u_Picture']))
+    ? 'upload/' . htmlspecialchars($data['u_Picture'])
     : 'user_avatar/default_avatar.png';
 
 $email = htmlspecialchars($data['u_Email']);
 $contact_num = htmlspecialchars($data['u_ContactNumber']);
 $lastname = htmlspecialchars($data['u_LName']);
 $firstname = htmlspecialchars($data['u_FName']);
+$middlename = htmlspecialchars($data['u_MName']);
 $account_type = htmlspecialchars($data['u_Account_Type']);
-$fullname = ucwords($firstname) . " " . ucwords($lastname);
+$fullname = ucwords($firstname) . " " . ucwords($middlename) . " " . ucwords($lastname);
 
 // Handle form submission for profile edit
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
@@ -42,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 
     // Sanitize input
     $new_firstname = ucwords(trim(mysqli_real_escape_string($con, $_POST['firstname'])));
+    $new_middlename = ucwords(trim(mysqli_real_escape_string($con, $_POST['middlename'])));
     $new_lastname = ucwords(trim(mysqli_real_escape_string($con, $_POST['lastname'])));
     $new_contact_num = trim(mysqli_real_escape_string($con, $_POST['contact_num']));
     $new_email = !empty(trim($_POST['email'])) ? filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL) : $email;
@@ -51,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 
     // Validate names
     $pattern_name = '/^[A-Za-zÀ-ÿ\s\'\-]+$/u';
-    if (!preg_match($pattern_name, $new_firstname) || !preg_match($pattern_name, $new_lastname)) {
+    if (!preg_match($pattern_name, $new_firstname) || !preg_match($pattern_name, $new_middlename) || !preg_match($pattern_name, $new_lastname)) {
         $error_code = 'invalid-name';
     }
 
@@ -102,6 +104,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         $params[] = $new_firstname;
         $param_types .= 's';
     }
+    if ($new_middlename !== $middlename) {
+        $update_fields[] = 'u_MName = ?';
+        $params[] = $new_middlename;
+        $param_types .= 's';
+    }
     if ($new_lastname !== $lastname) {
         $update_fields[] = 'u_LName = ?';
         $params[] = $new_lastname;
@@ -125,6 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 
     if (empty($update_fields)) {
         echo "<script>alert('No changes made.');</script>";
+        header("location:profile?u_ID=" . $user_ID);
         exit();
     }
 
@@ -138,6 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     if ($stmt->affected_rows > 0) {
         // Update session variables with new details
         $_SESSION['u_FName'] = $new_firstname;
+        $_SESSION['u_MName'] = $new_middlename;
         $_SESSION['u_LName'] = $new_lastname;
         echo "<script>alert('Profile updated successfully.');</script>";
         // Refresh the page to reflect changes
@@ -159,8 +168,8 @@ if (isset($_POST['delete'])) {
         $picName = $image_data['u_PicName'];
         if ($picName) {
             $file_path = 'upload/' . $picName;
-            if (file_exists($file_path)) {
-                unlink($file_path); // Delete the profile picture
+            if (file_exists($file_path) && !unlink($file_path)) {
+                throw new Exception("Failed to delete profile picture.");
             }
         }
 
@@ -174,22 +183,34 @@ if (isset($_POST['delete'])) {
             $dorm_images = explode(',', $dorm['d_PicName']);
             foreach ($dorm_images as $image) {
                 $file_path = 'upload/' . $image;
-                if (file_exists($file_path)) {
-                    unlink($file_path); // Delete each dormitory image
+                if (file_exists($file_path) && !unlink($file_path)) {
+                    throw new Exception("Failed to delete dormitory image: " . $file_path);
                 }
             }
         }
 
         // Delete dormitory listings
-        $con->prepare("DELETE FROM dormitory WHERE d_Owner = ?")->execute([$user_ID]);
+        $delete_dorm_query = $con->prepare("DELETE FROM dormitory WHERE d_Owner = ?");
+        $delete_dorm_query->bind_param("s", $user_ID);
+        $delete_dorm_query->execute();
 
         // Delete user-related records in other tables
-        $con->prepare("DELETE FROM ledger WHERE l_Biller = ? OR l_Recipient = ?")->execute([$user_ID, $user_ID]);
-        $con->prepare("DELETE FROM occupancy WHERE o_Occupant = ?")->execute([$user_ID]);
-        $con->prepare("DELETE FROM room WHERE r_Dormitory IN (SELECT d_ID FROM dormitory WHERE d_Owner = ?)")->execute([$user_ID]);
+        $delete_ledger_query = $con->prepare("DELETE FROM ledger WHERE l_Biller = ? OR l_Recipient = ?");
+        $delete_ledger_query->bind_param("ss", $user_ID, $user_ID);
+        $delete_ledger_query->execute();
+
+        $delete_occupancy_query = $con->prepare("DELETE FROM occupancy WHERE o_Occupant = ?");
+        $delete_occupancy_query->bind_param("s", $user_ID);
+        $delete_occupancy_query->execute();
+
+        $delete_room_query = $con->prepare("DELETE FROM room WHERE r_Dormitory IN (SELECT d_ID FROM dormitory WHERE d_Owner = ?)");
+        $delete_room_query->bind_param("s", $user_ID);
+        $delete_room_query->execute();
 
         // Delete the user
-        $con->prepare("DELETE FROM user WHERE u_ID = ?")->execute([$user_ID]);
+        $delete_user_query = $con->prepare("DELETE FROM user WHERE u_ID = ?");
+        $delete_user_query->bind_param("s", $user_ID);
+        $delete_user_query->execute();
 
         $con->commit();
 
@@ -213,7 +234,12 @@ if (isset($_POST['delete'])) {
 
         <!-- Sidebar -->
         <div class="col-md-4">
-            <?php include('sidebar_profile.php'); ?>
+            <?php
+            // Show this only if the user is viewing their own profile
+            if (!isset($_GET['u_ID']) || $_GET['u_ID'] == $_SESSION['u_ID']) {
+                include('sidebar_profile.php');
+            }
+            ?>
         </div>
 
         <!-- Main Profile Content -->
@@ -221,9 +247,12 @@ if (isset($_POST['delete'])) {
             <div class="d-flex flex-column align-items-center text-center">
                 <a href="#">
                     <!-- profile picture here -->
-                    <img src="<?php echo $profile_pic; ?>" alt="<?php echo $fullname; ?>" class="img-fluid mb-3 rounded-circle">
+                    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#changeProfilePicModal">
+                        <img src="<?php echo htmlspecialchars($profile_pic); ?>" alt="<?php echo htmlspecialchars($fullname); ?>" class="img-fluid mb-3 rounded-circle">
+                    </button>
                 </a>
                 <?php if (!isset($_GET['u_ID']) || $_GET['u_ID'] == $_SESSION['u_ID']): ?>
+                    <!-- Change Profile Picture Button -->
                     <button type="button" class="btn btn-outline-secondary mb-2 d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#changeProfilePicModal">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-image me-2" viewBox="0 0 16 16">
                             <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
@@ -231,6 +260,8 @@ if (isset($_POST['delete'])) {
                         </svg>
                         Change Profile Picture
                     </button>
+
+                    <!-- Edit Profile Details Button -->
                     <button type="button" class="btn text-reset" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill me-2" viewBox="0 0 16 16">
                             <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z" />
@@ -238,7 +269,7 @@ if (isset($_POST['delete'])) {
                         Edit Profile Details
                     </button>
                 <?php endif; ?>
-                <p class="h1 mb-0"><?php echo $fullname; ?></p>
+                <p class="h1 mb-0"><?php echo htmlspecialchars($fullname); ?></p>
             </div>
 
             <!-- User Details Table -->
@@ -251,24 +282,52 @@ if (isset($_POST['delete'])) {
                         </tr>
                         <tr>
                             <th>Email</th>
-                            <td><?php echo $email; ?></td>
+                            <td><?php echo htmlspecialchars($email); ?></td>
                         </tr>
                         <tr>
                             <th>Contact Number</th>
-                            <td><?php echo $contact_num; ?></td>
+                            <td><?php echo htmlspecialchars($contact_num); ?></td>
                         </tr>
                         <tr>
                             <th>Account Type</th>
                             <td>
                                 <?php
-                                if (isset($_SESSION['u_Account_Type']) && ($_SESSION['u_Account_Type'] == 0)) {
-                                    echo 'Owner';
-                                } else if (isset($_SESSION['u_Account_Type']) && ($_SESSION['u_Account_Type'] == 1)) {
-                                    echo 'Tenant';
+                                // Check if viewing own profile
+                                if (!isset($_GET['u_ID']) || $_GET['u_ID'] == $_SESSION['u_ID']) {
+                                    // Display logged-in user's account type
+                                    echo ($_SESSION['u_Account_Type'] == 0) ? 'Owner' : 'Tenant';
+                                } else {
+                                    // Fetch and display the account type of the user being viewed
+                                    $u_ID = $_GET['u_ID'];
+                                    $query = "SELECT u_Account_Type FROM user WHERE u_ID = ?";
+                                    $stmt = $con->prepare($query);
+                                    $stmt->bind_param('s', $u_ID);
+                                    $stmt->execute();
+                                    $result = $stmt->get_result();
+                                    if ($result->num_rows > 0) {
+                                        $row = $result->fetch_assoc();
+                                        echo ($row['u_Account_Type'] == 0) ? 'Owner' : 'Tenant';
+                                    } else {
+                                        echo 'Unknown';
+                                    }
                                 }
                                 ?>
                             </td>
                         </tr>
+                        <?php if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1):
+                            if (!isset($_GET['u_ID']) || $_GET['u_ID'] == $_SESSION['u_ID']):
+                        ?>
+                                <tr>
+                                    <th></th>
+                                    <td>
+                                        Do you want to list your property?
+                                        <a href="application?u_ID=<?php echo htmlspecialchars($user_ID); ?>">
+                                            Apply as Owner
+                                        </a>
+                                    </td>
+                                </tr>
+                        <?php endif;
+                        endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -276,94 +335,30 @@ if (isset($_POST['delete'])) {
     </div>
 </div>
 
-<!-- Modals -->
-<!-- Edit Profile Modal -->
-<div class="modal" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-center" id="editProfileModalLabel">Edit Profile</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editProfileForm" method="POST" action="">
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" name="firstname" placeholder="First Name" value="<?php echo $firstname; ?>" required pattern="^[A-Za-zÀ-ÿ\s\'\-]+">
-                        <label for="firstname" class="form-label">First Name</label>
-                    </div>
-                    <div class="mb-3">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" name="lastname" placeholder="Last Name" value="<?php echo $lastname; ?>" required pattern="^[A-Za-zÀ-ÿ\s\'\-]+">
-                            <label for="lastname" class="form-label">Last Name</label>
-                        </div>
-                    </div>
-                    <div class="form-floating mb-3">
-                        <input type="email" class="form-control" name="email" placeholder="name@example.com" value="<?php echo $email; ?>">
-                        <label for="email" class="form-label">Email</label>
-                    </div>
-                    <div class="form-floating mb-3">
-                        <input type="email" class="form-control" name="confirm_email" id="confirm_email" placeholder="name@example.com">
-                        <label for="confirm_email" class="form-label">Confirm Email</label>
-                    </div>
-                    <div class="form-floating mb-3">
-                        <input type="password" class="form-control" name="password" placeholder="Password" id="password" minlength="8" maxlength="20" pattern=".{8,20}">
-                        <label for="password" class="form-label">Password</label>
-                    </div>
-                    <div class="form-floating mb-3">
-                        <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Confirm Password" minlength="8" maxlength="20" pattern=".{8,20}">
-                        <label for="confirm_password" class="form-label">Confirm Password</label>
-                    </div>
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" name="contact_num" placeholder="Contact Number" value="<?php echo $contact_num; ?>" required pattern="09\d{9}">
-                        <label for="contact_num" class="form-label">Contact Number</label>
-                    </div>
-                    <!-- Add more fields as needed -->
-                    <div class="modal-footer">
-                        <!-- Button to trigger delete confirmation modal -->
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
-                            </svg>
-                            Delete Account
-                        </button>
-                        <button name="submit" class="btn btn-dark">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy-fill" viewBox="0 0 16 16">
-                                <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0H3v5.5A1.5 1.5 0 0 0 4.5 7h7A1.5 1.5 0 0 0 13 5.5V0h.086a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5H14v-5.5A1.5 1.5 0 0 0 12.5 9h-9A1.5 1.5 0 0 0 2 10.5V16h-.5A1.5 1.5 0 0 1 0 14.5z" />
-                                <path d="M3 16h10v-5.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5zm9-16H4v5.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5zM9 1h2v4H9z" />
-                            </svg>
-                            Save changes
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<?php
+include('profile-modal.php');
+?>
 
-<!-- Delete Account Confirmation Modal -->
-<div class="modal" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteAccountModalLabel">Confirm Account Deletion</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-            </div>
-            <div class="modal-footer">
-                <!-- Confirm delete -->
-                <form method="POST" action="">
-                    <input type="hidden" name="u_ID" value="<?= htmlspecialchars($user_ID); ?>">
-                    <button type="submit" name="delete" class="btn btn-danger">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-                            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
-                        </svg>
-                        Delete
-                    </button>
-                </form>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            </div>
-        </div>
-    </div>
-</div>
+<script>
+    $(document).ready(function() {
+        $('input[name="profile_pic"]').on('change', function(event) {
+            const imagePreview = $('#profile-preview');
+            imagePreview.empty(); // Clear previous previews
+
+            $.each(event.target.files, function(index, file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = $('<img>', {
+                        src: e.target.result,
+                        css: {
+                            width: '200px', // Set preview size
+                            marginRight: '10px'
+                        }
+                    });
+                    imagePreview.append(img);
+                }
+                reader.readAsDataURL(file);
+            });
+        });
+    });
+</script>

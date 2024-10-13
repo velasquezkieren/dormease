@@ -6,7 +6,7 @@ if (isset($_POST['search']) || isset($_POST['sort'])) {
     $search_query = mysqli_real_escape_string($con, $_POST['search']);
     $sort_order = mysqli_real_escape_string($con, $_POST['sort']);
 
-    $sql = "SELECT * FROM dormitory WHERE d_Name LIKE '%$search_query%' OR d_Street LIKE '%$search_query%' OR d_City LIKE '%$search_query%'";
+    $sql = "SELECT * FROM dormitory WHERE (d_Name LIKE '%$search_query%' OR d_Street LIKE '%$search_query%' OR d_City LIKE '%$search_query%') AND d_RegistrationStatus = 1";
 
     // Sorting
     if ($sort_order == "1") {
@@ -25,9 +25,9 @@ if (isset($_POST['search']) || isset($_POST['sort'])) {
         while ($dorm = mysqli_fetch_assoc($dorms_query)) {
             // Fetch the owner's name
             $owner_ID = mysqli_real_escape_string($con, $dorm['d_Owner']);
-            $owner_query = mysqli_query($con, "SELECT u_FName, u_LName FROM user WHERE u_ID = '$owner_ID'");
+            $owner_query = mysqli_query($con, "SELECT u_FName, u_MName, u_LName FROM user WHERE u_ID = '$owner_ID'");
             $owner_data = mysqli_fetch_assoc($owner_query);
-            $owner_name = $owner_data ? htmlspecialchars($owner_data['u_FName'] . ' ' . $owner_data['u_LName']) : 'Unknown';
+            $owner_name = $owner_data ? htmlspecialchars($owner_data['u_FName'] . ' ' . $owner_data['u_MName'] . ' ' . $owner_data['u_LName']) : 'Unknown';
 
             // Get the image names and use the first image for the card
             $images = explode(',', $dorm['d_PicName']);
@@ -43,10 +43,26 @@ if (isset($_POST['search']) || isset($_POST['sort'])) {
             <div class="col-lg-3 col-md-6 col-12 mb-2">
                 <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="text-decoration-none">
                     <div class="card h-100 border-1">
-                        <div class="card-img-container">
-                            <img src="upload/<?= htmlspecialchars($dorm['d_ID'] . '/' . $first_image); ?>" class="card-img-top" alt="<?= htmlspecialchars($dorm['d_Name']); ?>">
-
+                        <!-- Carousel -->
+                        <div id="carousel-<?= $dorm['d_ID']; ?>" class="carousel slide card-img-container" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                <?php foreach ($images as $index => $image): ?>
+                                    <div class="carousel-item <?= $index === 0 ? 'active' : ''; ?>">
+                                        <img src="upload/<?= htmlspecialchars($dorm['d_ID'] . '/' . $image); ?>" class="d-block w-100 img-fluid" loading="lazy" alt="<?= htmlspecialchars($dorm['d_Name']); ?>" style="height: 200px; object-fit: cover;">
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-<?= $dorm['d_ID']; ?>" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#carousel-<?= $dorm['d_ID']; ?>" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
                         </div>
+                        <!-- End Carousel -->
+
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title"><?= htmlspecialchars($dorm['d_Name']); ?></h5>
                             <p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;"><?= htmlspecialchars($description); ?></p>

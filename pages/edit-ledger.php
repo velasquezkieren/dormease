@@ -1,7 +1,7 @@
 <?php
 // Redirect to Login if not logged in
 if (!isset($_SESSION['u_Email'])) {
-    header("location:login&auth-required");
+    header("location:login?auth-required");
     die();
 }
 
