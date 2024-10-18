@@ -31,17 +31,17 @@ if (isset($_POST['delete'])) {
 
         // Execute the delete statement
         if (mysqli_stmt_execute($stmt)) {
-            header("location: ledger.php?delete-success=1");
+            header("location: ledger?delete-success=1");
             exit; // Ensure no further code is executed after redirection
         } else {
-            header("location: ledger.php?error=1");
+            header("location: ledger?error=1");
             exit;
         }
 
         // Close the statement
         mysqli_stmt_close($stmt);
     } else {
-        header("location: ledger.php?error=1");
+        header("location: ledger?error=1");
         exit;
     }
 }
