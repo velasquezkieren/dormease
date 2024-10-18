@@ -97,6 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </form>
                     </div>
                 </div>
+
                 <!-- Users list -->
                 <ul class="list-group flex-grow-1 overflow-auto">
                     <?php if (count($conversations) > 0): ?>
@@ -123,14 +124,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($currentConversation): ?>
                 <h4 class="mt-4 d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
-                        <img src="user_avatar/<?php echo $currentConversation['userPicture']; ?>" alt="Profile" width="50" height="50" class="rounded-circle me-2">
-                        <span><?php echo htmlspecialchars($currentConversation['full_name']); ?></span>
+                        <a href="profile?u_ID=<?php echo ($currentConversation['u_ID']); ?>" class="text-dark text-decoration-none"><img src="user_avatar/<?php echo $currentConversation['userPicture']; ?>" alt="Profile" width="50" height="50" class="rounded-circle me-2">
+                            <span><?php echo htmlspecialchars($currentConversation['full_name']); ?></span></a>
                     </div>
-                    <button class="btn" id="toggleDetailsBtn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
-                        </svg>
-                    </button>
                 </h4>
                 <div class="border p-3 flex-grow-1 overflow-auto">
                     <?php foreach ($messages as $message): ?>
@@ -140,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     <?php endforeach; ?>
                 </div>
-                <form action="" method="POST" class="mt-2">
+                <form action="" method="POST" class="mt-3 mb-3">
                     <input type="hidden" name="recipient" value="<?php echo ($currentConversation['u_ID']); ?>">
                     <div class="input-group">
                         <input type="text" class="form-control" name="message" placeholder="Aa" required>
@@ -162,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="p-3 text-center">
                     <img src="user_avatar/<?php echo $currentConversation['userPicture']; ?>" alt="Profile" width="150" height="150" class="rounded-circle img-fluid mb-3"><br>
                     <h5>
-                        <a href="profile?u_ID=<?php echo ($currentConversation['u_ID']); ?>" class="text-decoration-none">
+                        <a href="profile?u_ID=<?php echo ($currentConversation['u_ID']); ?>" class="text-dark text-decoration-none">
                             <?php echo htmlspecialchars($currentConversation['full_name']); ?>
                         </a>
                     </h5>
@@ -173,11 +169,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 </div>
-
-<script>
-    $(document).ready(function() {
-        $('#toggleDetailsBtn').click(function() {
-            $('#detailsDiv').toggleClass('d-none'); // Toggle visibility of details div
-        });
-    });
-</script>
