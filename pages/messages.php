@@ -153,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
             <?php else: ?>
                 <div class="d-flex justify-content-center align-items-center h-100">
-                    <h4 class="mt-4 text-muted">Select a chat or start a new conversation</h4>
+                    <h4 class="mt-4 text-muted text-center">Select a chat or start a new conversation</h4>
                 </div>
             <?php endif; ?>
         </div>
