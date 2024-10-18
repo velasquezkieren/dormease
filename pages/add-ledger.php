@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!-- HTML -->
-<div class="container pt-5" style="margin-top: 100px;">
+<div class="container pt-5 min-vh-100" style="margin-top: 100px;">
     <div class="row">
         <div class="col-md-4">
             <?php include('sidebar_profile.php'); ?>

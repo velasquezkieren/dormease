@@ -114,6 +114,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php else: ?>
                         <li class="list-group-item border-0">
                             <p class="text-center text-muted h5">No Messages found.</p>
+                            <div class="d-flex justify-content-center align-items-center h-100">
+                                <p class="text-center text-muted h6">New messages will appear here.</p>
+                            </div>
                         </li>
                     <?php endif; ?>
                 </ul>
@@ -167,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </h5>
                 </div>
             <?php else: ?>
-                <p class="text-center mt-5">Select a conversation to see details.</p>
+                <p class="text-center mt-5 text-muted">Select a conversation to see details.</p>
             <?php endif; ?>
         </div>
     </div>

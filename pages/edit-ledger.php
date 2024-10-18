@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!-- HTML Section -->
-<div class="container pt-5" style="margin-top: 100px;">
+<div class="container pt-5 min-vh-100" style="margin-top: 100px;">
     <div class="row">
         <!-- Sidebar included here -->
         <div class="col-md-4">
