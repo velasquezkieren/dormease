@@ -158,6 +158,9 @@ switch ($page) {
         case 'delete-room':
             include('../admin/pages/delete-room.php');
             break;
+        case 'edit-user':
+            include('../admin/pages/edit-user.php');
+            break;
         default:
             include('../admin/pages/login.php');
             break;

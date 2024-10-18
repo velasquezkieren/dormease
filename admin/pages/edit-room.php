@@ -8,12 +8,12 @@ if (!isset($_SESSION["a_ID"])) {
 // Initialize variables
 $roomData = [];
 
-// Fetch room details if r_Name is provided
-if (isset($_GET['r_Name'])) {
-    $r_Name = ($_GET['r_Name']);
-    $query = "SELECT * FROM room WHERE r_Name = ?";
+// Fetch room details if r_ID is provided
+if (isset($_GET['r_ID'])) {
+    $r_ID = ($_GET['r_ID']);
+    $query = "SELECT * FROM room WHERE r_ID = ?";
     $stmt = $con->prepare($query);
-    $stmt->bind_param("s", $r_Name); // Bind the room name parameter
+    $stmt->bind_param("s", $r_ID); // Bind the room ID parameter
 
     if ($stmt->execute()) {
         $result = $stmt->get_result();
@@ -32,7 +32,8 @@ if (isset($_GET['r_Name'])) {
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_room'])) {
-    // Get the room name from the form submission
+    // Get the room ID and name from the form submission
+    $r_ID = ($_POST['r_ID']);
     $r_Name = ($_POST['r_Name']);
 
     // Sanitize input
@@ -47,12 +48,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_room'])) {
         $update_query = "UPDATE room 
                          SET r_Description = ?, 
                              r_Availability = ? 
-                         WHERE r_Name = ?";
+                         WHERE r_ID = ?";
 
         // Prepare and bind parameters
         $stmt = $con->prepare($update_query);
         if ($stmt) {
-            $stmt->bind_param("sis", $r_Description, $r_Availability, $r_Name);
+            $stmt->bind_param("sis", $r_Description, $r_Availability, $r_ID);
 
             // Execute the statement
             if ($stmt->execute()) {
@@ -75,6 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit_room'])) {
                 <div class="card-body">
                     <h5 class="card-title">Edit Room: <?php echo htmlspecialchars($roomData['r_Name']); ?></h5>
                     <form method="POST" action="">
+                        <input type="hidden" name="r_ID" value="<?= htmlspecialchars($roomData['r_ID'] ?? ''); ?>">
                         <input type="hidden" name="r_Name" value="<?= htmlspecialchars($roomData['r_Name'] ?? ''); ?>">
 
                         <div class="form-floating mb-3">

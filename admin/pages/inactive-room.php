@@ -33,13 +33,13 @@ if (isset($_GET['alert'])) {
 // Handle form submission for activating or denying rooms
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['action'])) {
-        $r_Name = $_POST['r_Name']; // Get room name from the form submission
+        $r_ID = $_POST['r_ID']; // Get room ID from the form submission
 
         if ($_POST['action'] === 'activate') {
             // Activate the room
-            $updateSql = "UPDATE room SET r_RegistrationStatus = 1 WHERE r_Name = ?";
+            $updateSql = "UPDATE room SET r_RegistrationStatus = 1 WHERE r_ID = ?";
             $stmt = $con->prepare($updateSql);
-            $stmt->bind_param("s", $r_Name);
+            $stmt->bind_param("s", $r_ID);
             if ($stmt->execute()) {
                 header("Location: inactive-room?alert=activated"); // Redirect with alert
                 exit();
@@ -49,9 +49,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         } elseif ($_POST['action'] === 'deny') {
             // Deny the room
-            $updateSql = "UPDATE room SET r_RegistrationStatus = 2 WHERE r_Name = ?";
+            $updateSql = "UPDATE room SET r_RegistrationStatus = 2 WHERE r_ID = ?";
             $stmt = $con->prepare($updateSql);
-            $stmt->bind_param("s", $r_Name);
+            $stmt->bind_param("s", $r_ID);
             if ($stmt->execute()) {
                 header("Location: inactive-room?alert=denied"); // Redirect with alert
                 exit();
@@ -90,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <td><?php echo $row['r_Description']; ?></td>
                                 <td>
                                     <form method="POST" action="" class="d-inline">
-                                        <input type="hidden" name="r_Name" value="<?php echo $row['r_Name']; ?>">
+                                        <input type="hidden" name="r_ID" value="<?php echo $row['r_ID']; ?>">
                                         <button type="submit" name="action" value="activate" class="btn btn-success">Activate</button>
                                         <button type="submit" name="action" value="deny" class="btn btn-danger">Deny</button>
                                     </form>

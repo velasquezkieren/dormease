@@ -1,14 +1,14 @@
 <?php
 // Assuming you've already connected to your database
 if (isset($_POST['delete_room'])) {
-    // Get the room name from the POST request
-    $r_Name = $_POST['r_Name'];
+    // Get the room ID from the POST request
+    $r_ID = $_POST['r_ID'];
 
     // Prepare the SQL statement to prevent SQL injection
-    $stmt = $con->prepare("DELETE FROM room WHERE r_Name = ?");
+    $stmt = $con->prepare("DELETE FROM room WHERE r_ID = ?");
     if ($stmt) {
         // Bind the parameter
-        $stmt->bind_param("s", $r_Name);
+        $stmt->bind_param("s", $r_ID);
 
         // Execute the statement
         if ($stmt->execute()) {
