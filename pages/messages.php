@@ -115,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <li class="list-group-item border-0">
                             <p class="text-center text-muted h5">No Messages found.</p>
                             <div class="d-flex justify-content-center align-items-center h-100">
-                                <p class="text-center text-muted h6">New messages will appear here.</p>
+                                <p class="text-center text-muted h6">New messages will appear here</p>
                             </div>
                         </li>
                     <?php endif; ?>
