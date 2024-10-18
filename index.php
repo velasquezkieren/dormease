@@ -21,7 +21,7 @@ switch ($page) {
         $title = 'Sign Up | DormEase';
         break;
     case 'property':
-        $title = 'Details | DormEase';
+        $title = 'Dorm | DormEase';
         break;
     case 'my-listings':
         $title = 'Listings | DormEase';
@@ -201,13 +201,14 @@ switch ($page) {
             include('./pages/landing.php');
             break;
     }
+
+    if ($page !== 'messages') {
+        echo '<footer class="mt-5 text-center text-lg-start bg-body-tertiary text-muted">';
+        include('footer.php'); // Footer for all pages except 'messages'
+        echo '</footer>';
+    }
     ?>
 
-    <footer class="mt-5 text-center text-lg-start bg-body-tertiary text-muted">
-        <?php
-        include('footer.php'); //footer 
-        ?>
-    </footer>
 </body>
 
 </html>

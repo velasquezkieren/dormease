@@ -119,7 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="invalid-feedback">Please select a type.</div>
                 </div>
 
-
                 <a href="ledger" class="btn btn-secondary">Back to Dashboard</a>
                 <button type="submit" class="btn btn-dark">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">

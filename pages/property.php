@@ -521,7 +521,7 @@ if (isset($_POST['book'])) {
                 <?php endwhile; ?>
             <?php else: ?>
                 <div class="col-12">
-                    <div class="alert alert-secondary" role="alert">
+                    <div class="alert alert-secondary text-center p-5" role="alert">
                         No available rooms at the moment.
                     </div>
                 </div>

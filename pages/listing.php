@@ -203,7 +203,7 @@ if (!isset($_SESSION['u_Email'])) {
                                             </div>
 
                                             <div class="col-12">
-                                                <label for="d_PicName" class="form-label">Upload Images</label>
+                                                <label for="d_PicName" class="form-label">Upload Images (3-5 images, maximum of 5 MB)</label>
                                                 <input class="form-control" type="file" name="d_PicName[]" accept=".jpg, .jpeg, .png, .gif" multiple required onchange="previewImages(event)">
                                                 <div id="image-preview" class="mt-2"></div>
                                             </div>
