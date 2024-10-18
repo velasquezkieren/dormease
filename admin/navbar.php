@@ -61,3 +61,13 @@ if (isset($_GET['page']) && $_GET['page'] === 'logout') {
         <?php endif; ?>
     </div>
 </nav>
+
+<style>
+    .dropdown-item:hover,
+    .dropdown-item:focus {
+        background-color: #883D1A;
+        /* Change this to your desired color */
+        color: white;
+        /* Change the text color */
+    }
+</style>
