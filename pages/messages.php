@@ -90,20 +90,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col">
                             <h2>Conversations</h2>
                             <!-- Search bar -->
-                            <!-- <div class="search-bar">
+                            <div class="search-bar">
                                 <form method="GET" action="">
                                     <div class="input-group mb-3">
                                         <input type="text" class="form-control" id="searchInput" name="search" placeholder="Search users..." value="<?php echo htmlspecialchars($search_query); ?>">
                                         <button class="btn btn-outline-secondary" type="submit">Search</button>
                                     </div>
                                 </form>
-                            </div> -->
+                            </div>
                             <!-- Users list -->
                             <ul class="list-group">
                                 <?php if (count($conversations) > 0): ?>
                                     <?php foreach ($conversations as $conversation): ?>
                                         <a href="?u_ID=<?php echo $conversation['u_ID']; ?>" class="text-decoration-none">
-                                            <li class="list-group-item">
+                                            <li class="list-group-item border-0">
                                                 <img src="user_avatar/<?php echo $conversation['userPicture']; ?>" alt="Profile" width="50" height="50" class="rounded-circle">
                                                 <?php echo htmlspecialchars($conversation['full_name']); ?>
                                                 <br>

@@ -1,6 +1,5 @@
-<section class="about" id="about">
-    <div class="container">
-
+<section class="about pt-5" id="about">
+    <div class="container min-vh-100">
         <div class="row justify-content-center mt-4" style="padding-top: 80px;">
             <div class="col-md-6 col-sm-12 text-center">
                 <img src="./img/kieren.jpg" alt="Kieren" class="rounded-circle img-fluid mx-auto" style="max-height: 300px;">

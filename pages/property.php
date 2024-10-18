@@ -6,6 +6,7 @@ if (!isset($_GET['d_ID']) || empty($_GET['d_ID'])) {
     exit();
 }
 
+// Get Property ID
 $d_ID = $_GET['d_ID'];
 
 // Fetch the dormitory information
@@ -20,6 +21,9 @@ if (!$dormitory) {
 
 // Get the owner ID of the dormitory
 $d_Owner_ID = $dormitory['d_Owner'];
+// Query to fetch owner details (u_Picture, u_ContactNumber, and full name)
+$owner_query = mysqli_query($con, "SELECT u_FName, u_MName, u_LName, u_Picture, u_ContactNumber FROM user WHERE u_ID = '$d_Owner_ID'");
+
 $loggedInUserID = $_SESSION['u_ID']; // Assuming you have this session variable
 
 // Retrieve coordinates, Dorm Name, Price, and Gender
@@ -28,15 +32,23 @@ $longitude = $dormitory['d_Longitude'];
 $dormName = htmlspecialchars($dormitory['d_Name']);
 $d_Price = htmlspecialchars($dormitory['d_Price']);
 $d_Gender = $dormitory['d_Gender'];
-$genderLabel = $d_Gender === null ? "No Gender Restriction" : ($d_Gender == 1 ? "Male" : ($d_Gender == 0 ? "Female" : "No Gender Restriction"));
+$genderLabel = $d_Gender === 2 ? "Any" : ($d_Gender == 1 ? "Male" : ($d_Gender == 0 ? "Female" : "Any"));
 
 // Check if the logged-in user is the owner
 $isOwner = ($loggedInUserID === $d_Owner_ID);
 
-// Fetch all available rooms for the dormitory
-$roomsSql = "SELECT * FROM room WHERE r_Dormitory = '$d_ID' AND r_Availability = 1 AND r_RegistrationStatus = 1"; // Only available rooms with registration status
+if ($isOwner) {
+    // Show all rooms for the owner, including available and pending rooms
+    $roomsSql = "SELECT * FROM room WHERE r_Dormitory = '$d_ID' AND r_Availability = 1 AND (r_RegistrationStatus = 0 OR r_RegistrationStatus = 1 OR r_RegistrationStatus = 2)";
+} else {
+    // Show only available rooms with registration status 1 for non-owners
+    $roomsSql = "SELECT * FROM room WHERE r_Dormitory = '$d_ID' AND r_Availability = 1 AND r_RegistrationStatus = 1";
+}
+
+// Fetch rooms
 $roomsResult = mysqli_query($con, $roomsSql);
 
+// Edit Dormitory
 if (isset($_POST['edit_dormitory'])) {
     // Process the form to update the dormitory
     $d_ID = $_POST['d_ID'];
@@ -100,6 +112,7 @@ if (isset($_POST['edit_dormitory'])) {
     exit();
 }
 
+// Delete Dormitory
 if (isset($_POST['delete_dormitory'])) {
     // Get the dormitory ID from the form
     $d_ID = $_POST['d_ID'];
@@ -119,7 +132,11 @@ if (isset($_POST['delete_dormitory'])) {
             }
         }
 
-        // Delete the dormitory record
+        // Delete associated rooms first
+        $deleteRoomsSql = "DELETE FROM room WHERE r_Dormitory = '$d_ID'";
+        mysqli_query($con, $deleteRoomsSql);
+
+        // Now delete the dormitory record
         $sql = "DELETE FROM dormitory WHERE d_ID = '$d_ID'";
         mysqli_query($con, $sql);
 
@@ -135,6 +152,7 @@ if (isset($_POST['delete_dormitory'])) {
     exit();
 }
 
+// Schedule a visit (for tenants)
 if (isset($_POST['schedule'])) {
     // Collect form data
     $visitorID = $_POST['visitorID'];
@@ -162,7 +180,7 @@ if (isset($_POST['schedule'])) {
     $con->close();
 }
 
-// Handle inquiry submission
+// Inquiry (for tenants)
 if (isset($_POST['inquire'])) {
     // Collect inquiry details
     $inquiryMessage = mysqli_real_escape_string($con, trim($_POST['inquiryMessage']));
@@ -188,33 +206,35 @@ if (isset($_POST['inquire'])) {
     $stmt->close();
 }
 
+// Book a room (for tenants)
 if (isset($_POST['book'])) {
-    $o_Name = $_POST['o_Name'];
+    $o_Name = $_POST['o_Name'];  // This is now the room ID (r_ID)
     $o_Occupant = $_POST['o_Occupant'];
-    $o_Status = 0;
+    $o_Status = 0;  // Set default status as unoccupied or new booking
 
     $stmt = $con->prepare("INSERT INTO occupancy (o_Room, o_Occupant, o_Status) VALUES (?,?,?)");
     $stmt->bind_param("ssi", $o_Name, $o_Occupant, $o_Status);
+
     if ($stmt->execute()) {
-        header("Location: profile?book-success");
+        header("Location: bookings?book-success");
         exit();
     } else {
         echo "Error: " . $stmt->error;
     }
 }
-
 ?>
 
-<div class="container">
+<div class="container min-vh-100">
     <div class="row pt-5 text-center text-md-start">
         <div class="col-12 col-md pt-5 d-flex flex-column align-items-center align-items-md-start">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="find">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house" style="color: black;">
                                 <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
                                 <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                             </svg>
+
                         </a></li>
                     <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($dormitory['d_Name']); ?></li>
                 </ol>
@@ -320,24 +340,56 @@ if (isset($_POST['book'])) {
 
     <!-- Dorm Details -->
     <div class="row pt-2">
-        <div class="col-md-8 col-lg-8"> <!-- Left column at 80% -->
-            <p class="h3"><?php echo htmlspecialchars($dormitory['d_Name']); ?></p>
-            <div class="d-flex align-items-center">
-                <i class="bi bi-geo-alt-fill"></i>
-                <p class="h5 mb-0 ms-1"><?php echo htmlspecialchars($dormitory['d_Street'] . ', ' . $dormitory['d_City']); ?></p>
-            </div>
-            <p class="h1">Description</p>
-            <div class="col-12">
-                <!-- Gender Display -->
-                <p><strong>Gender Specification:</strong> <?php echo $genderLabel; ?></p>
-                <p><?php echo nl2br(htmlspecialchars($dormitory['d_Description'])); ?></p>
+        <!-- Full width on mobile, 80% on medium and large screens -->
+        <div class="col-12 col-md-8 col-lg-8">
+            <div class="row">
+                <!-- Owner Details -->
+                <!-- Full width on mobile, half on medium screens -->
+                <div class="col-12 col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body shadow-sm"> <!-- Center content for mobile view -->
+                            <?php
+                            // Check if the query returned results
+                            if ($owner_data = mysqli_fetch_assoc($owner_query)) {
+                                // Fetch owner details
+                                $owner_full_name = htmlspecialchars($owner_data['u_FName'] . ' ' . $owner_data['u_MName'] . ' ' . $owner_data['u_LName']);
+                                $owner_picture = htmlspecialchars($owner_data['u_Picture']);
+                                $owner_contact = htmlspecialchars($owner_data['u_ContactNumber']);
+                            }
+                            ?>
+                            <h5 class="card-title d-flex align-items-center"> <!-- Flex for alignment -->
+                                <img src="user_avatar/<?= $owner_picture; ?>" alt="<?= $owner_full_name ?>" class="img-fluid rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                <?= $owner_full_name; ?>
+                            </h5>
+                            <p class="card-text">
+                                <i class="bi bi-telephone"></i> <?= $owner_contact; ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dormitory Details -->
+                <div class="col-12"> <!-- Full width on all screen sizes -->
+                    <p class="h3"><?php echo htmlspecialchars($dormitory['d_Name']); ?></p>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <p class="h5 mb-0 ms-1"><?php echo htmlspecialchars($dormitory['d_Street'] . ', ' . $dormitory['d_City']); ?></p>
+                    </div>
+                </div>
+
+                <!-- Dorm Description -->
+                <div class="col-12 mt-4">
+                    <p class="h4">Description</p>
+                    <p class="h6"><strong>Gender:</strong> <?php echo $genderLabel; ?></p>
+                    <p class="card-text text-truncate"><?php echo nl2br(htmlspecialchars($dormitory['d_Description'])); ?></p>
+                </div>
             </div>
         </div>
 
         <!-- Right Column -->
         <div class="col-md-4 col-lg-4"> <!-- Right column at 20% -->
             <!-- Price Card -->
-            <div class="card mb-1">
+            <div class="card mb-1 shadow-sm">
                 <div class="card-body">
                     <p class="h5 card-title">Price</p>
                     <p class="fw-bold h2">₱ <?php echo $d_Price; ?>/month</p>
@@ -377,10 +429,16 @@ if (isset($_POST['book'])) {
                                         <label for="visitDateTime" class="form-label">Date and Time</label>
                                         <input type="datetime-local" class="form-control" id="visitDateTime" name="visitDateTime" required>
                                     </div>
-                                    <button type="submit" name="schedule" class="btn btn-dark mt-auto">Schedule Visit</button>
+                                    <button type="submit" name="schedule" class="btn btn-dark mt-auto">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-check me-1" viewBox="0 0 16 16">
+                                            <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0" />
+                                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
+                                        </svg>
+                                        Schedule Visit
+                                    </button>
                                 </form>
                             <?php else : ?>
-                                <div class="alert alert-secondary mt-3" role="alert">Only tenants can schedule visits.</div>
+                                <div class="alert alert-secondary mt-3" role="alert">Only logged-in tenants can schedule visits.</div>
                             <?php endif; ?>
                         </div>
 
@@ -403,10 +461,15 @@ if (isset($_POST['book'])) {
                                     </div>
                                     <input type="hidden" name="visitorID" value="<?php echo $loggedInUserID; ?>">
                                     <input type="hidden" name="landlordID" value="<?php echo $d_Owner_ID; ?>">
-                                    <button type="submit" name="inquire" class="btn btn-dark mt-auto">Send Inquiry</button>
+                                    <button type="submit" name="inquire" class="btn btn-dark mt-auto">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
+                                            <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z" />
+                                        </svg>
+                                        Send Inquiry
+                                    </button>
                                 </form>
                             <?php else : ?>
-                                <div class="alert alert-secondary mt-3" role="alert">Only tenants can send inquiries.</div>
+                                <div class="alert alert-secondary mt-3" role="alert">Only logged-in tenants can send inquiries.</div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -416,11 +479,12 @@ if (isset($_POST['book'])) {
     </div>
 
     <!-- Map -->
-    <div class="row mt-4">
+    <div class="row mt-4 mb-4">
+        <!-- Map -->
         <div class="col-12">
             <h2>Location</h2>
             <!-- OpenStreetMap Integration here -->
-            <div id="map" style="height: 400px;"></div>
+            <div id="map" class="rounded" style="height: 400px;"></div>
         </div>
     </div>
 
@@ -428,27 +492,40 @@ if (isset($_POST['book'])) {
     <div class="col-12 col-md">
         <h2>Available Rooms</h2>
         <div class="row">
-            <?php while ($room = mysqli_fetch_assoc($roomsResult)): ?>
-                <div class="col-md-4">
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title"><?php echo htmlspecialchars($room['r_Name']); ?></h5>
-                            <p class="card-text"><?php echo htmlspecialchars($room['r_Description']); ?></p>
-                            <p class="card-text">Capacity: <?php echo htmlspecialchars($room['r_Capacity']); ?></p>
-                            <p class="card-text"><strong>Price: </strong><?php echo htmlspecialchars($d_Price); ?> per month</p>
-                            <form action="" method="post">
-                                <input type="hidden" name="o_Name" value="<?php echo htmlspecialchars($room['r_Name']); ?>">
-                                <input type="hidden" name="o_Occupant" value="<?php echo $loggedInUserID; ?>">
-                                <?php if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) : // Check if the user is a tenant 
-                                ?>
-                                    <button type="submit" name="book" class="btn btn-dark mt-auto">Book Now</button>
+            <?php if (mysqli_num_rows($roomsResult) > 0): ?>
+                <?php while ($room = mysqli_fetch_assoc($roomsResult)): ?>
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title"><?php echo htmlspecialchars($room['r_Name']); ?></h5>
+                                <p class="card-text"><?php echo htmlspecialchars($room['r_Description']); ?></p>
+                                <p class="card-text">Capacity: <?php echo htmlspecialchars($room['r_Capacity']); ?></p>
+                                <p class="card-text"><strong>Price: </strong><?php echo htmlspecialchars($d_Price); ?> per month</p>
+
+                                <?php if ($isOwner && $room['r_RegistrationStatus'] == 0): ?>
+                                    <p class="card-text"><strong>Status: </strong>Pending</p>
+                                    <a href="delete-room?r_ID=<?php echo htmlspecialchars($room['r_ID']); ?>&d_ID=<?php echo htmlspecialchars($d_ID); ?>" class="text-danger">Delete Room</a>
                                 <?php endif; ?>
 
-                            </form>
+                                <form action="" method="post">
+                                    <input type="hidden" name="o_Name" value="<?php echo htmlspecialchars($room['r_ID']); ?>">
+                                    <input type="hidden" name="o_Occupant" value="<?php echo $loggedInUserID; ?>">
+                                    <?php if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1): // Check if the user is a tenant 
+                                    ?>
+                                        <button type="submit" name="book" class="btn btn-dark mt-auto">Book Now</button>
+                                    <?php endif; ?>
+                                </form>
+                            </div>
                         </div>
                     </div>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <div class="col-12">
+                    <div class="alert alert-secondary" role="alert">
+                        No available rooms at the moment.
+                    </div>
                 </div>
-            <?php endwhile; ?>
+            <?php endif; ?>
 
             <?php if ($isOwner): ?>
                 <div class="col-md-4">
@@ -456,7 +533,7 @@ if (isset($_POST['book'])) {
                         <div class="card-body text-center">
                             <h5 class="card-title">Add a Room</h5>
                             <p class="card-text">You can add a new room to this dormitory.</p>
-                            <a href="add-room?d_ID=<?php echo $d_ID; ?>" class="btn btn-success">Add Room</a>
+                            <a href="add-room?d_ID=<?php echo htmlspecialchars($d_ID); ?>" class="btn btn-success">Add Room</a>
                         </div>
                     </div>
                 </div>
@@ -470,7 +547,7 @@ if (isset($_POST['book'])) {
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editListingModalLabel">Edit Listing</h5>
+                <h5 class="modal-title" id="editListingModalLabel">You are editing: <?php echo htmlspecialchars($dormitory['d_Name']); ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -505,9 +582,9 @@ if (isset($_POST['book'])) {
                     <div class="mb-3">
                         <label for="d_Gender" class="form-label">Gender Specification</label>
                         <select class="form-select" id="d_Gender" name="d_Gender" required>
-                            <option value="0" <?php echo ($dormitory['d_Gender'] == 0) ? 'selected' : ''; ?>>No Gender Specification</option>
+                            <option value="2" <?php echo ($dormitory['d_Gender'] == 2) ? 'selected' : ''; ?>>Any</option>
                             <option value="1" <?php echo ($dormitory['d_Gender'] == 1) ? 'selected' : ''; ?>>Male Only</option>
-                            <option value="2" <?php echo ($dormitory['d_Gender'] == 2) ? 'selected' : ''; ?>>Female Only</option>
+                            <option value="0" <?php echo ($dormitory['d_Gender'] == 0) ? 'selected' : ''; ?>>Female Only</option>
                         </select>
                     </div>
 
@@ -597,6 +674,18 @@ if (isset($_POST['book'])) {
             // Move the carousel to the corresponding slide
             var $carousel = $('#modalCarousel');
             $carousel.carousel(index); // Move to the specific slide based on the index
+        });
+
+        $('#toggle-description').click(function(event) {
+            event.preventDefault(); // Prevent the default anchor click behavior
+
+            // Toggle the full description
+            $('#full-description').collapse('toggle');
+
+            // Change the button text based on the current state
+            const isExpanded = $(this).attr('aria-expanded') === 'true';
+            $(this).attr('aria-expanded', !isExpanded); // Update aria-expanded attribute
+            $(this).text(isExpanded ? 'View Less' : 'View More'); // Change button text
         });
     });
 </script>

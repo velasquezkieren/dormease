@@ -40,28 +40,21 @@ switch ($page) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
     <!-- Bootstrap CSS &JS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../assets/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script src="../assets/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="../assets/node_modules/bootstrap-icons/font/bootstrap-icons.min.css">
 
     <!-- Leaflet CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="../assets/leaflet.css">
+    <script src="../assets/leaflet.js"></script>
 
     <!-- JQuery -->
     <script src="../scripts/jquery-3.7.1.min.js"></script>
 
-    <!-- Custom CSS -->
+    <!-- Custom Icon -->
     <link rel="stylesheet" href="../css/nav-style.css">
     <link rel="icon" type="image/x-icon" href="../assets/favicon.svg">
-</head>
 
-<body>
-    <header>
-        <?php
-        include('navbar.php');
-        ?>
-    </header>
     <!-- style for navbar -->
     <style>
         .navbar {
@@ -104,6 +97,14 @@ switch ($page) {
             color: #2A160C;
         }
     </style>
+</head>
+
+<body>
+    <header>
+        <?php
+        include('navbar.php');
+        ?>
+    </header>
     <?php
     // navigation links
     $page = isset($_GET['page']) ? $_GET['page'] : 'index';

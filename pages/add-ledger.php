@@ -10,7 +10,20 @@ if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] !== 0) {
     die();
 }
 
-// Check if the form was submitted
+// Get the logged-in owner's ID
+$ownerID = $_SESSION['u_ID'];
+
+// Query to fetch tenants who are currently occupying rooms in the owner's dorms
+$tenant_query = "
+    SELECT u.u_ID, u.u_FName, u.u_LName 
+    FROM occupancy o
+    JOIN room r ON o.o_Room = r.r_ID
+    JOIN dormitory d ON r.r_Dormitory = d.d_ID
+    JOIN user u ON o.o_Occupant = u.u_ID
+    WHERE d.d_Owner = '$ownerID' AND o.o_Status = 1"; // assuming o_Status = 1 means currently occupied
+
+$tenant_result = mysqli_query($con, $tenant_query);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $biller = $_SESSION['u_ID']; // assuming the logged-in user is the biller
@@ -32,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Determine the type value
         $typeValue = ($type === 'income') ? 1 : 0;
 
-        // Insert new transaction using mysqli_query
+        // Insert new transaction
         $insert_query = "INSERT INTO ledger (l_ID, l_Biller, l_Recipient, l_Date, l_Description, l_Amount, l_Type) 
                          VALUES ('$ledgerId', '$biller', '$recipient', NOW(), '$description', '$amount', '$typeValue')";
 
@@ -72,21 +85,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <select name="tenant_id" class="form-control" required>
                         <option value="" selected disabled>--Select Tenant--</option>
                         <?php
-                        $tenant_query = "SELECT u_ID, u_FName, u_MName, u_LName FROM user WHERE u_Account_Type = 1";
-                        $result = mysqli_query($con, $tenant_query);
-
-                        if (!$result) {
-                            echo "<script>alert(`Error fetching tenants: " . mysqli_error($con) . " `)</script>";
+                        if ($tenant_result && mysqli_num_rows($tenant_result) > 0) {
+                            while ($tenant = mysqli_fetch_assoc($tenant_result)) {
+                                echo "<option value='" . $tenant['u_ID'] . "'>" . $tenant['u_FName'] . " " . $tenant['u_MName'] . " " . $tenant['u_LName'] . "</option>";
+                            }
+                        } else {
+                            echo "<option value='' selected disabled>No tenants found</option>";
                         }
-
-                        while ($tenant = mysqli_fetch_assoc($result)) {
-                            echo "<option value='" . htmlspecialchars($tenant['u_ID']) . "'>" .
-                                htmlspecialchars($tenant['u_FName']) . " " .
-                                htmlspecialchars($tenant['u_MName']) . " " .
-                                htmlspecialchars($tenant['u_LName']) .
-                                "</option>";
-                        }
-
                         ?>
                     </select>
                     <div class="invalid-feedback">Please select a tenant.</div>
@@ -114,8 +119,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="invalid-feedback">Please select a type.</div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Add Transaction</button>
+
                 <a href="ledger" class="btn btn-secondary">Back to Dashboard</a>
+                <button type="submit" class="btn btn-dark">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                    </svg>
+                    Add Transaction
+                </button>
             </form>
         </div>
     </div>

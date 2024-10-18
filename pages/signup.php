@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 ?>
 
 <!-- HTML Section -->
-<section class="p-3 p-md-4 p-xl-5">
+<section class="p-3 p-md-4 p-xl-5 min-vh-100">
     <div class="container" style="padding-top:80px;">
         <div class="row justify-content-center">
             <div class="col-12 col-md-8 col-lg-6"> <!-- Adjusted column size for responsiveness -->
@@ -202,20 +202,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="iAgree" id="iAgree" required>
                                         <label class="form-check-label text-secondary" for="iAgree">
-                                            I agree to the <a href="#!" class="link-primary text-decoration-none">terms and conditions</a>
+                                            I agree to the <a href="#!" class="link-dark" data-bs-toggle="modal" data-bs-target="#termsModal">terms and conditions</a>
                                         </label>
                                     </div>
                                 </div>
                                 <div class="col-12">
                                     <div class="d-grid">
-                                        <button class="btn btn-dark btn-lg" name="submit" type="submit">Sign up</button>
+                                        <button class="btn btn-dark btn-lg" id="signup" name="submit" type="submit">Sign up</button>
                                     </div>
                                 </div>
                             </div>
                         </form>
                         <div class="row">
                             <div class="col-12">
-                                <p class="mb-0 mt-5 text-secondary text-center">Already have an account? <a href="login" class="link-primary text-decoration-none">Sign in</a></p>
+                                <p class="mb-0 mt-5 text-secondary text-center">Already have an account? <a href="login" class="link-dark">Sign in</a></p>
                             </div>
                         </div>
                     </div>
@@ -224,3 +224,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         </div>
     </div>
 </section>
+
+<!-- Modal -->
+<div class="modal" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Here are the terms and conditions...</p>
+                <p>1. You must agree to all terms and conditions.</p>
+                <p>2. Violation of terms may lead to account termination.</p>
+                <p>3. We reserve the right to change these terms at any time.</p>
+                <!-- Add more terms as needed -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Initially disable the button
+        $('#signup').prop('disabled', true);
+
+        // Check the checkbox status on change
+        $('#iAgree').change(function() {
+            if ($(this).is(':checked')) {
+                $('#signup').prop('disabled', false); // Enable button
+            } else {
+                $('#signup').prop('disabled', true); // Disable button
+            }
+        });
+    });
+</script>

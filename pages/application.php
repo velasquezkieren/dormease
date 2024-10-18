@@ -79,23 +79,42 @@ if (isset($_POST['submit'])) {
 }
 ?>
 
-<div class="container pt-5" style="margin-top: 100px;">
-    <div class="row">
-        <h5 class="modal-title" id="applyAsOwnerModalLabel">Apply as Owner</h5>
-        <?php echo $user_ID; ?>
-        <form id="applyAsOwnerForm" method="POST" action="" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="u_VerificationPicture" class="form-label">Upload Proof of Ownership (e.g. documents, images)</label>
-                <input class="form-control" type="file" name="u_VerificationPicture" id="u_VerificationPicture" accept=".jpg, .jpeg, .png, .gif" required onchange="previewImages(event)">
-                <div id="image-preview" class="mt-2"></div>
-            </div>
-            <div class="d-flex justify-content-end">
-                <button type="submit" class="btn btn-primary" name="submit">Submit Application</button>
-            </div>
-        </form>
-    </div>
-</div>
+<!-- HTML form for application -->
+<section class="p-3 p-md-4 p-xl-5 min-vh-100">
+    <div class="container" style="padding-top: 80px;">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8"> <!-- Adjusted for better responsiveness -->
+                <!-- Right Column for Application Card -->
+                <div class="card border-light-subtle shadow-sm">
+                    <div class="card-header text-center">
+                        <h2 class="fw-bold mb-3">Apply as Owner</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="applyAsOwnerForm" method="POST" action="" enctype="multipart/form-data">
+                            <!-- Display error messages based on URL error code -->
+                            <?php
+                            if (isset($_GET['error'])) {
+                                echo '<div class="alert alert-danger">An error occurred. Please try again!</div>';
+                            } elseif (isset($_GET['application-success'])) {
+                                echo '<div class="alert alert-success">Application submitted successfully!</div>';
+                            }
+                            ?>
 
+                            <div class="mb-3">
+                                <label for="u_VerificationPicture" class="form-label">Upload Proof of Ownership (e.g. documents, images)</label>
+                                <input class="form-control" type="file" name="u_VerificationPicture" id="u_VerificationPicture" accept=".jpg, .jpeg, .png, .gif" required onchange="previewImages(event)">
+                                <div id="image-preview" class="mt-2"></div>
+                            </div>
+                            <div class="mb-3">
+                                <button type="submit" class="btn btn-dark btn-lg w-100" name="submit">Submit Application</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 <script>
     $(document).ready(function() {
         // Image preview functionality

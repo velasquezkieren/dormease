@@ -16,6 +16,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute();
 
         if ($stmt->affected_rows > 0) {
+            // Fetch user details for the session
+            $selectQuery = "SELECT u_FName, u_MName, u_LName, u_ContactNumber, u_Email, u_VerificationPicture FROM user WHERE u_ID = ?";
+            $stmt = $con->prepare($selectQuery);
+            $stmt->bind_param("s", $u_ID);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) {
+                $userDetails = $result->fetch_assoc();
+
+                // Update session with user details
+                $_SESSION['users'][$u_ID] = [
+                    'u_Account_Type' => 0, // Set to accepted account type
+                    'u_FName' => $userDetails['u_FName'],
+                    'u_MName' => $userDetails['u_MName'],
+                    'u_LName' => $userDetails['u_LName'],
+                    'u_ContactNumber' => $userDetails['u_ContactNumber'],
+                    'u_Email' => $userDetails['u_Email'],
+                    'u_VerificationPicture' => $userDetails['u_VerificationPicture'],
+                ];
+            }
+
             // Success message or redirect
             header("Location: inactive-owners?status=accepted");
             exit();

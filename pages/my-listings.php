@@ -15,7 +15,7 @@ $user_ID = $_SESSION['u_ID'];
 
 // Prepare and execute query for dormitories with owner's name and registration status
 $stmt = $con->prepare("
-    SELECT d.*, u.u_FName, u.u_MName, u.u_LName 
+    SELECT d.*, u.u_FName, u.u_MName, u.u_LName, u.u_Picture 
     FROM dormitory d 
     JOIN user u ON d.d_Owner = u.u_ID 
     WHERE d.d_Owner = ?
@@ -43,7 +43,7 @@ $stmt->close();
 ?>
 
 <!-- HTML Section -->
-<div class="container pt-5" style="margin-top: 100px;">
+<div class="container pt-5 min-vh-100" style="margin-top: 100px;">
     <div class="row">
 
         <!-- Sidebar -->

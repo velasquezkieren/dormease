@@ -36,7 +36,7 @@ $balance = $balance_row['balance'] ?? 0.00;
 ?>
 
 <!-- HTML Section -->
-<div class="container pt-5" style="margin-top: 100px;">
+<div class="container pt-5 min-vh-100" style="margin-top: 100px;">
     <div class="row">
         <!-- Sidebar nav -->
         <div class="col-md-4">

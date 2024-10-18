@@ -9,12 +9,12 @@ if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) {
 if (isset($_POST['submit'])) {
     // Sanitize input data to prevent SQL injection
     $d_ID = uniqid('d_');  // Generate a unique ID for the dormitory
-    $d_Name = mysqli_real_escape_string($con, $_POST['d_Name']);
-    $d_Street = mysqli_real_escape_string($con, $_POST['d_Street']);
-    $d_City = mysqli_real_escape_string($con, $_POST['d_City']);
+    $d_Name = mysqli_real_escape_string($con, ucwords($_POST['d_Name']));
+    $d_Street = mysqli_real_escape_string($con, ucwords($_POST['d_Street']));
+    $d_City = mysqli_real_escape_string($con, ucwords($_POST['d_City']));
     $d_ZIPCode = mysqli_real_escape_string($con, $_POST['d_ZIPCode']);
-    $d_Province = mysqli_real_escape_string($con, $_POST['d_Province']);
-    $d_Region = mysqli_real_escape_string($con, $_POST['d_Region']);
+    $d_Province = mysqli_real_escape_string($con, ucwords($_POST['d_Province']));
+    $d_Region = mysqli_real_escape_string($con, ucwords($_POST['d_Region']));
     $d_Description = mysqli_real_escape_string($con, $_POST['d_Description']);
     $d_Availability = '1';  // Default availability status
     $d_Price = mysqli_real_escape_string($con, $_POST['d_Price']);
@@ -92,7 +92,7 @@ if (isset($_POST['submit'])) {
         $con->commit();
 
         // Redirect to the profile page on success
-        header("Location: profile");
+        header("Location: my-listings");
         exit();
     } catch (Exception $e) {
         // Rollback the transaction if there was an error
@@ -107,114 +107,119 @@ if (isset($_POST['submit'])) {
 if (!isset($_SESSION['u_Email'])) {
 ?>
     <!-- top section -->
-    <section class="p-3 p-md-4 p-xl-5">
-        <div class="container p-xl-5" style="margin-top: 100px;">
-            <div class="row">
-                <div class="col-12 col-md-8 offset-md-2 col-xl-6 offset-xl-1">
-                    <h1 class="fw-bold">List your property</h1>
-                    <p class="text-left lead">Listing your dormitory space online for rent has never been simpler. If you're eager to find tenants for your dormitory, just share some details about your space and yourself, and we'll connect you with genuine renters offering the best rates in the market.</p>
-                    <a href="login" class="btn btn-dark btn-lg">Get Started</a>
+    <div class="min-vh-100">
+        <section class="p-3 p-md-4 p-xl-5">
+            <div class="container p-xl-5" style="margin-top: 100px;">
+                <div class="row">
+                    <div class="col-12 col-md-8 offset-md-2 col-xl-6 offset-xl-1">
+                        <h1 class="fw-bold">List your property</h1>
+                        <p class="text-left lead">Listing your dormitory space online for rent has never been simpler. If you're eager to find tenants for your dormitory, just share some details about your space and yourself, and we'll connect you with genuine renters offering the best rates in the market.</p>
+                        <a href="login" class="btn btn-dark btn-lg">Get Started</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 <?php
 } else {
 ?>
     <!-- form section -->
-    <section class="p-3 p-md-4 p-xl-5 bg-light-subtle">
-        <div class="container" style="margin-top:100px;">
-            <div class="row justify-content-center">
-                <div class="col-12 col-xxl-11" id="list-property">
-                    <div class="card border-light-subtle shadow-sm">
-                        <div class="row g-0">
-                            <div class="col-12">
-                                <div class="card-body p-3 p-md-4 p-xl-5">
-                                    <form action="" class="row g-3" enctype="multipart/form-data" method="post">
-                                        <div class="col-12">
-                                            <div class="form-floating mb-3">
-                                                <input type="text" name="d_Name" class="form-control" id="floatingInput" placeholder="Dorm Name" required>
-                                                <label for="floatingInput">Dorm Name</label>
+    <div class="min-vh-100">
+        <section class="p-3 p-md-4 p-xl-5 bg-light-subtle">
+            <div class="container" style="margin-top:100px;">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-xxl-11" id="list-property">
+                        <div class="card border-light-subtle shadow-sm">
+                            <div class="row g-0">
+                                <div class="col-12">
+                                    <div class="card-body p-3 p-md-4 p-xl-5">
+                                        <form action="" class="row g-3" enctype="multipart/form-data" method="post">
+                                            <div class="col-12">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" name="d_Name" class="form-control" id="floatingInput" placeholder="Dorm Name" required>
+                                                    <label for="floatingInput">Dorm Name</label>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div class="col-12">
-                                            <div class="form-floating mb-3">
-                                                <input type="text" name="d_Street" class="form-control" id="d_Street" placeholder="Street Address" required>
-                                                <label for="d_Street">Street Address</label>
+                                            <div class="col-12">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" name="d_Street" class="form-control" id="d_Street" placeholder="Street Address" required>
+                                                    <label for="d_Street">Street Address</label>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-floating mb-3">
-                                                <input type="hidden" name="d_Latitude" id="latitude">
-                                                <input type="hidden" name="d_Longitude" id="longitude">
-                                                <div id="map" style="height: 450px; width:1100px;"></div>
+                                            <div class="col-12">
+                                                <div class="form-floating mb-3">
+                                                    <input type="hidden" name="d_Latitude" id="latitude">
+                                                    <input type="hidden" name="d_Longitude" id="longitude">
+                                                    <div id="map" class="rounded" style="height: 450px; width:1100px;"></div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-floating mb-3">
-                                                <input type="text" name="d_City" class="form-control" id="d_City" placeholder="City" required>
-                                                <label for="d_City">City</label>
+                                            <div class="col-12">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" name="d_City" class="form-control" id="d_City" placeholder="City" required>
+                                                    <label for="d_City">City</label>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-floating mb-3">
-                                                <input type="number" name="d_ZIPCode" class="form-control" id="d_ZIPCode" placeholder="ZIP Code" required>
-                                                <label for="d_ZIPCode">ZIP Code</label>
+                                            <div class="col-md-4">
+                                                <div class="form-floating mb-3">
+                                                    <input type="number" name="d_ZIPCode" class="form-control" id="d_ZIPCode" placeholder="ZIP Code" required>
+                                                    <label for="d_ZIPCode">ZIP Code</label>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-floating mb-3">
-                                                <input type="text" name="d_Province" class="form-control" id="d_Province" placeholder="Province" required>
-                                                <label for="d_Province">Province</label>
+                                            <div class="col-md-4">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" name="d_Province" class="form-control" id="d_Province" placeholder="Province" required>
+                                                    <label for="d_Province">Province</label>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-floating mb-3">
-                                                <input type="text" name="d_Region" class="form-control" id="d_Region" placeholder="Region" required>
-                                                <label for="d_Region">Region</label>
+                                            <div class="col-md-4">
+                                                <div class="form-floating mb-3">
+                                                    <input type="text" name="d_Region" class="form-control" id="d_Region" placeholder="Region" required>
+                                                    <label for="d_Region">Region</label>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-floating mb-3">
-                                                <input type="number" name="d_Price" class="form-control" id="d_Price" placeholder="Price" required>
-                                                <label for="d_Price">Price</label>
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <input type="number" name="d_Price" class="form-control" id="d_Price" placeholder="Price" required>
+                                                    <label for="d_Price">Price</label>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div class="col-md-6">
-                                            <div class="form-floating mb-3">
-                                                <select class="form-select" id="d_Gender" name="d_Gender" required>
-                                                    <option value="" disabled selected>Select Gender Restriction</option>
-                                                    <option value="">No Restriction</option>
-                                                    <option value="1">Male Only</option>
-                                                    <option value="0">Female Only</option>
-                                                </select>
-                                                <label for="d_Gender">Gender Restriction</label>
+                                            <div class="col-md-6">
+                                                <div class="form-floating mb-3">
+                                                    <select class="form-select" id="d_Gender" name="d_Gender" required>
+                                                        <option value="" disabled selected>Select Gender Restriction</option>
+                                                        <option value="">No Restriction</option>
+                                                        <option value="1">Male Only</option>
+                                                        <option value="0">Female Only</option>
+                                                    </select>
+                                                    <label for="d_Gender">Gender Restriction</label>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div class="col-12">
-                                            <label for="d_Description" class="form-label">Property Description</label>
-                                            <textarea class="form-control" name="d_Description" id="d_Description" rows="5" required></textarea>
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="d_PicName" class="form-label">Upload Images</label>
-                                            <input class="form-control" type="file" name="d_PicName[]" accept=".jpg, .jpeg, .png, .gif" multiple required onchange="previewImages(event)">
-                                            <div id="image-preview" class="mt-2"></div>
-                                        </div>
-                                        <div class="col-12">
-                                            <input type="submit" value="Submit" name="submit" class="btn btn-dark">
-                                        </div>
-                                    </form>
+                                            <div class="col-12">
+                                                <label for="d_Description" class="form-label">Property Description</label>
+                                                <textarea class="form-control" name="d_Description" id="d_Description" rows="5" required></textarea>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <label for="d_PicName" class="form-label">Upload Images</label>
+                                                <input class="form-control" type="file" name="d_PicName[]" accept=".jpg, .jpeg, .png, .gif" multiple required onchange="previewImages(event)">
+                                                <div id="image-preview" class="mt-2"></div>
+                                            </div>
+                                            <div class="col-12">
+                                                <input type="submit" value="Submit" name="submit" class="btn btn-dark">
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
     <script>
         $(document).ready(function() {
             // Initialize Leaflet map
@@ -228,11 +233,11 @@ if (!isset($_SESSION['u_Email'])) {
 
             // Custom Marker Icon
             var customIcon = L.icon({
-                iconUrl: './css/marker-icon-2x.png', // Replace with your custom icon path
+                iconUrl: './assets/images/marker-icon-2x.png', // Replace with your custom icon path
                 iconSize: [25, 41], // size of the icon
                 iconAnchor: [19, 38], // point of the icon which will correspond to marker's location
                 popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor
-                shadowUrl: './css/marker-shadow.png', // optional shadow image
+                shadowUrl: './assets/images/marker-shadow.png', // optional shadow image
                 shadowSize: [50, 64], // size of the shadow
                 shadowAnchor: [4, 62] // the same for the shadow
             });

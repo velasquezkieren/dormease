@@ -25,9 +25,10 @@ if (isset($_POST['search']) || isset($_POST['sort'])) {
         while ($dorm = mysqli_fetch_assoc($dorms_query)) {
             // Fetch the owner's name
             $owner_ID = mysqli_real_escape_string($con, $dorm['d_Owner']);
-            $owner_query = mysqli_query($con, "SELECT u_FName, u_MName, u_LName FROM user WHERE u_ID = '$owner_ID'");
+            $owner_query = mysqli_query($con, "SELECT u_FName, u_MName, u_LName, u_Picture, u_ContactNumber FROM user WHERE u_ID = '$owner_ID'");
             $owner_data = mysqli_fetch_assoc($owner_query);
             $owner_name = $owner_data ? htmlspecialchars($owner_data['u_FName'] . ' ' . $owner_data['u_MName'] . ' ' . $owner_data['u_LName']) : 'Unknown';
+            $owner_pic = htmlspecialchars($owner_data['u_Picture']);
 
             // Get the image names and use the first image for the card
             $images = explode(',', $dorm['d_PicName']);
@@ -42,7 +43,8 @@ if (isset($_POST['search']) || isset($_POST['sort'])) {
             <!-- Dorm Cards -->
             <div class="col-lg-3 col-md-6 col-12 mb-2">
                 <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="text-decoration-none">
-                    <div class="card h-100 border-1">
+                    <div class="card h-100 border-0 shadow-sm">
+
                         <!-- Carousel -->
                         <div id="carousel-<?= $dorm['d_ID']; ?>" class="carousel slide card-img-container" data-bs-ride="carousel">
                             <div class="carousel-inner">
@@ -63,11 +65,12 @@ if (isset($_POST['search']) || isset($_POST['sort'])) {
                         </div>
                         <!-- End Carousel -->
 
+                        <!-- Dorm Details -->
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title"><?= htmlspecialchars($dorm['d_Name']); ?></h5>
                             <p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;"><?= htmlspecialchars($description); ?></p>
                             <p class="card-text"><i class="bi bi-geo-alt-fill"></i> <?= htmlspecialchars($dorm['d_Street']) . ', ' . htmlspecialchars($dorm['d_City']); ?></p>
-                            <p class="card-text"><strong>Owner:</strong> <?= htmlspecialchars($owner_name); ?></p>
+                            <p class="card-text"><img src="user_avatar/<?= htmlspecialchars($owner_pic); ?>" class="img-fluid rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;"> <?= htmlspecialchars($owner_name); ?></p>
                             <span class="btn btn-dark mt-auto">View Details</span>
                         </div>
                     </div>
@@ -83,7 +86,7 @@ if (isset($_POST['search']) || isset($_POST['sort'])) {
 
 if (!$is_logged_in) {
     ?>
-    <section class="p-3 p-md-4 p-xl-5">
+    <section class="p-3 p-md-4 p-xl-5 min-vh-100">
         <div class="container p-xl-5" style="margin-top: 100px;">
             <div class="row">
                 <div class="col-12 col-md-8 offset-md-2 col-xl-6 offset-xl-1">
@@ -98,7 +101,7 @@ if (!$is_logged_in) {
 } else {
     // Initial fetch of all dormitories
 ?>
-    <div class="container">
+    <div class="container min-vh-100">
         <div class="row m-auto">
             <div class="col">
                 <div class="input-group mt-5 pt-5 p-4">

@@ -1,5 +1,6 @@
 <?php
 $owner_name = htmlspecialchars($dorm['u_FName'] . ' ' . $dorm['u_MName'] . ' ' . $dorm['u_LName']);
+$owner_pic = htmlspecialchars($dorm['u_Picture']);
 $images = explode(',', $dorm['d_PicName']);
 $first_image = $images[0];
 $description = substr($dorm['d_Description'], 0, 100);
@@ -10,7 +11,7 @@ if (strlen($dorm['d_Description']) > 100) {
 
 <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
     <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="text-decoration-none">
-        <div class="card h-100 border-1">
+        <div class="card h-100 border-0 shadow-sm">
             <!-- Carousel -->
             <div id="carousel-<?= $dorm['d_ID']; ?>" class="carousel slide card-img-container" data-bs-ride="carousel">
                 <div class="carousel-inner">
@@ -35,7 +36,7 @@ if (strlen($dorm['d_Description']) > 100) {
                 <h5 class="card-title"><?= htmlspecialchars($dorm['d_Name']); ?></h5>
                 <p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;"><?= htmlspecialchars($description); ?></p>
                 <p class="card-text"><i class="bi bi-geo-alt-fill"></i> <?= htmlspecialchars($dorm['d_Street']) . ', ' . htmlspecialchars($dorm['d_City']); ?></p>
-                <p class="card-text"><strong>Owner:</strong> <?= $owner_name; ?></p>
+                <p class="card-text"><img src="user_avatar/<?= htmlspecialchars($owner_pic); ?>" class="img-fluid rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;"> <?= htmlspecialchars($owner_name); ?></p>
                 <span class="btn btn-dark mt-auto">View Details</span>
             </div>
         </div>

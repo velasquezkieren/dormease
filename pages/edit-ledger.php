@@ -14,6 +14,7 @@ if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] !== 0) {
 if (isset($_GET['l_ID'])) {
     $ledger_id = $_GET['l_ID'];
 
+    // Fetch the transaction from ledger
     $query = "SELECT * FROM ledger WHERE l_ID = '$ledger_id'";
     $result = mysqli_query($con, $query);
 
@@ -36,7 +37,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($recipient) || empty($description) || empty($amount) || empty($type)) {
         echo "<p style='color:red;'>All fields are required.</p>";
     } else {
-        // Update transaction in the database
+        // Begin balance calculation
+
+        // Original balance change (before update)
+        $original_balance_change = ($transaction['l_Type'] == 1) ? $transaction['l_Amount'] : -$transaction['l_Amount'];
+
+        // New balance change (after update)
+        $new_balance_change = ($type === 'income') ? $amount : -$amount;
+
+        // Calculate the difference
+        $difference = $new_balance_change - $original_balance_change;
+
+        // Update the ledger transaction
         $typeValue = ($type === 'income') ? 1 : 0;
         $update_query = "UPDATE ledger 
                          SET l_Recipient = '$recipient', 
@@ -46,6 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                          WHERE l_ID = '$ledger_id'";
 
         if (mysqli_query($con, $update_query)) {
+            // Update the tenant's balance
+            $update_balance_query = "UPDATE user SET u_Balance = u_Balance + '$difference' WHERE u_ID = '$recipient'";
+            mysqli_query($con, $update_balance_query);
+
+            // Redirect to ledger page with success message
             header("Location: ledger?edit-success=true");
             exit;
         } else {
@@ -110,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="invalid-feedback">Please select a type.</div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Update Transaction</button>
+                <button type="submit" class="btn btn-dark">Update Transaction</button>
                 <a href="ledger" class="btn btn-secondary">Back to Dashboard</a>
             </form>
         </div>

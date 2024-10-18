@@ -33,7 +33,7 @@ $result = $stmt->get_result();
 ?>
 
 <!-- HTML Section -->
-<div class="container pt-5" style="margin-top: 100px;"> <!-- Adjust margin for fixed navbar -->
+<div class="container pt-5 min-vh-100" style="margin-top: 100px;"> <!-- Adjust margin for fixed navbar -->
     <div class="row">
         <!-- Sidebar -->
         <div class="col-md-4">

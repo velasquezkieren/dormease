@@ -17,7 +17,7 @@ $tenant_id = $_SESSION['u_ID'];
 // Fetch booking details from the database
 $query = "SELECT d.d_Name AS dormitory, r.r_Name AS room, d.d_Price AS price, o.o_Status
           FROM occupancy o
-          JOIN room r ON o.o_Room = r.r_Name
+          JOIN room r ON o.o_Room = r.r_ID  -- Updated to join on r_ID
           JOIN dormitory d ON r.r_Dormitory = d.d_ID
           WHERE o.o_Occupant = '$tenant_id'";
 
@@ -29,11 +29,11 @@ if (!$result) {
 }
 
 // Fetch the booking details
-$booking = mysqli_fetch_assoc($result);
+$bookings = mysqli_fetch_all($result, MYSQLI_ASSOC);
 ?>
 
 <!-- HTML Section -->
-<div class="container pt-5" style="margin-top: 100px;">
+<div class="container pt-5 min-vh-100" style="margin-top: 100px;">
     <div class="row">
         <!-- Sidebar nav -->
         <div class="col-md-4">
@@ -44,29 +44,31 @@ $booking = mysqli_fetch_assoc($result);
         <div class="col-md-8">
             <h1 class="mb-4">Currently Booked at</h1>
 
-            <?php if ($booking): ?>
-                <div class="card">
-                    <div class="card-header">
-                        Booking Details
+            <?php if ($bookings): ?>
+                <?php foreach ($bookings as $booking): ?>
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            Booking Details
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">Dormitory: <?php echo htmlspecialchars($booking['dormitory']); ?></h5>
+                            <p class="card-text">Room: <?php echo htmlspecialchars($booking['room']); ?></p>
+                            <p class="card-text">Price: ₱<?php echo htmlspecialchars($booking['price']); ?></p>
+                            <p class="card-text">
+                                Status:
+                                <?php
+                                if ($booking['o_Status'] == 0) {
+                                    echo 'Pending';
+                                } elseif ($booking['o_Status'] == 1) {
+                                    echo 'Accepted';
+                                } elseif ($booking['o_Status'] == 2) {
+                                    echo 'Rejected';
+                                }
+                                ?>
+                            </p>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title">Dormitory: <?php echo htmlspecialchars($booking['dormitory']); ?></h5>
-                        <p class="card-text">Room: <?php echo htmlspecialchars($booking['room']); ?></p>
-                        <p class="card-text">Price: ₱<?php echo htmlspecialchars($booking['price']); ?></p>
-                        <p class="card-text">
-                            Status:
-                            <?php
-                            if ($booking['o_Status'] == 0) {
-                                echo 'Pending';
-                            } elseif ($booking['o_Status'] == 1) {
-                                echo 'Accepted';
-                            } elseif ($booking['o_Status'] == 2) {
-                                echo 'Rejected';
-                            }
-                            ?>
-                        </p>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             <?php else: ?>
                 <div class="alert alert-warning mt-3">You currently have no bookings.</div>
             <?php endif; ?>

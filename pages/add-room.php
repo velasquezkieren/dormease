@@ -17,18 +17,26 @@ if (isset($_GET['d_ID']) && !empty($_GET['d_ID'])) {
     $d_ID = $_GET['d_ID'];
 
     // Check if the user owns the dormitory
-    $ownerCheckSql = "SELECT COUNT(*) FROM dormitory WHERE d_ID = '$d_ID' AND d_Owner = '{$_SESSION['u_ID']}'";
-    $ownerCheckResult = mysqli_query($con, $ownerCheckSql);
-    $ownerCheck = mysqli_fetch_array($ownerCheckResult)[0];
+    $ownerCheckSql = "SELECT COUNT(*) FROM dormitory WHERE d_ID = ? AND d_Owner = ?";
+    $stmt = mysqli_prepare($con, $ownerCheckSql);
+    mysqli_stmt_bind_param($stmt, 'ss', $d_ID, $_SESSION['u_ID']);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_bind_result($stmt, $ownerCheck);
+    mysqli_stmt_fetch($stmt);
+    mysqli_stmt_close($stmt);
 
     if ($ownerCheck == 0) {
         die("Error: You do not have permission to add a room to this dormitory.");
     }
 
     // Retrieve the dormitory name
-    $dormNameSql = "SELECT d_Name FROM dormitory WHERE d_ID = '$d_ID'";
-    $dormNameResult = mysqli_query($con, $dormNameSql);
-    $dormName = mysqli_fetch_array($dormNameResult)['d_Name'];
+    $dormNameSql = "SELECT d_Name FROM dormitory WHERE d_ID = ?";
+    $stmt = mysqli_prepare($con, $dormNameSql);
+    mysqli_stmt_bind_param($stmt, 's', $d_ID);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_bind_result($stmt, $dormName);
+    mysqli_stmt_fetch($stmt);
+    mysqli_stmt_close($stmt);
 } else {
     header("location:find");
     die();
@@ -36,24 +44,39 @@ if (isset($_GET['d_ID']) && !empty($_GET['d_ID'])) {
 
 // Handle form submission for adding a room
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Generate unique room ID
+    $r_ID = uniqid('room_');
+
     // Collect form data
-    $r_Name = mysqli_real_escape_string($con, trim($_POST['r_Name']));
-    $r_Description = mysqli_real_escape_string($con, trim($_POST['r_Description']));
+    $r_Name = ucwords($_POST['r_Name']);
+    $r_Description = trim($_POST['r_Description']);
     $r_Availability = isset($_POST['r_Availability']) ? 1 : 0; // Checkbox value
     $r_Capacity = intval($_POST['r_Capacity']);
     $r_RegistrationStatus = 0; // Default value for registration status
 
-    // Insert room into the database
-    $insertRoomSql = "INSERT INTO room (r_Name, r_Description, r_Availability, r_Capacity, r_Dormitory, r_RegistrationStatus) 
-                      VALUES ('$r_Name', '$r_Description', $r_Availability, $r_Capacity, '$d_ID', $r_RegistrationStatus)";
+    // Validate input
+    if (empty($r_Name) || empty($r_Description) || $r_Capacity <= 0) {
+        echo "<script>alert('Please fill in all fields correctly.'); history.back();</script>";
+        exit;
+    }
 
-    if (mysqli_query($con, $insertRoomSql)) {
+    // Insert room into the database using prepared statement
+    $insertRoomSql = "INSERT INTO room (r_ID, r_Name, r_Description, r_Availability, r_Capacity, r_Dormitory, r_RegistrationStatus) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+    $stmt = mysqli_prepare($con, $insertRoomSql);
+    mysqli_stmt_bind_param($stmt, 'sssiisi', $r_ID, $r_Name, $r_Description, $r_Availability, $r_Capacity, $d_ID, $r_RegistrationStatus);
+
+    if (mysqli_stmt_execute($stmt)) {
         echo "<script>alert('Room added successfully!'); window.location.href='property?d_ID=$d_ID';</script>";
     } else {
         echo "Error: " . mysqli_error($con);
     }
+
+    mysqli_stmt_close($stmt);
 }
 ?>
+
 
 <!-- Form Section -->
 <div class="container pt-5 mt-5">
@@ -77,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <label for="r_Capacity">Capacity</label>
                 <input type="number" name="r_Capacity" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-success">Add Room</button>
+            <button type="submit" class="btn btn-dark">Add Room</button>
         </form>
     </div>
 </div>

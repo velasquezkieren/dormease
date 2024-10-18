@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 ?>
 
 <!-- HTML form for login -->
-<section class="p-3 p-md-4 p-xl-5">
+<section class="p-3 p-md-4 p-xl-5 min-vh-100">
     <div class="container" style="padding-top: 80px;">
         <div class="row justify-content-center">
             <div class="col-12 col-md-6 col-lg-4"> <!-- Adjusted column size for responsiveness -->
@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                         </form>
                         <div class="row">
                             <div class="col-12">
-                                <p class="mb-0 mt-5 text-secondary text-center">Don't have an account? <a href="signup" class="link-primary text-decoration-none">Create new account</a></p>
+                                <p class="mb-0 mt-5 text-secondary text-center">Don't have an account? <a href="signup" class="link-dark ">Create new account</a></p>
                             </div>
                         </div>
                     </div>
