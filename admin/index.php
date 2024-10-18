@@ -27,7 +27,7 @@ switch ($page) {
         $title = 'Settings | DormEase';
         break;
     default:
-        $title = 'DormEase';
+        $title = 'Admin | DormEase';
 }
 ?>
 

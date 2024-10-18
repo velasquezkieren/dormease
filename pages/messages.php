@@ -45,7 +45,6 @@ while ($row = $conversationsResult->fetch_assoc()) {
     $conversations[] = $row;
 }
 
-
 // Check if a conversation is selected
 $currentConversation = null;
 if (isset($_GET['u_ID'])) { // Change from m_ID to u_ID
@@ -73,7 +72,8 @@ if (isset($_GET['u_ID'])) { // Change from m_ID to u_ID
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $recipient = $_POST['recipient']; // Get recipient ID from the form (you should pass this in the form)
     $message = $_POST['message'];
-    $insertQuery = "INSERT INTO messaging (m_ID, m_Recipient, m_Sender, m_Message, m_DateTime) VALUES (UUID(), '$recipient', '$u_ID', '$message', NOW())";
+    $m_ID = uniqid('m_');
+    $insertQuery = "INSERT INTO messaging (m_ID, m_Recipient, m_Sender, m_Message, m_DateTime) VALUES ('$m_ID', '$recipient', '$u_ID', '$message', NOW())";
     $con->query($insertQuery);
     header("Location: messages?u_ID=$recipient"); // Redirect to the conversation with the recipient
     exit();
@@ -92,7 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <form method="GET" action="">
                             <div class="input-group">
                                 <input type="text" class="form-control" id="searchInput" name="search" placeholder="Search users..." value="<?php echo htmlspecialchars($search_query); ?>">
-                                <button class="btn btn-outline-secondary" type="submit">Search</button>
                             </div>
                         </form>
                     </div>
@@ -113,7 +112,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </a>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <li class="list-group-item">No conversations found</li>
+                        <li class="list-group-item border-0">
+                            <p class="text-center text-muted h5">No Messages found.</p>
+                        </li>
                     <?php endif; ?>
                 </ul>
             </div>
@@ -148,7 +149,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </form>
             <?php else: ?>
-                <h4 class="mt-4">Select a conversation to start chatting</h4>
+                <div class="d-flex justify-content-center align-items-center h-100">
+                    <h4 class="mt-4 text-muted">Select a chat or start a new conversation</h4>
+                </div>
             <?php endif; ?>
         </div>
 
