@@ -23,15 +23,12 @@ if (isset($_GET['id'])) {
 
             // Update the room's capacity and availability
             $updateRoomQuery = "UPDATE room 
-                                SET r_Capacity = CASE 
-                                    WHEN r_Capacity > 0 THEN r_Capacity - 1 
-                                    ELSE r_Capacity 
-                                END,
-                                r_Availability = CASE 
-                                    WHEN r_Capacity = 1 THEN 0 
-                                    ELSE 1 
-                                END 
-                                WHERE r_ID = '$roomID'";
+                                SET r_Capacity = r_Capacity - 1,
+                                    r_Availability = CASE 
+                                        WHEN r_Capacity - 1 > 0 THEN 1 
+                                        ELSE 0 
+                                    END 
+                                WHERE r_ID = '$roomID' AND r_Capacity > 0"; // Ensure you only update if capacity > 0
 
             if (mysqli_query($con, $updateRoomQuery)) {
                 header("Location: tenants?status=accepted");

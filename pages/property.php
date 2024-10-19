@@ -43,10 +43,10 @@ $isOwner = ($loggedInUserID !== null && $loggedInUserID === $d_Owner_ID);
 
 if ($isOwner) {
     // Show all rooms for the owner, including available and pending rooms
-    $roomsSql = "SELECT * FROM room WHERE r_Dormitory = '$d_ID' AND r_Availability = 1 AND (r_RegistrationStatus = 0 OR r_RegistrationStatus = 1 OR r_RegistrationStatus = 2)";
+    $roomsSql = "SELECT * FROM room WHERE r_Dormitory = '$d_ID'";
 } else {
     // Show only available rooms with registration status 1 for non-owners
-    $roomsSql = "SELECT * FROM room WHERE r_Dormitory = '$d_ID' AND r_Availability = 1 AND r_RegistrationStatus = 1";
+    $roomsSql = "SELECT * FROM room WHERE r_Dormitory = '$d_ID' AND r_RegistrationStatus = 1";
 }
 
 // Fetch rooms
@@ -514,20 +514,19 @@ Any';
 
     <!-- Rooms Section -->
     <div class="col-12 col-md">
-        <h2>Available Rooms</h2>
+        <h3 class="mb-4">Available Rooms</h3>
         <div class="row">
             <?php if (mysqli_num_rows($roomsResult) > 0): ?>
                 <?php while ($room = mysqli_fetch_assoc($roomsResult)): ?>
-                    <div class="col-md-4">
-                        <div class="card mb-3">
-                            <div class="card-body">
+                    <div class="col-12 col-md-4 mb-4">
+                        <div class="card mb-3 border-0 shadow-sm">
+                            <div class="card-body bg-light">
                                 <h5 class="card-title"><?php echo htmlspecialchars($room['r_Name']); ?></h5>
-                                <p class="card-text"><?php echo htmlspecialchars($room['r_Description']); ?></p>
-                                <p class="card-text">Capacity: <?php echo htmlspecialchars($room['r_Capacity']); ?></p>
-                                <p class="card-text"><strong>Price: </strong><?php echo htmlspecialchars($d_Price); ?> per month</p>
+                                <p class="card-text"><span class="badge bg-secondary ">Capacity: <?php echo htmlspecialchars($room['r_Capacity']); ?></span></p>
+                                <p class="card-text text-truncate"><?php echo htmlspecialchars($room['r_Description']); ?></p>
 
                                 <?php if ($isOwner && $room['r_RegistrationStatus'] == 0): ?>
-                                    <p class="card-text"><strong>Status: </strong>Pending</p>
+                                    <p class="card-text"><span class="badge bg-warning">Pending</span></p>
                                 <?php endif; ?>
 
                                 <?php if ($isOwner): ?>
@@ -537,9 +536,9 @@ Any';
                                 <form action="" method="post">
                                     <input type="hidden" name="o_Name" value="<?php echo htmlspecialchars($room['r_ID']); ?>">
                                     <input type="hidden" name="o_Occupant" value="<?php echo $loggedInUserID; ?>">
-                                    <?php if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1): // Check if the user is a tenant 
+                                    <?php if (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1 && $room['r_Capacity'] > 0): // Check if the user is a tenant and the room is available 
                                     ?>
-                                        <button type="submit" name="book" class="btn btn-dark mt-auto">Book Now</button>
+                                        <button type="submit" name="book" class="btn btn-dark mt-auto">Book Now ₱ <?php echo htmlspecialchars($d_Price); ?>/month</button>
                                     <?php endif; ?>
                                 </form>
                             </div>
@@ -554,8 +553,11 @@ Any';
                 </div>
             <?php endif; ?>
 
+
+        </div>
+        <div class="row">
             <?php if ($isOwner): ?>
-                <div class="col-md-4">
+                <div class="col-md-12">
                     <div class="card mb-3">
                         <div class="card-body text-center">
                             <h5 class="card-title">Add a Room</h5>
@@ -566,6 +568,7 @@ Any';
                 </div>
             <?php endif; ?>
         </div>
+
     </div>
 </div>
 
@@ -666,6 +669,14 @@ Any';
     // Initialize the map
     var map = L.map('map').setView([<?php echo htmlspecialchars($latitude); ?>, <?php echo htmlspecialchars($longitude); ?>], 19);
 
+    var customIcon = L.icon({
+        iconUrl: './assets/images/marker-icon-2x-red.png', // Path to your custom marker image
+        iconSize: [25, 41], // Size of the icon (width, height)
+        iconAnchor: [15, 41], // The point of the icon which will correspond to marker's location (x, y) - center bottom of the icon
+        popupAnchor: [-2, -41], // The point from which the popup should open relative to the iconAnchor (x, y) - directly above the marker
+    });
+
+
     // Add tile layer
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -673,7 +684,9 @@ Any';
     }).addTo(map);
 
     // Add marker and display dorm name
-    L.marker([<?php echo htmlspecialchars($latitude); ?>, <?php echo htmlspecialchars($longitude); ?>]).addTo(map)
+    L.marker([<?php echo htmlspecialchars($latitude); ?>, <?php echo htmlspecialchars($longitude); ?>], {
+            icon: customIcon
+        }).addTo(map)
         .bindPopup('<?php echo $dormName; ?>')
         .openPopup();
 

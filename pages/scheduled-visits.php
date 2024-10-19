@@ -45,13 +45,16 @@ $result = $stmt->get_result();
             ?>
         </div>
         <div class="col-md-8">
-            <h1>Scheduled Visits</h1>
+            <h1 class="mb-4">Scheduled Visits</h1>
             <?php
             if (isset($_GET['schedule-success'])) {
-                echo '<div class="alert alert-success">Schedule successfully created!</div>';
+                echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+                        Schedule successfully created!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>';
             }
             ?>
-            <table class="table table-striped">
+            <table class="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Date & Time</th>
@@ -73,19 +76,19 @@ $result = $stmt->get_result();
                             switch ($row['v_Status']) {
                                 case 2:
                                     $statusText = "Pending";
-                                    $statusClass = "text-warning"; // Yellow color for pending
+                                    $statusClass = "badge bg-warning"; // Yellow color for pending
                                     break;
                                 case 1:
                                     $statusText = "Accepted";
-                                    $statusClass = "text-success"; // Green color for accepted
+                                    $statusClass = "badge bg-success"; // Green color for accepted
                                     break;
                                 case 0:
                                     $statusText = "Rejected";
-                                    $statusClass = "text-danger"; // Red color for rejected
+                                    $statusClass = "badge bg-danger"; // Red color for rejected
                                     break;
                                 default:
                                     $statusText = "Unknown";
-                                    $statusClass = "text-secondary"; // Grey for unknown status
+                                    $statusClass = "badge bg-secondary"; // Grey for unknown status
                             }
 
                             // Anchor the dormitory name with a link to the dorm details page
@@ -94,16 +97,15 @@ $result = $stmt->get_result();
                                 <td>" . htmlspecialchars($formattedDateTime) . "</td>
                                 <td>" . htmlspecialchars($row['landlord_name']) . "</td>
                                 <td><a href='" . htmlspecialchars($dormLink) . "'>" . htmlspecialchars($row['dorm_name']) . "</a></td>
-                                <td class='" . $statusClass . "'>" . htmlspecialchars($statusText) . "</td>
+                                <td><span class='" . $statusClass . "'>" . htmlspecialchars($statusText) . "</span></td>
                             </tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='4'>No scheduled visits found.</td></tr>";
+                        echo "<tr><td colspan='4' class='text-center'>No scheduled visits found.</td></tr>";
                     }
                     ?>
                 </tbody>
             </table>
-
         </div>
     </div>
 </div>

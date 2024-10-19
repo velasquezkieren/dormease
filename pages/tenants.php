@@ -69,11 +69,11 @@ if (!$result) {
 
                         // Display the status
                         if ($row['o_Status'] == 0) {
-                            echo 'Pending'; // Status when waiting for action
+                            echo '<span class="badge bg-warning">Pending</span>'; // Status when waiting for action
                         } elseif ($row['o_Status'] == 1) {
-                            echo 'Accepted';
+                            echo '<span class="badge bg-success">Accepted</span>';
                         } elseif ($row['o_Status'] == 2) {
-                            echo 'Rejected';
+                            echo '<span class="badge bg-warning">Rejected</span>';
                         }
 
                         echo '</td>'; // Close Status cell

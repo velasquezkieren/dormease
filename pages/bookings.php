@@ -43,12 +43,11 @@ $bookings = mysqli_fetch_all($result, MYSQLI_ASSOC);
         <!-- Booking Details -->
         <div class="col-md-8">
             <h1 class="mb-4">Currently Booked at</h1>
-
             <?php if ($bookings): ?>
                 <?php foreach ($bookings as $booking): ?>
                     <div class="card mb-3">
-                        <div class="card-header">
-                            Booking Details
+                        <div class="card-header bg-muted p-3 text-dark">
+                            <p class="h4">Booking Details</p>
                         </div>
                         <div class="card-body">
                             <h5 class="card-title">Dormitory: <?php echo htmlspecialchars($booking['dormitory']); ?></h5>
@@ -57,13 +56,15 @@ $bookings = mysqli_fetch_all($result, MYSQLI_ASSOC);
                             <p class="card-text">
                                 Status:
                                 <?php
+                                $statusBadge = '';
                                 if ($booking['o_Status'] == 0) {
-                                    echo 'Pending';
+                                    $statusBadge = '<span class="badge bg-warning">Pending</span>';
                                 } elseif ($booking['o_Status'] == 1) {
-                                    echo 'Accepted';
+                                    $statusBadge = '<span class="badge bg-success">Accepted</span>';
                                 } elseif ($booking['o_Status'] == 2) {
-                                    echo 'Rejected';
+                                    $statusBadge = '<span class="badge bg-danger">Rejected</span>';
                                 }
+                                echo $statusBadge;
                                 ?>
                             </p>
                         </div>

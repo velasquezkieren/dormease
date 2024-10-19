@@ -80,18 +80,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ?>
         </div>
         <div class="col-md-8">
-            <h1>Tenant Scheduled Visits</h1>
+            <h1 class="mb-4">Tenant Scheduled Visits</h1>
             <?php
             // Display success or error messages
             if (isset($_GET['schedule-success'])) {
                 if ($_GET['schedule-success'] == 'accepted') {
-                    echo '<div class="alert alert-success">Visit has been accepted successfully!</div>';
+                    echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+                            Visit has been accepted successfully!
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>';
                 } elseif ($_GET['schedule-success'] == 'rejected') {
-                    echo '<div class="alert alert-danger">Visit has been rejected successfully!</div>';
+                    echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            Visit has been rejected successfully!
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>';
                 }
             }
             ?>
-            <table class="table table-striped">
+            <table class="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Date & Time</th>
@@ -108,57 +114,56 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         while ($row = $result->fetch_assoc()) {
                             // Format the datetime
                             $dateTime = new DateTime($row['v_DateTime']);
-                            $formattedDateTime = $dateTime->format('d/m/Y, h:i A'); // Format as DD/MM/YYYY, HH:MM AM/PM
+                            $formattedDateTime = $dateTime->format('d/m/Y, h:i A');
 
                             // Determine status and corresponding color
                             switch ($row['v_Status']) {
                                 case 2:
                                     $statusText = "Pending";
-                                    $statusClass = "text-warning"; // Yellow color for pending
+                                    $statusClass = "badge bg-warning"; // Yellow color for pending
                                     break;
                                 case 1:
                                     $statusText = "Accepted";
-                                    $statusClass = "text-success"; // Green color for accepted
+                                    $statusClass = "badge bg-success"; // Green color for accepted
                                     break;
                                 case 0:
                                     $statusText = "Rejected";
-                                    $statusClass = "text-danger"; // Red color for rejected
+                                    $statusClass = "badge bg-danger"; // Red color for rejected
                                     break;
                                 default:
                                     $statusText = "Unknown";
-                                    $statusClass = "text-secondary"; // Grey for unknown status
+                                    $statusClass = "badge bg-secondary"; // Grey for unknown status
                             }
 
                             // Anchor the dormitory name with a link to the dorm details page
-                            $dormLink = 'property?d_ID=' . urlencode($row['dorm_ID']); // Use the correct dorm_ID
+                            $dormLink = 'property?d_ID=' . urlencode($row['dorm_ID']);
 
                             // Start creating the table row
                             echo "<tr>
-                <td>" . htmlspecialchars($formattedDateTime) . "</td>
-                <td>" . htmlspecialchars($row['tenant_name']) . "</td>
-                <td><a href='" . htmlspecialchars($dormLink) . "'>" . htmlspecialchars($row['dorm_name']) . "</a></td>
-                <td class='" . $statusClass . "'>" . htmlspecialchars($statusText) . "</td>
-                <td>";
+                                <td>" . htmlspecialchars($formattedDateTime) . "</td>
+                                <td>" . htmlspecialchars($row['tenant_name']) . "</td>
+                                <td><a href='" . htmlspecialchars($dormLink) . "'>" . htmlspecialchars($row['dorm_name']) . "</a></td>
+                                <td><span class='" . $statusClass . "'>" . htmlspecialchars($statusText) . "</span></td>
+                                <td>";
 
                             // Show buttons only if the visit status is Pending (2)
                             if ($row['v_Status'] == 2) {
-                                echo "<form method='post' action=''>
-                    <input type='hidden' name='v_ID' value='" . htmlspecialchars($row['v_ID']) . "'>
-                    <button type='submit' name='action' value='accept' class='btn btn-success btn-sm'>Accept</button>
-                    <button type='submit' name='action' value='reject' class='btn btn-danger btn-sm'>Reject</button>
-                </form>";
+                                echo "<form method='post' action='' class='d-inline'>
+                                    <input type='hidden' name='v_ID' value='" . htmlspecialchars($row['v_ID']) . "'>
+                                    <button type='submit' name='action' value='accept' class='btn btn-success btn-sm me-1'>Accept</button>
+                                    <button type='submit' name='action' value='reject' class='btn btn-danger btn-sm'>Reject</button>
+                                </form>";
                             } else {
-                                echo ""; // Indicate no action available for non-pending statuses
+                                echo "<span class='text-muted'>No actions available</span>"; // Indicate no action available for non-pending statuses
                             }
 
                             echo "</td></tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='5'>No scheduled visits found.</td></tr>";
+                        echo "<tr><td colspan='5' class='text-center'>No scheduled visits found.</td></tr>";
                     }
                     ?>
                 </tbody>
-
             </table>
         </div>
     </div>

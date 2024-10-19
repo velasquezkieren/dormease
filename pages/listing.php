@@ -237,9 +237,6 @@ if (!isset($_SESSION['u_Email'])) {
                 iconSize: [25, 41], // size of the icon
                 iconAnchor: [19, 38], // point of the icon which will correspond to marker's location
                 popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor
-                shadowUrl: './assets/images/marker-shadow.png', // optional shadow image
-                shadowSize: [50, 64], // size of the shadow
-                shadowAnchor: [4, 62] // the same for the shadow
             });
 
             // Add the marker at the center of the screen, but we'll update its position dynamically
