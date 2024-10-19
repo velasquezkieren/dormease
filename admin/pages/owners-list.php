@@ -57,7 +57,7 @@ $ownersResult = $con->query($ownersQuery);
                                         </div>
                                         <div class="modal-footer">
                                             <form action="delete-user?u_ID=<?= htmlspecialchars($row['u_ID']); ?>" method="POST">
-                                                <input type="text" name="u_ID" value="<?php echo htmlspecialchars($row['u_ID']); ?>">
+                                                <input type="hidden" name="u_ID" value="<?php echo htmlspecialchars($row['u_ID']); ?>">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                                 <button type="submit" name="delete-user" class="btn btn-danger">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
