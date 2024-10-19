@@ -21,19 +21,32 @@ if (isset($_GET['search'])) {
 $conversationsQuery = "
     SELECT u.u_ID, 
            CONCAT(u.u_FName, ' ', COALESCE(u.u_MName, ''), ' ', u.u_LName) AS full_name,
-           MAX(m.m_Message) AS last_message,
-           MAX(m.m_Sender) AS last_sender, 
-           MAX(m.m_DateTime) AS last_time,
+           m.m_Message AS last_message,
+           m.m_Sender AS last_sender, 
+           m.m_DateTime AS last_time,
            u.u_Picture AS userPicture
     FROM user u
-    LEFT JOIN messaging m ON (u.u_ID = m.m_Sender OR u.u_ID = m.m_Recipient)
-    WHERE (m.m_Sender = '$u_ID' OR m.m_Recipient = '$u_ID')
-    AND (u.u_ID <> '$u_ID')
+    LEFT JOIN (
+        SELECT m1.*
+        FROM messaging m1
+        JOIN (
+            SELECT 
+                GREATEST(m_Sender, m_Recipient) AS convo_id,
+                MAX(m_DateTime) AS last_time
+            FROM messaging
+            WHERE m_Sender = '$u_ID' OR m_Recipient = '$u_ID'
+            GROUP BY convo_id
+        ) AS latest ON (
+            (m1.m_Sender = latest.convo_id OR m1.m_Recipient = latest.convo_id) 
+            AND m1.m_DateTime = latest.last_time
+        )
+    ) m ON (u.u_ID = m.m_Sender OR u.u_ID = m.m_Recipient)
+    WHERE (u.u_ID <> '$u_ID')
     " . ($search_query ? "AND (u.u_FName LIKE '%$search_query%' OR u.u_LName LIKE '%$search_query%')" : "") . "
-    GROUP BY u.u_ID
     ORDER BY last_time DESC";
 
 $conversationsResult = $con->query($conversationsQuery);
+$conversations = []; // Initialize the conversations array
 
 while ($row = $conversationsResult->fetch_assoc()) {
     // Check if the last message was sent by the logged-in user
@@ -42,8 +55,12 @@ while ($row = $conversationsResult->fetch_assoc()) {
     } else {
         $row['last_message'] = htmlspecialchars($row['full_name']) . ": " . htmlspecialchars($row['last_message']);
     }
-    $conversations[] = $row;
+
+    // Format the last time as needed
+    $row['last_time'] = date('Y-m-d H:i:s', strtotime($row['last_time']));
+    $conversations[] = $row; // Append to conversations array
 }
+
 
 // Check if a conversation is selected
 $currentConversation = null;
@@ -70,13 +87,18 @@ if (isset($_GET['u_ID'])) { // Change from m_ID to u_ID
 
 // Handle message sending
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $recipient = $_POST['recipient']; // Get recipient ID from the form (you should pass this in the form)
+    $recipient = $_POST['recipient']; // Get recipient ID from the form
     $message = $_POST['message'];
-    $m_ID = uniqid('m_');
-    $insertQuery = "INSERT INTO messaging (m_ID, m_Recipient, m_Sender, m_Message, m_DateTime) VALUES ('$m_ID', '$recipient', '$u_ID', '$message', NOW())";
-    $con->query($insertQuery);
-    header("Location: messages?u_ID=$recipient"); // Redirect to the conversation with the recipient
-    exit();
+
+    // Check if the message is not empty before proceeding
+    if (!empty($message)) {
+        $m_ID = uniqid('m_');
+        $insertQuery = "INSERT INTO messaging (m_ID, m_Recipient, m_Sender, m_Message, m_DateTime) 
+                        VALUES ('$m_ID', '$recipient', '$u_ID', '$message', NOW())";
+        $con->query($insertQuery);
+        header("Location: messages?u_ID=$recipient"); // Redirect to the conversation with the recipient
+        exit();
+    }
 }
 ?>
 
@@ -87,18 +109,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="left-side h-100 d-flex flex-column">
                 <div class="container mb-3">
                     <h3>Conversations</h3>
-                    <!-- Search bar -->
-                    <div class="search-bar mb-3">
-                        <form method="GET" action="">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="searchInput" name="search" placeholder="Search users..." value="<?php echo htmlspecialchars($search_query); ?>">
-                            </div>
-                        </form>
-                    </div>
                 </div>
 
                 <!-- Users list -->
-                <ul class="list-group flex-grow-1 overflow-auto">
+                <ul class="list-group flex-grow-1 overflow-auto" id="conversationsList">
                     <?php if (count($conversations) > 0): ?>
                         <?php foreach ($conversations as $conversation): ?>
                             <a href="?u_ID=<?php echo $conversation['u_ID']; ?>" class="text-decoration-none">
@@ -106,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <img src="user_avatar/<?php echo $conversation['userPicture']; ?>" alt="Profile" width="50" height="50" class="rounded-circle me-3">
                                     <div class="flex-grow-1">
                                         <strong><?php echo htmlspecialchars($conversation['full_name']); ?></strong><br>
-                                        <small class="text-muted"><?php echo $conversation['last_message']; ?></small>
+                                        <small class="text-muted"><?php echo $conversation['last_message']; ?></small><br>
                                     </div>
                                 </li>
                             </a>
@@ -120,6 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </li>
                     <?php endif; ?>
                 </ul>
+
             </div>
         </div>
 
@@ -153,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
             <?php else: ?>
                 <div class="d-flex justify-content-center align-items-center h-100">
-                    <h4 class="mt-4 text-muted text-center">Select a chat or start a new conversation</h4>
+                    <h4 class="mt-4 text-muted text-center">Select a conversation</h4>
                 </div>
             <?php endif; ?>
         </div>
