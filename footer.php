@@ -66,7 +66,7 @@
                     <a href="find" class="text-reset">Find a Home</a>
                 </p>
                 <p>
-                    <a href="list" class="text-reset">List Your Property!</a>
+                    <a href="listing" class="text-reset">List Your Property!</a>
                 </p>
             </div>
             <!-- Grid column -->

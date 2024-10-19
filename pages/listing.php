@@ -233,7 +233,7 @@ if (!isset($_SESSION['u_Email'])) {
 
             // Custom Marker Icon
             var customIcon = L.icon({
-                iconUrl: './assets/images/marker-icon-2x.png', // Replace with your custom icon path
+                iconUrl: './assets/images/marker-icon-2x-red.png', // Replace with your custom icon path
                 iconSize: [25, 41], // size of the icon
                 iconAnchor: [19, 38], // point of the icon which will correspond to marker's location
                 popupAnchor: [-3, -76], // point from which the popup should open relative to the iconAnchor

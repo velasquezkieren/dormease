@@ -24,7 +24,12 @@ $d_Owner_ID = $dormitory['d_Owner'];
 // Query to fetch owner details (u_Picture, u_ContactNumber, and full name)
 $owner_query = mysqli_query($con, "SELECT u_FName, u_MName, u_LName, u_Picture, u_ContactNumber FROM user WHERE u_ID = '$d_Owner_ID'");
 
-$loggedInUserID = $_SESSION['u_ID']; // Assuming you have this session variable
+// Check if the user is logged in
+if (isset($_SESSION['u_ID'])) {
+    $loggedInUserID = $_SESSION['u_ID']; // Assuming you have this session variable
+} else {
+    $loggedInUserID = null; // Set it to null if not logged in
+}
 
 // Retrieve coordinates, Dorm Name, Price, and Gender
 $latitude = $dormitory['d_Latitude'];
@@ -32,10 +37,9 @@ $longitude = $dormitory['d_Longitude'];
 $dormName = htmlspecialchars($dormitory['d_Name']);
 $d_Price = htmlspecialchars($dormitory['d_Price']);
 $d_Gender = $dormitory['d_Gender'];
-$genderLabel = $d_Gender === 2 ? "Any" : ($d_Gender == 1 ? "Male" : ($d_Gender == 0 ? "Female" : "Any"));
 
 // Check if the logged-in user is the owner
-$isOwner = ($loggedInUserID === $d_Owner_ID);
+$isOwner = ($loggedInUserID !== null && $loggedInUserID === $d_Owner_ID);
 
 if ($isOwner) {
     // Show all rooms for the owner, including available and pending rooms
@@ -262,7 +266,7 @@ if (isset($_POST['book'])) {
                     ?>
                         <div class="carousel-item <?php echo $activeClass; ?>">
                             <a href="#" class="open-modal" data-index="<?php echo $index; ?>">
-                                <img src="./upload/<?php echo $d_ID; ?>/<?php echo htmlspecialchars($imgName); ?>" class="d-block w-100" loading="lazy" alt="Dormitory Image">
+                                <img src="./upload/<?php echo $d_ID; ?>/<?php echo htmlspecialchars($imgName); ?>" class="d-block w-100" loading=" lazy" alt="<?= $dormName; ?>">
                             </a>
                         </div>
                     <?php endforeach; ?>
@@ -282,7 +286,7 @@ if (isset($_POST['book'])) {
                 <div class="col-md-6 mb-3">
                     <a href="#" class="open-modal" data-index="0">
                         <div class="card" style="border: none; transition: transform 0.2s;">
-                            <img src="./upload/<?php echo $d_ID; ?>/<?php echo htmlspecialchars($imageNames[0]); ?>" class="card-img-top rounded" loading="lazy" alt="Dormitory Image" style="object-fit: cover; height: 420px;">
+                            <img src="./upload/<?php echo $d_ID; ?>/<?php echo htmlspecialchars($imageNames[0]); ?>" class="card-img-top rounded" loading="lazy" alt="<?= $dormName; ?>" style="object-fit: cover; height: 420px;">
                         </div>
                     </a>
                 </div>
@@ -297,7 +301,7 @@ if (isset($_POST['book'])) {
                             <div class="col-<?php echo $columnClass; ?> mb-3">
                                 <a href="#" class="open-modal" data-index="<?php echo $i; ?>">
                                     <div class="card" style="border: none; transition: transform 0.2s;">
-                                        <img src="./upload/<?php echo $d_ID; ?>/<?php echo htmlspecialchars($imageNames[$i]); ?>" class="card-img-top rounded" loading="lazy" alt="Dormitory Image" style="object-fit: cover; height: 200px;">
+                                        <img src="./upload/<?php echo $d_ID; ?>/<?php echo htmlspecialchars($imageNames[$i]); ?>" class="card-img-top rounded" loading="lazy" alt="<?= $dormName; ?>" style="object-fit: cover; height: 200px;">
                                     </div>
                                 </a>
                             </div>
@@ -320,7 +324,7 @@ if (isset($_POST['book'])) {
                                 $activeClass = ($index === 0) ? 'active' : '';
                             ?>
                                 <div class="carousel-item <?php echo $activeClass; ?>">
-                                    <img src="./upload/<?php echo $d_ID; ?>/<?php echo htmlspecialchars($imgName); ?>" class="d-block w-100" loading="lazy" alt="Dormitory Image">
+                                    <img src="./upload/<?php echo $d_ID; ?>/<?php echo htmlspecialchars($imgName); ?>" class="d-block w-100" loading="lazy" alt="<?= $dormName; ?>">
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -370,17 +374,37 @@ if (isset($_POST['book'])) {
 
                 <!-- Dormitory Details -->
                 <div class="col-12"> <!-- Full width on all screen sizes -->
-                    <p class="h3"><?php echo htmlspecialchars($dormitory['d_Name']); ?></p>
+                    <p class="h3 mb-0"><?php echo htmlspecialchars($dormitory['d_Name']); ?></p>
+                    <span class="badge text-bg-secondary mb-1">
+                        <?php
+                        if ($d_Gender === 0) {
+                            echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gender-female" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5"/>
+</svg>
+Female';
+                        } elseif ($d_Gender === 1) {
+                            echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gender-male" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8"/>
+</svg>
+Male';
+                        } else {
+                            echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gender-ambiguous" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M11.5 1a.5.5 0 0 1 0-1h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V1.707l-3.45 3.45A4 4 0 0 1 8.5 10.97V13H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V14H6a.5.5 0 0 1 0-1h1.5v-2.03a4 4 0 1 1 3.471-6.648L14.293 1zm-.997 4.346a3 3 0 1 0-5.006 3.309 3 3 0 0 0 5.006-3.31z"/>
+</svg>
+Any';
+                        }
+                        ?>
+                    </span>
                     <div class="d-flex align-items-center">
                         <i class="bi bi-geo-alt-fill"></i>
                         <p class="h5 mb-0 ms-1"><?php echo htmlspecialchars($dormitory['d_Street'] . ', ' . $dormitory['d_City']); ?></p>
                     </div>
+
                 </div>
 
                 <!-- Dorm Description -->
                 <div class="col-12 mt-4">
                     <p class="h4">Description</p>
-                    <p class="h6"><strong>Gender:</strong> <?php echo $genderLabel; ?></p>
                     <p class="card-text text-truncate"><?php echo nl2br(htmlspecialchars($dormitory['d_Description'])); ?></p>
                 </div>
             </div>
@@ -504,6 +528,9 @@ if (isset($_POST['book'])) {
 
                                 <?php if ($isOwner && $room['r_RegistrationStatus'] == 0): ?>
                                     <p class="card-text"><strong>Status: </strong>Pending</p>
+                                <?php endif; ?>
+
+                                <?php if ($isOwner): ?>
                                     <a href="delete-room?r_ID=<?php echo htmlspecialchars($room['r_ID']); ?>&d_ID=<?php echo htmlspecialchars($d_ID); ?>" class="text-danger">Delete Room</a>
                                 <?php endif; ?>
 
@@ -649,7 +676,6 @@ if (isset($_POST['book'])) {
     L.marker([<?php echo htmlspecialchars($latitude); ?>, <?php echo htmlspecialchars($longitude); ?>]).addTo(map)
         .bindPopup('<?php echo $dormName; ?>')
         .openPopup();
-
 
     $(document).ready(function() {
         // Date Calendar

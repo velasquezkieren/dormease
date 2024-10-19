@@ -113,7 +113,7 @@ switch ($page) {
     </style>
 </head>
 
-<body>
+<body class="max-vw-100 max-vw-100">
     <header>
         <?php
         include('navbar.php');
