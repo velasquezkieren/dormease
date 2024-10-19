@@ -55,6 +55,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $update_balance_query = "UPDATE user SET u_Balance = u_Balance + $balance_change WHERE u_ID = '$recipient'";
 
             if (mysqli_query($con, $update_balance_query)) {
+                // Check how many ledger entries the tenant has
+                $count_query = "SELECT COUNT(*) as entry_count FROM ledger WHERE l_Recipient = '$recipient'";
+                $count_result = mysqli_query($con, $count_query);
+                $entry_count = mysqli_fetch_assoc($count_result)['entry_count'];
+
+                // Determine the new balance status
+                $balance_status = 0; // Default to "Due" (0)
+                if ($entry_count >= 2) {
+                    $balance_status = 2; // Set to Overdue (2)
+                }
+
+                // Update the tenant's balance status
+                $update_status_query = "UPDATE user SET u_BalanceStatus = '$balance_status' WHERE u_ID = '$recipient'";
+                mysqli_query($con, $update_status_query);
+
                 // Commit transaction
                 mysqli_commit($con);
                 header("Location: ledger");
@@ -87,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php
                         if ($tenant_result && mysqli_num_rows($tenant_result) > 0) {
                             while ($tenant = mysqli_fetch_assoc($tenant_result)) {
-                                echo "<option value='" . $tenant['u_ID'] . "'>" . $tenant['u_FName'] . " " . $tenant['u_MName'] . " " . $tenant['u_LName'] . "</option>";
+                                echo "<option value='" . $tenant['u_ID'] . "'>" . $tenant['u_FName'] . " " . $tenant['u_LName'] . "</option>";
                             }
                         } else {
                             echo "<option value='' selected disabled>No tenants found</option>";

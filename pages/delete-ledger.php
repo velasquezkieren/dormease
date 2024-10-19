@@ -24,6 +24,15 @@ if (isset($_POST['delete'])) {
         mysqli_stmt_execute($stmt);
         mysqli_stmt_close($stmt);
 
+        // Fetch the updated balance for the user
+        $balance_query = "SELECT u_Balance FROM user WHERE u_ID = ?";
+        $stmt = mysqli_prepare($con, $balance_query);
+        mysqli_stmt_bind_param($stmt, 's', $user_to_update);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_bind_result($stmt, $updated_balance);
+        mysqli_stmt_fetch($stmt);
+        mysqli_stmt_close($stmt);
+
         // Delete the ledger entry
         $delete_query = "DELETE FROM ledger WHERE l_ID = ?";
         $stmt = mysqli_prepare($con, $delete_query);
@@ -31,6 +40,15 @@ if (isset($_POST['delete'])) {
 
         // Execute the delete statement
         if (mysqli_stmt_execute($stmt)) {
+            // Update u_BalanceStatus if balance is 0
+            if ($updated_balance == 0) {
+                $status_update_query = "UPDATE user SET u_BalanceStatus = 1 WHERE u_ID = ?";
+                $stmt = mysqli_prepare($con, $status_update_query);
+                mysqli_stmt_bind_param($stmt, 's', $user_to_update);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_close($stmt);
+            }
+
             header("location: ledger?delete-success=1");
             exit; // Ensure no further code is executed after redirection
         } else {

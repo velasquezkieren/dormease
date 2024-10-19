@@ -62,6 +62,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $update_balance_query = "UPDATE user SET u_Balance = u_Balance + '$difference' WHERE u_ID = '$recipient'";
             mysqli_query($con, $update_balance_query);
 
+            // Fetch the updated balance for the tenant
+            $balance_query = "SELECT u_Balance FROM user WHERE u_ID = '$recipient'";
+            $balance_result = mysqli_query($con, $balance_query);
+            $tenant = mysqli_fetch_assoc($balance_result);
+            $new_balance = $tenant['u_Balance'];
+
+            // Update balance status based on the new balance
+            $balance_status = 0; // Default to "Due" (0)
+
+            if ($new_balance == 0) {
+                $balance_status = 1; // Fully Paid (1)
+            } elseif ($new_balance < 0) {
+                $balance_status = 2; // Overdue (-1 or any custom value)
+            }
+
+            // Update the tenant's balance status
+            $update_status_query = "UPDATE user SET u_BalanceStatus = '$balance_status' WHERE u_ID = '$recipient'";
+            mysqli_query($con, $update_status_query);
+
             // Redirect to ledger page with success message
             header("Location: ledger?edit-success=true");
             exit;

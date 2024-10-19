@@ -33,6 +33,15 @@ $balance_stmt->execute();
 $balance_result = $balance_stmt->get_result();
 $balance_row = $balance_result->fetch_assoc();
 $balance = $balance_row['balance'] ?? 0.00;
+
+// Fetch the tenant's balance status from the user table
+$status_query = "SELECT u_BalanceStatus FROM user WHERE u_ID = ?";
+$status_stmt = $con->prepare($status_query);
+$status_stmt->bind_param("s", $tenant_id);
+$status_stmt->execute();
+$status_result = $status_stmt->get_result();
+$status_row = $status_result->fetch_assoc();
+$balance_status = $status_row['u_BalanceStatus'] ?? 'Unknown';
 ?>
 
 <!-- HTML Section -->
@@ -47,6 +56,19 @@ $balance = $balance_row['balance'] ?? 0.00;
         <div class="col-md-8">
             <h1 class="mb-4">Statement of Account</h1>
             <p><strong>Your current balance:</strong> ₱<?= htmlspecialchars(number_format($balance, 2)) ?></p>
+            <p><strong>Balance Status:</strong>
+                <?php
+                if ($balance_status == 0) {
+                    echo "<span class='badge bg-warning'>Unpaid</span>";
+                } elseif ($balance_status == 1) {
+                    echo "<span class='badge bg-success'>Paid</span>";
+                } elseif ($balance_status == 2) {
+                    echo "<span class='badge bg-danger'>Overdue</span>";
+                } else {
+                    echo "<span class='badge bg-secondary'>Unknown</span>";
+                }
+                ?>
+            </p>
 
             <!-- Ledger Transactions -->
             <table class="table table-striped table-bordered mt-4">

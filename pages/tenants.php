@@ -14,7 +14,7 @@ if (!isset($_SESSION['u_Account_Type']) || $_SESSION['u_Account_Type'] != 0) {
 // Fetch tenants associated with the logged-in owner
 $ownerID = $_SESSION['u_ID'];
 $query = "SELECT u.u_ID, u.u_FName, u.u_LName, d.d_Name AS dormitory, r.r_Name AS room, 
-                 d.d_Price AS price, o.o_Status, r.r_ID, r.r_Capacity AS capacity
+                 d.d_Price AS price, o.o_Status, r.r_ID, r.r_Capacity AS capacity, u.u_BalanceStatus
           FROM occupancy o
           JOIN user u ON o.o_Occupant = u.u_ID
           JOIN room r ON o.o_Room = r.r_ID
@@ -52,6 +52,7 @@ if (!$result) {
                         <th>Price</th>
                         <th>Capacity</th> <!-- New column for capacity -->
                         <th>Status</th>
+                        <th>Balance Status</th>
                         <th>Actions</th> <!-- Actions column -->
                     </tr>
                 </thead>
@@ -77,6 +78,24 @@ if (!$result) {
                         }
 
                         echo '</td>'; // Close Status cell
+                        echo '<td>'; // Start Actions cell
+
+                        // Display the balance status
+                        switch ($row['u_BalanceStatus']) {
+                            case 0:
+                                echo '<span class="badge bg-danger">Due</span>'; // Due
+                                break;
+                            case 1:
+                                echo '<span class="badge bg-success">Paid</span>'; // Paid
+                                break;
+                            case 2:
+                                echo '<span class="badge bg-warning">Overdue</span>'; // Overdue
+                                break;
+                            default:
+                                echo '<span class="badge bg-secondary">Unknown</span>'; // Fallback case
+                        }
+
+                        echo '</td>'; // Close Balance Status cell
                         echo '<td>'; // Start Actions cell
 
                         // Show buttons only if o_Status is 0 (Pending)
