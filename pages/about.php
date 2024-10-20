@@ -17,7 +17,7 @@
                         <p class="d-md-none h5 mt-3">Kieren</p>
                     </div>
                     <div class="col-12 col-md-4 d-flex flex-column align-items-center mb-4">
-                        <img src="./img/kieren.jpg" class="rounded-circle img-fluid shadow-sm" style="max-width: 200px;">
+                        <img src="./img/angelica.png" class="rounded-circle img-fluid shadow-sm" style="max-width: 200px;">
                         <p class="d-none d-md-block h5 mt-3">Angelica Jane</p>
                         <p class="d-md-none h5 mt-3">Angelica Jane</p>
                     </div>
