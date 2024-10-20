@@ -8,17 +8,6 @@ if (isset($_POST['search']) || isset($_POST['sort'])) {
 
     $sql = "SELECT * FROM dormitory WHERE (d_Name LIKE '%$search_query%' OR d_Street LIKE '%$search_query%' OR d_City LIKE '%$search_query%') AND d_RegistrationStatus = 1";
 
-    // Sorting
-    if ($sort_order == "1") {
-        $sql .= " ORDER BY d_Name ASC";
-    } elseif ($sort_order == "2") {
-        $sql .= " ORDER BY d_Name DESC";
-    } elseif ($sort_order == "3") {
-        $sql .= " ORDER BY d_Price ASC";
-    } elseif ($sort_order == "4") {
-        $sql .= " ORDER BY d_Price DESC";
-    }
-
     $dorms_query = mysqli_query($con, $sql);
 
     if (mysqli_num_rows($dorms_query) > 0) {
@@ -119,8 +108,7 @@ if (!$is_logged_in) {
                         <option value="" selected disabled>Sort By</option>
                         <option value="1">Name - A to Z</option>
                         <option value="2">Name - Z to A</option>
-                        <option value="3">Price - Low to High</option>
-                        <option value="4">Price - High to Low</option>
+
                     </select>
                 </div>
             </div>

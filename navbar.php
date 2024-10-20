@@ -31,10 +31,11 @@ if (isset($_GET['page']) && $_GET['page'] === 'logout') {
             <div class="offcanvas-body">
                 <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                     <li class="nav-item">
-                        <a class="nav-link mx-lg-2 <?php echo ($title == 'DormEase') ? 'active' : ''; ?>" href="home">Home</a>
+                        <a class="nav-link mx-lg-2 <?php echo ($title == 'DormEase') ? 'active' : ''; ?>" href="home">
+                            Home
+                        </a>
                     </li>
                     <?php
-                    // Show "Find a Home" or "List Your Property!" based on account type
                     if (!isset($_SESSION['u_Account_Type'])) {
                         echo '<li class="nav-item">
                             <a class="nav-link mx-lg-2 ' . (($title == 'About | DormEase') ? 'active' : '') . '" href="about">About</a>
@@ -55,7 +56,6 @@ if (isset($_GET['page']) && $_GET['page'] === 'logout') {
                             </li>';
                     }
 
-                    // Show "Inbox" only if logged in
                     if (isset($_SESSION['u_Email'])) {
                         echo '<li class="nav-item">
                             <a class="nav-link mx-lg-2 ' . (($title == 'Messages | DormEase') ? 'active' : '') . '" href="messages">Messages</a>
@@ -65,7 +65,7 @@ if (isset($_GET['page']) && $_GET['page'] === 'logout') {
                     if (isset($_SESSION['u_Email'])) {
                         echo '<li class="nav-item">
                                     <a class="nav-link mx-lg-2 ' . (($title == "Profile | DormEase") ? "active" : "") . '" href="profile?u_ID=' . $u_ID . '">' . $firstname . '</a>
-                                  </li>'; //link to profile if signed in
+                                  </li>';
                     }
                     ?>
                 </ul>
@@ -73,10 +73,10 @@ if (isset($_GET['page']) && $_GET['page'] === 'logout') {
         </div>
         <?php
         if (isset($_SESSION['u_Email'])) {
-            echo '<a class="login-button" href="logout">Logout</a>'; //logout button if signed in
+            echo '<a class="login-button" href="logout">Logout</a>';
         }
         if (!isset($_SESSION['u_Email'])) {
-            echo '<a href="login" class="login-button">Login</a>'; //login button to sign in
+            echo '<a href="login" class="login-button">Login</a>';
         }
         ?>
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
@@ -84,3 +84,90 @@ if (isset($_GET['page']) && $_GET['page'] === 'logout') {
         </button>
     </div>
 </nav>
+
+<!-- Bottom navigation bar for mobile -->
+<div class="mobile-nav d-block d-lg-none fixed-bottom bg-light">
+    <div class="container d-flex justify-content-around py-2">
+        <a href="home" class="text-center nav-link">
+            <i class="bi bi-house-door-fill"></i>
+            <small>Home</small>
+        </a>
+
+        <!-- Conditional links based on account type and session -->
+        <?php
+        // If user is not logged in, show 'Find a Home' and 'List Your Property'
+        if (!isset($_SESSION['u_Account_Type'])) {
+            echo '<a href="find" class="text-center nav-link">
+                    <i class="bi bi-search"></i>
+                    <small>Find a Home</small>
+                  </a>';
+            echo '<a href="listing" class="text-center nav-link">
+                    <i class="bi bi-building"></i>
+                    <small>List Property</small>
+                  </a>';
+        } elseif (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 1) {
+            // If user is a tenant
+            echo '<a href="find" class="text-center nav-link">
+                    <i class="bi bi-search"></i>
+                    <small>Find a Home</small>
+                  </a>';
+        } elseif (isset($_SESSION['u_Account_Type']) && $_SESSION['u_Account_Type'] == 0) {
+            // If user is a dorm owner
+            echo '<a href="find" class="text-center nav-link">
+                    <i class="bi bi-search"></i>
+                    <small>Find a Dorm</small>
+                  </a>';
+        }
+
+        // Show 'Messages' link only if logged in
+        if (isset($_SESSION['u_Email'])) {
+            echo '<a href="messages" class="text-center nav-link">
+                    <i class="bi bi-chat-square-text-fill"></i>
+                    <small>Messages</small>
+                  </a>';
+        }
+
+        // Show 'Profile' if logged in, otherwise show 'Login'
+        if (isset($_SESSION['u_Email'])) {
+            echo '<a href="profile?u_ID=' . $u_ID . '" class="text-center nav-link">
+                    <i class="bi bi-person-fill"></i>
+                    <small>Profile</small>
+                  </a>';
+        } else {
+            echo '<a href="login" class="text-center nav-link">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <small>Login</small>
+                  </a>';
+        }
+        ?>
+    </div>
+</div>
+
+<!-- CSS -->
+<style>
+    .mobile-nav {
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1030;
+        /* Ensure it's above other content */
+    }
+
+    .mobile-nav a {
+        text-decoration: none;
+        color: #883D1A;
+    }
+
+    .mobile-nav i {
+        font-size: 1.5rem;
+    }
+
+    .mobile-nav small {
+        display: block;
+        font-size: 0.75rem;
+    }
+
+    @media (max-width: 992px) {
+        .navbar {
+            display: none;
+        }
+    }
+</style>

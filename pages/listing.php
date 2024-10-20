@@ -151,7 +151,7 @@ if (!isset($_SESSION['u_Email'])) {
                                                 <div class="form-floating mb-3">
                                                     <input type="hidden" name="d_Latitude" id="latitude">
                                                     <input type="hidden" name="d_Longitude" id="longitude">
-                                                    <div id="map" class="rounded" style="height: 450px; width:1100px;"></div>
+                                                    <div id="map" class="rounded" style="height: 450px; width:100%;"></div>
                                                 </div>
                                             </div>
                                             <div class="col-12">
@@ -220,6 +220,7 @@ if (!isset($_SESSION['u_Email'])) {
             </div>
         </section>
     </div>
+
     <script>
         $(document).ready(function() {
             // Initialize Leaflet map

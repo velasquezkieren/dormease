@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 
 <!-- HTML Section -->
-<div class="container pt-5 min-vh-100" style="margin-top: 100px;"> <!-- Adjust margin for fixed navbar -->
+<div class="container pt-md-5 mt-md-5 min-vh-100" style="margin-top: 50px;"> <!-- Adjust margin for fixed navbar -->
     <div class="row">
         <!-- Sidebar -->
         <div class="col-md-4">

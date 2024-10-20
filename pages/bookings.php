@@ -33,7 +33,7 @@ $bookings = mysqli_fetch_all($result, MYSQLI_ASSOC);
 ?>
 
 <!-- HTML Section -->
-<div class="container pt-5 min-vh-100" style="margin-top: 100px;">
+<div class="container pt-md-5 mt-md-5 min-vh-100" style="margin-top: 50px;">
     <div class="row">
         <!-- Sidebar nav -->
         <div class="col-md-4">

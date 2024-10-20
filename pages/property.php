@@ -15,7 +15,7 @@ $result = mysqli_query($con, $sql);
 $dormitory = mysqli_fetch_assoc($result);
 
 if (!$dormitory) {
-    echo "<p>Dormitory not found.</p>";
+    header("location: find");
     exit();
 }
 
@@ -56,16 +56,20 @@ $roomsResult = mysqli_query($con, $roomsSql);
 if (isset($_POST['edit_dormitory'])) {
     // Process the form to update the dormitory
     $d_ID = $_POST['d_ID'];
-    $d_Name = $_POST['d_Name'];
-    $d_Street = $_POST['d_Street'];
-    $d_City = $_POST['d_City'];
+    $d_Name = ucwords($_POST['d_Name']);
+    $d_Street = ucwords($_POST['d_Street']);
+    $d_City = ucwords($_POST['d_City']);
     $d_Description = $_POST['d_Description'];
+    $d_Price = $_POST['d_Price'];
+    $d_Gender = $_POST['d_Gender'];
+    $d_Availability = $_POST['d_Availability'];
     $replaceImages = isset($_POST['replace_images']) ? true : false;
     $d_PicName = $_FILES['d_PicName'];
 
-    // Update dormitory details
-    $sql = "UPDATE dormitory SET d_Name = '$d_Name', d_Street = '$d_Street', d_City = '$d_City', d_Description = '$d_Description' WHERE d_ID = '$d_ID'";
-    mysqli_query($con, $sql);
+    // Update dormitory details using prepared statements to prevent SQL injection
+    $stmt = $con->prepare("UPDATE dormitory SET d_Name = ?, d_Street = ?, d_City = ?, d_Description = ?, d_Price = ?, d_Gender = ?, d_Availability = ? WHERE d_ID = ?");
+    $stmt->bind_param('ssssdiss', $d_Name, $d_Street, $d_City, $d_Description, $d_Price, $d_Gender, $d_Availability, $d_ID);
+    $stmt->execute();
 
     // Handle image uploads
     if ($replaceImages) {
@@ -377,12 +381,12 @@ if (isset($_POST['book'])) {
                     <p class="h3 mb-0"><?php echo htmlspecialchars($dormitory['d_Name']); ?></p>
                     <span class="badge text-bg-secondary mb-1">
                         <?php
-                        if ($d_Gender === 0) {
+                        if ($d_Gender == 0) {
                             echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gender-female" viewBox="0 0 16 16">
   <path fill-rule="evenodd" d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5"/>
 </svg>
 Female';
-                        } elseif ($d_Gender === 1) {
+                        } elseif ($d_Gender == 1) {
                             echo '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gender-male" viewBox="0 0 16 16">
   <path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8"/>
 </svg>
@@ -522,7 +526,7 @@ Any';
                         <div class="card mb-3 border-0 shadow-sm">
                             <div class="card-body bg-light">
                                 <h5 class="card-title"><?php echo htmlspecialchars($room['r_Name']); ?></h5>
-                                <p class="card-text"><span class="badge bg-secondary ">Capacity: <?php echo htmlspecialchars($room['r_Capacity']); ?></span></p>
+                                <p class="card-text"><span class="badge bg-secondary "><?php echo htmlspecialchars($room['r_Capacity']); ?> Available</span></p>
                                 <p class="card-text text-truncate"><?php echo htmlspecialchars($room['r_Description']); ?></p>
 
                                 <?php if ($isOwner && $room['r_RegistrationStatus'] == 0): ?>
@@ -552,8 +556,6 @@ Any';
                     </div>
                 </div>
             <?php endif; ?>
-
-
         </div>
         <div class="row">
             <?php if ($isOwner): ?>
@@ -619,7 +621,7 @@ Any';
                     </div>
 
                     <div class="form-check mb-3">
-                        <input type="checkbox" class="form-check-input" id="d_Availability" name="d_Availability" value="1" <?= ($dormitoryData['d_Availability'] ?? '') ? 'checked' : ''; ?>>
+                        <input type="checkbox" class="form-check-input" id="d_Availability" name="d_Availability" value="1" <?= (isset($dormitory['d_Availability']) && $dormitory['d_Availability'] == 1) ? 'checked' : ''; ?>>
                         <label class="form-check-label" for="d_Availability">Available</label>
                     </div>
 
@@ -675,7 +677,6 @@ Any';
         iconAnchor: [15, 41], // The point of the icon which will correspond to marker's location (x, y) - center bottom of the icon
         popupAnchor: [-2, -41], // The point from which the popup should open relative to the iconAnchor (x, y) - directly above the marker
     });
-
 
     // Add tile layer
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {

@@ -30,7 +30,7 @@ if (!$result) {
 ?>
 
 <!-- HTML Section -->
-<div class="container pt-5 min-vh-100" style="margin-top: 100px;"> <!-- Adjust margin for fixed navbar -->
+<div class="container pt-md-5 mt-md-5 min-vh-100" style="margin-top: 50px;"> <!-- Adjust margin for fixed navbar -->
     <div class="row">
         <!-- Sidebar -->
         <div class="col-md-4">
@@ -43,79 +43,82 @@ if (!$result) {
         </div>
         <div class="col-md-8">
             <h1>My Tenants</h1>
-            <table class="table table-striped table-bordered mt-4">
-                <thead>
-                    <tr>
-                        <th>Tenant Name</th>
-                        <th>Dormitory</th>
-                        <th>Room Name</th>
-                        <th>Price</th>
-                        <th>Capacity</th> <!-- New column for capacity -->
-                        <th>Status</th>
-                        <th>Balance Status</th>
-                        <th>Actions</th> <!-- Actions column -->
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    // Display the tenants
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        echo '<tr>';
-                        echo '<td>' . htmlspecialchars($row['u_FName'] . ' ' . $row['u_LName']) . '</td>';
-                        echo '<td>' . htmlspecialchars($row['dormitory']) . '</td>';
-                        echo '<td>' . htmlspecialchars($row['room']) . '</td>';
-                        echo '<td>' . htmlspecialchars($row['price']) . '</td>';
-                        echo '<td>' . htmlspecialchars($row['capacity']) . '</td>'; // Display the room capacity
-                        echo '<td>';
 
-                        // Display the status
-                        if ($row['o_Status'] == 0) {
-                            echo '<span class="badge bg-warning">Pending</span>'; // Status when waiting for action
-                        } elseif ($row['o_Status'] == 1) {
-                            echo '<span class="badge bg-success">Accepted</span>';
-                        } elseif ($row['o_Status'] == 2) {
-                            echo '<span class="badge bg-warning">Rejected</span>';
-                        }
+            <div class="table-responsive mt-4">
+                <table class="table table-striped table-bordered mt-4">
+                    <thead>
+                        <tr>
+                            <th>Tenant Name</th>
+                            <th>Dormitory</th>
+                            <th>Room Name</th>
+                            <th>Price</th>
+                            <th>Capacity</th> <!-- New column for capacity -->
+                            <th>Status</th>
+                            <th>Balance Status</th>
+                            <th>Actions</th> <!-- Actions column -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        // Display the tenants
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            echo '<tr>';
+                            echo '<td>' . htmlspecialchars($row['u_FName'] . ' ' . $row['u_LName']) . '</td>';
+                            echo '<td>' . htmlspecialchars($row['dormitory']) . '</td>';
+                            echo '<td>' . htmlspecialchars($row['room']) . '</td>';
+                            echo '<td>' . htmlspecialchars($row['price']) . '</td>';
+                            echo '<td>' . htmlspecialchars($row['capacity']) . '</td>'; // Display the room capacity
+                            echo '<td>';
 
-                        echo '</td>'; // Close Status cell
-                        echo '<td>'; // Start Actions cell
+                            // Display the status
+                            if ($row['o_Status'] == 0) {
+                                echo '<span class="badge bg-warning">Pending</span>'; // Status when waiting for action
+                            } elseif ($row['o_Status'] == 1) {
+                                echo '<span class="badge bg-success">Accepted</span>';
+                            } elseif ($row['o_Status'] == 2) {
+                                echo '<span class="badge bg-warning">Rejected</span>';
+                            }
 
-                        // Display the balance status
-                        switch ($row['u_BalanceStatus']) {
-                            case 0:
-                                echo '<span class="badge bg-danger">Due</span>'; // Due
-                                break;
-                            case 1:
-                                echo '<span class="badge bg-success">Paid</span>'; // Paid
-                                break;
-                            case 2:
-                                echo '<span class="badge bg-warning">Overdue</span>'; // Overdue
-                                break;
-                            default:
-                                echo '<span class="badge bg-secondary">Unknown</span>'; // Fallback case
-                        }
+                            echo '</td>'; // Close Status cell
+                            echo '<td>'; // Start Actions cell
 
-                        echo '</td>'; // Close Balance Status cell
-                        echo '<td>'; // Start Actions cell
+                            // Display the balance status
+                            switch ($row['u_BalanceStatus']) {
+                                case 0:
+                                    echo '<span class="badge bg-danger">Due</span>'; // Due
+                                    break;
+                                case 1:
+                                    echo '<span class="badge bg-success">Paid</span>'; // Paid
+                                    break;
+                                case 2:
+                                    echo '<span class="badge bg-warning">Overdue</span>'; // Overdue
+                                    break;
+                                default:
+                                    echo '<span class="badge bg-secondary">Unknown</span>'; // Fallback case
+                            }
 
-                        // Show buttons only if o_Status is 0 (Pending)
-                        if ($row['o_Status'] == 0) {
-                            echo '<a href="accept_tenant?id=' . htmlspecialchars($row['u_ID']) . '" class="btn btn-success">Accept</a>
+                            echo '</td>'; // Close Balance Status cell
+                            echo '<td>'; // Start Actions cell
+
+                            // Show buttons only if o_Status is 0 (Pending)
+                            if ($row['o_Status'] == 0) {
+                                echo '<a href="accept_tenant?id=' . htmlspecialchars($row['u_ID']) . '" class="btn btn-success">Accept</a>
                                   <a href="reject_tenant?id=' . htmlspecialchars($row['u_ID']) . '" class="btn btn-danger">Reject</a>';
-                        } else {
-                            echo '<a href="evict_tenant?id=' . htmlspecialchars($row['u_ID']) . '&room_id=' . htmlspecialchars($row['r_ID']) . '" class="btn btn-danger">
+                            } else {
+                                echo '<a href="evict_tenant?id=' . htmlspecialchars($row['u_ID']) . '&room_id=' . htmlspecialchars($row['r_ID']) . '" class="btn btn-danger">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-x-fill" viewBox="0 0 16 16">
   <path fill-rule="evenodd" d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m6.146-2.854a.5.5 0 0 1 .708 0L14 6.293l1.146-1.147a.5.5 0 0 1 .708.708L14.707 7l1.147 1.146a.5.5 0 0 1-.708.708L14 7.707l-1.146 1.147a.5.5 0 0 1-.708-.708L13.293 7l-1.147-1.146a.5.5 0 0 1 0-.708"/>
 </svg>
 Evict</a>';
-                        }
+                            }
 
-                        echo '</td>'; // Close Actions cell
-                        echo '</tr>'; // Close table row
-                    }
-                    ?>
-                </tbody>
-            </table>
+                            echo '</td>'; // Close Actions cell
+                            echo '</tr>'; // Close table row
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

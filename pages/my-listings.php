@@ -43,7 +43,7 @@ $stmt->close();
 ?>
 
 <!-- HTML Section -->
-<div class="container pt-5 min-vh-100" style="margin-top: 100px;">
+<div class="container pt-md-5 mt-md-5 min-vh-100" style="margin-top: 50px;">
     <div class="row">
 
         <!-- Sidebar -->
@@ -55,24 +55,26 @@ $stmt->close();
         <div class="col-md-8">
             <h1 class="mb-4">My Listings</h1>
 
-            <!-- Nav Tabs -->
-            <ul class="nav" id="dormTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="true">
-                        Pending Dorms (<?= count($pending_dorms); ?>)
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab" aria-controls="active" aria-selected="false">
-                        Active Dorms (<?= count($active_dorms); ?>)
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab" aria-controls="rejected" aria-selected="false">
-                        Rejected Dorms (<?= count($rejected_dorms); ?>)
-                    </button>
-                </li>
-            </ul>
+            <div class="row">
+                <!-- Nav Tabs -->
+                <ul class="nav d-flex flex-nowrap" id="dormTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="true">
+                            Pending Dorms (<?= count($pending_dorms); ?>)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab" aria-controls="active" aria-selected="false">
+                            Active Dorms (<?= count($active_dorms); ?>)
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab" aria-controls="rejected" aria-selected="false">
+                            Rejected Dorms (<?= count($rejected_dorms); ?>)
+                        </button>
+                    </li>
+                </ul>
+            </div>
 
             <!-- Tab Content -->
             <div class="tab-content" id="dormTabsContent">
