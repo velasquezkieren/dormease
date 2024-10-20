@@ -29,7 +29,7 @@ $result = mysqli_query($con, $query);
         <div class="container py-5">
             <div class="row py-5">
                 <div class="col-lg-7 pt-5 text-left">
-                    <h1 class="text-light mb-4 fw-bold pt-5" style="font-size:3.5rem;">Student Living<br>Made Simple</h1>
+                    <h1 class="text-light mb-4 fw-bold pt-md-5" style="font-size:3.5rem;">Student Living<br>Made Simple</h1>
                     <p class="text-light mb-4 lead">Simplifying Student Living.</p>
                     <?php if (!isset($_SESSION['u_Email'])): ?>
                         <a class="btn btn-outline-light btn-md" href="signup">Sign Up</a>
