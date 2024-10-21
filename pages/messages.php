@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php foreach ($conversations as $conversation): ?>
                             <a href="?u_ID=<?php echo $conversation['u_ID']; ?>" class="text-decoration-none">
                                 <li class="list-group-item d-flex align-items-start border-0 py-3">
-                                    <img src="user_avatar/<?php echo $conversation['userPicture']; ?>" alt="Profile" width="50" height="50" class="rounded-circle me-3">
+                                    <img src="user_avatar/<?php echo $conversation['userPicture']; ?>" alt="Profile" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
                                     <div class="flex-grow-1">
                                         <strong><?php echo htmlspecialchars($conversation['full_name']); ?></strong><br>
                                         <small class="text-muted"><?php echo $conversation['last_message']; ?></small><br>
@@ -177,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-12 col-md-4 border-start" id="detailsDiv">
             <?php if ($currentConversation): ?>
                 <div class="p-3 text-center">
-                    <img src="user_avatar/<?php echo $currentConversation['userPicture']; ?>" alt="Profile" width="150" height="150" class="rounded-circle img-fluid mb-3"><br>
+                    <img src="user_avatar/<?php echo $currentConversation['userPicture']; ?>" alt="Profile" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;"><br>
                     <h5>
                         <a href="profile?u_ID=<?php echo ($currentConversation['u_ID']); ?>" class="text-dark text-decoration-none">
                             <?php echo htmlspecialchars($currentConversation['full_name']); ?>
