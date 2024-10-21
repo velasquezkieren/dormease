@@ -102,17 +102,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<div class="container-fluid pt-5 vh-100">
+<div class="container-fluid pt-md-4 vh-100">
     <div class="row pt-5 h-100">
         <!-- Left Column: List of Conversations with Search -->
         <div class="col-12 col-md-4 border-end">
             <div class="left-side h-100 d-flex flex-column">
                 <div class="container mb-3">
-                    <h3>Conversations</h3>
+                    <h3 class="pt-md-3">Conversations</h3>
                 </div>
 
                 <!-- Users list -->
-                <ul class="list-group flex-grow-1 overflow-auto" id="conversationsList" style="display: block; overflow-y: auto;">
+                <ul class="list-group flex-grow-1 overflow-auto" id="conversationsList" style="max-height: calc(100vh - 150px);">
                     <?php if (count($conversations) > 0): ?>
                         <?php foreach ($conversations as $conversation): ?>
                             <a href="?u_ID=<?php echo $conversation['u_ID']; ?>" class="text-decoration-none">
@@ -134,7 +134,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </li>
                     <?php endif; ?>
                 </ul>
-
             </div>
         </div>
 
@@ -143,11 +142,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($currentConversation): ?>
                 <h4 class="mt-4 d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
-                        <a href="profile?u_ID=<?php echo ($currentConversation['u_ID']); ?>" class="text-dark text-decoration-none"><img src="user_avatar/<?php echo $currentConversation['userPicture']; ?>" alt="Profile" width="50" height="50" class="rounded-circle me-2">
-                            <span><?php echo htmlspecialchars($currentConversation['full_name']); ?></span></a>
+                        <a href="profile?u_ID=<?php echo ($currentConversation['u_ID']); ?>" class="text-dark text-decoration-none">
+                            <img src="user_avatar/<?php echo $currentConversation['userPicture']; ?>" alt="Profile" width="50" height="50" class="rounded-circle img-fluid me-2">
+                            <span><?php echo htmlspecialchars($currentConversation['full_name']); ?></span>
+                            <p class="badge text-bg-secondary">
+                                <?php
+                                if ($currentConversation['u_Account_Type'] == 0) {
+                                    echo 'Owner';
+                                } else {
+                                    echo 'Tenant';
+                                }
+                                ?>
+                            </p>
+                        </a>
                     </div>
                 </h4>
-                <div class="border p-3 flex-grow-1 overflow-auto">
+                <div class="border p-3 flex-grow-1 overflow-auto" style="max-height: calc(100vh - 220px);">
                     <?php foreach ($messages as $message): ?>
                         <div class="mb-2">
                             <strong><?php echo ($message['senderFName'] . ' ' . $message['senderMName'] . ' ' . $message['senderLName'] == 'You') ? 'You' : htmlspecialchars($message['senderFName'] . ' ' . $message['senderMName'] . ' ' . $message['senderLName']); ?>:</strong>
@@ -178,7 +188,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($currentConversation): ?>
                 <div class="p-3 text-center">
                     <img src="user_avatar/<?php echo $currentConversation['userPicture']; ?>" alt="Profile" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;"><br>
-                    <p class="badge text-bg-secondary">Owner</p><br>
                     <h5>
                         <a href="profile?u_ID=<?php echo ($currentConversation['u_ID']); ?>" class="text-dark text-decoration-none">
                             <?php echo htmlspecialchars($currentConversation['full_name']); ?>
