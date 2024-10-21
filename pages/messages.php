@@ -20,7 +20,7 @@ if (isset($_GET['search'])) {
 // Select conversations based on the search query
 $conversationsQuery = "
     SELECT u.u_ID, 
-           CONCAT(u.u_FName, ' ', COALESCE(u.u_MName, ''), ' ', u.u_LName) AS full_name,
+           CONCAT(u.u_FName, ' ', COALESCE(u.u_MName, ''), ' ', u.u_LName) AS full_name, u.u_Account_Type,
            m.m_Message AS last_message,
            m.m_Sender AS last_sender, 
            m.m_DateTime AS last_time,
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <!-- Users list -->
-                <ul class="list-group flex-grow-1 overflow-auto" id="conversationsList">
+                <ul class="list-group flex-grow-1 overflow-auto" id="conversationsList" style="display: block; overflow-y: auto;">
                     <?php if (count($conversations) > 0): ?>
                         <?php foreach ($conversations as $conversation): ?>
                             <a href="?u_ID=<?php echo $conversation['u_ID']; ?>" class="text-decoration-none">
@@ -178,6 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if ($currentConversation): ?>
                 <div class="p-3 text-center">
                     <img src="user_avatar/<?php echo $currentConversation['userPicture']; ?>" alt="Profile" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;"><br>
+                    <p class="badge text-bg-secondary">Owner</p><br>
                     <h5>
                         <a href="profile?u_ID=<?php echo ($currentConversation['u_ID']); ?>" class="text-dark text-decoration-none">
                             <?php echo htmlspecialchars($currentConversation['full_name']); ?>
