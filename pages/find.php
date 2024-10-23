@@ -6,7 +6,15 @@ if (isset($_POST['search']) || isset($_POST['sort'])) {
     $search_query = mysqli_real_escape_string($con, $_POST['search']);
     $sort_order = mysqli_real_escape_string($con, $_POST['sort']);
 
-    $sql = "SELECT * FROM dormitory WHERE (d_Name LIKE '%$search_query%' OR d_Street LIKE '%$search_query%' OR d_City LIKE '%$search_query%') AND d_RegistrationStatus = 1";
+    // Sort the query based on the sort_order
+    $order_by = '';
+    if ($sort_order == '1') {
+        $order_by = 'ORDER BY d_Name ASC';
+    } elseif ($sort_order == '2') {
+        $order_by = 'ORDER BY d_Name DESC';
+    }
+
+    $sql = "SELECT * FROM dormitory WHERE (d_Name LIKE '%$search_query%' OR d_Street LIKE '%$search_query%' OR d_City LIKE '%$search_query%') AND d_RegistrationStatus = 1 $order_by";
 
     $dorms_query = mysqli_query($con, $sql);
 
@@ -33,7 +41,6 @@ if (isset($_POST['search']) || isset($_POST['sort'])) {
             <div class="col-lg-3 col-md-6 col-12 mb-2">
                 <a href="property?d_ID=<?= urlencode($dorm['d_ID']); ?>" class="text-decoration-none">
                     <div class="card h-100 border-0 shadow-sm">
-
                         <!-- Carousel -->
                         <div id="carousel-<?= $dorm['d_ID']; ?>" class="carousel slide card-img-container" data-bs-ride="carousel">
                             <div class="carousel-inner">
@@ -93,7 +100,7 @@ if (!$is_logged_in) {
     <div class="container min-vh-100">
         <div class="row m-auto">
             <div class="col">
-                <div class="input-group mt-5 pt-5 p-4">
+                <div class="input-group mt-md-5 p-2 pt-md-5">
                     <input class="form-control" list="datalistOptions" id="searchInput" placeholder="Type to search...">
                     <datalist id="datalistOptions">
                         <option value="Cabanatuan">
@@ -103,12 +110,11 @@ if (!$is_logged_in) {
                 </div>
             </div>
             <div class="col">
-                <div class="input-group mt-5 pt-5">
+                <div class="input-group mt-md-5 p-2 pt-md-5">
                     <select class="form-select" id="sortSelect" aria-label="Default select example">
                         <option value="" selected disabled>Sort By</option>
                         <option value="1">Name - A to Z</option>
                         <option value="2">Name - Z to A</option>
-
                     </select>
                 </div>
             </div>
@@ -124,6 +130,8 @@ if (!$is_logged_in) {
 
 <script>
     $(document).ready(function() {
+        let timeout = null; // Variable for debounce
+
         function loadDorms() {
             var search_query = $('#searchInput').val();
             var sort_order = $('#sortSelect').val();
@@ -137,17 +145,17 @@ if (!$is_logged_in) {
                 },
                 success: function(response) {
                     $('#dormsContainer').html(response);
-
-                    // Re-initialize Bootstrap offcanvas
-                    var offcanvasElements = document.querySelectorAll('.offcanvas');
-                    offcanvasElements.forEach(function(offcanvasEl) {
-                        var bsOffcanvas = new bootstrap.Offcanvas(offcanvasEl);
-                    });
                 }
             });
         }
 
-        $('#searchInput').on('keyup', loadDorms);
+        // Debounce search input
+        $('#searchInput').on('keyup', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(loadDorms, 300); // Load after 300ms
+        });
+
+        // Load dorms when sort option changes
         $('#sortSelect').on('change', loadDorms);
 
         // Load all dorms on page load

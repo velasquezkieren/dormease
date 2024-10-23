@@ -197,12 +197,20 @@ switch ($page) {
         case 'delete-room':
             include('./pages/delete-room.php');
             break;
+        case 'fetch_messages':
+            include('./pages/fetch_messages.php');
+            break;
+        case 'fetch_conversations':
+            include('./pages/fetch_conversations.php');
+            break;
         default:
             include('./pages/landing.php');
             break;
     }
 
-    if ($page !== 'messages') {
+    if (
+        $page !== 'messages' && $page !== 'fetch_messages' && $page !== 'fetch_conversations'
+    ) {
         echo '<footer class="mt-5 text-center text-lg-start bg-body-tertiary text-muted">';
         include('footer.php'); // Footer for all pages except 'messages'
         echo '</footer>';
