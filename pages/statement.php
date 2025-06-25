@@ -17,7 +17,7 @@ $tenant_id = $_SESSION['u_ID'];
 // Fetch balance and transactions for the tenant
 $query = "SELECT * FROM ledger WHERE l_Recipient = ? ORDER BY l_Date DESC";
 $stmt = $con->prepare($query);
-$stmt->bind_param("i", $tenant_id);
+$stmt->bind_param("s", $tenant_id);
 $stmt->execute();
 $transactions_result = $stmt->get_result();
 $transactions = $transactions_result->fetch_all(MYSQLI_ASSOC);
@@ -28,7 +28,7 @@ $balance_query = "SELECT
                   FROM ledger 
                   WHERE l_Recipient = ?";
 $balance_stmt = $con->prepare($balance_query);
-$balance_stmt->bind_param("i", $tenant_id);
+$balance_stmt->bind_param("s", $tenant_id);
 $balance_stmt->execute();
 $balance_result = $balance_stmt->get_result();
 $balance_row = $balance_result->fetch_assoc();
@@ -78,6 +78,7 @@ $balance_status = $status_row['u_BalanceStatus'] ?? 'Unknown';
                         <th>Amount</th>
                         <th>Type</th>
                         <th>Date</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -98,15 +99,20 @@ $balance_status = $status_row['u_BalanceStatus'] ?? 'Unknown';
                                 </td>
                                 <td><?= htmlspecialchars($transaction['l_Type'] == 0 ? 'Expense' : 'Income') ?></td>
                                 <td><?= htmlspecialchars($transaction['l_Date']) ?></td>
+                                <td>
+                                    <a href="generate_soa?transaction_id=<?= $transaction['l_ID'] ?>"
+                                        class="btn btn-primary btn-sm">Download</a>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="4">No transactions found.</td>
+                            <td colspan="5">No transactions found.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
+
         </div>
     </div>
 </div>

@@ -26,20 +26,35 @@ switch ($page) {
     case 'my-listings':
         $title = 'Listings | DormEase';
         break;
+    case 'visit-schedules':
+        $title = 'Visit Schedules | DormEase';
+        break;
     case 'ledger':
         $title = 'Ledger | DormEase';
+        break;
+    case 'tenants':
+        $title = 'Tenants | DormEase';
         break;
     case 'add-ledger':
         $title = 'Ledger | DormEase';
         break;
     case 'statement':
-        $title = 'Statement | DormEase';
+        $title = 'Statement of Account | DormEase';
+        break;
+    case 'bookings':
+        $title = 'Bookings | DormEase';
+        break;
+    case 'scheduled-visits':
+        $title = 'Scheduled Visits | DormEase';
         break;
     case 'edit-ledger':
         $title = 'Ledger | DormEase';
         break;
     case 'messages':
         $title = 'Messages | DormEase';
+        break;
+    case 'forgot':
+        $title = 'Forgot Password | DormEase';
         break;
     default:
         $title = 'DormEase';
@@ -57,6 +72,7 @@ switch ($page) {
     <!-- Bootstrap CSS &JS -->
     <link rel="stylesheet" href="./assets/node_modules/bootstrap/dist/css/bootstrap.min.css">
     <script src="./assets/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="./assets/node_modules/flag-icon-css/css/flag-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./assets/node_modules/bootstrap-icons/font/bootstrap-icons.min.css">
 
     <!-- Leaflet CSS & JS -->
@@ -202,6 +218,15 @@ switch ($page) {
             break;
         case 'fetch_conversations':
             include('./pages/fetch_conversations.php');
+            break;
+        case 'generate_soa':
+            include('./pages/generate_soa.php');
+            break;
+        case 'forgot':
+            include('./pages/forgot.php');
+            break;
+        case 'reset':
+            include('./pages/reset.php');
             break;
         default:
             include('./pages/landing.php');

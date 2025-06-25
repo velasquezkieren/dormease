@@ -104,6 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                                 echo '<div class="alert alert-success">Logout Success!</div>';
                             } elseif (isset($_GET['signup-success'])) {
                                 echo '<div class="alert alert-success">Account created successfully!</div>';
+                            } elseif (isset($_GET['password-reset-success'])) {
+                                echo '<div class="alert alert-success">Password reset successfully!</div>';
                             }
                             ?>
 
@@ -123,6 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                                 <div class="col-12">
                                     <div class="d-grid">
                                         <button class="btn btn-dark btn-lg" name="submit" type="submit">Log in now</button>
+                                        <p class="mb-0 mt-4 text-center"><a href="forgot" class="link-dark text-secondary">Forgot Password?</a></p>
                                     </div>
                                 </div>
                             </div>

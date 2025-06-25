@@ -33,10 +33,10 @@ if (strlen($dorm['d_Description']) > 100) {
             <!-- End Carousel -->
 
             <div class="card-body d-flex flex-column">
-                <h5 class="card-title"><?= htmlspecialchars($dorm['d_Name']); ?></h5>
+                <h5 class="card-title text-truncate"><?= htmlspecialchars($dorm['d_Name']); ?></h5>
                 <p class="card-text text-truncate" style="max-height: 3.6em; overflow: hidden;"><?= htmlspecialchars($description); ?></p>
-                <p class="card-text"><i class="bi bi-geo-alt-fill"></i> <?= htmlspecialchars($dorm['d_Street']) . ', ' . htmlspecialchars($dorm['d_City']); ?></p>
-                <p class="card-text"><img src="user_avatar/<?= htmlspecialchars($owner_pic); ?>" class="img-fluid rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;"> <?= htmlspecialchars($owner_name); ?></p>
+                <p class="card-text text-truncate"><i class="bi bi-geo-alt-fill"></i> <?= htmlspecialchars($dorm['d_Street']) . ', ' . htmlspecialchars($dorm['d_City']); ?></p>
+                <p class="card-text text-truncate"><img src="user_avatar/<?= htmlspecialchars($owner_pic); ?>" class="img-fluid rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;"> <?= htmlspecialchars($owner_name); ?></p>
                 <span class="btn btn-dark mt-auto">View Details</span>
             </div>
         </div>

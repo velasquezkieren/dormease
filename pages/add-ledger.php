@@ -128,8 +128,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label for="type">Type:</label>
                     <select name="type" class="form-control" required>
                         <option value="" disabled selected>--Select Type--</option>
-                        <option value="income">Income</option>
-                        <option value="expense">Expense</option>
+                        <option value="payment">payment</option>
+                        <option value="bill">bill</option>
                     </select>
                     <div class="invalid-feedback">Please select a type.</div>
                 </div>
